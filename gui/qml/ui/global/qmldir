@@ -1,0 +1,5 @@
+singleton Lang 1.0 Lang.qml
+singleton AppIcon 1.0 AppIcon.qml
+singleton ItemsOriginal 1.0 ItemsOriginal.qml
+singleton GlobalSignals 1.0 GlobalSignals.qml
+singleton JSONListModel 1.0 JSONListModel.qml
