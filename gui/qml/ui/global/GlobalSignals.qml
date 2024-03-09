@@ -5,6 +5,7 @@ import SLMasterGui 1.0
 
 QtObject {
     signal startScan
+    signal cameraParamsUpdate
 
     property var render_items: []
 

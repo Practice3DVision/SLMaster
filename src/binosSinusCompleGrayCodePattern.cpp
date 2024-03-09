@@ -11,16 +11,11 @@ using namespace cv;
 namespace slmaster {
 
 BinoSinusCompleGrayCodePattern::BinoSinusCompleGrayCodePattern() {
-    if(params_) {
-        delete params_;
-        params_ = nullptr;
-    }
-
-    params_ = new BinoPatternParams();
+    params_.reset(new BinoPatternParams());
 }
 
 bool BinoSinusCompleGrayCodePattern::generate(std::vector<cv::Mat>& imgs) const {
-    auto binoPatternParams = static_cast<BinoPatternParams*>(params_);
+    auto binoPatternParams = static_cast<BinoPatternParams*>(params_.get());
 
     structured_light::SinusCompleGrayCodePattern::Params params;
     params.width = binoPatternParams->width_;
@@ -39,14 +34,13 @@ bool BinoSinusCompleGrayCodePattern::generate(std::vector<cv::Mat>& imgs) const 
 bool BinoSinusCompleGrayCodePattern::decode( const std::vector< std::vector<cv::Mat> >& patternImages, cv::Mat& disparityMap, const bool isGpu) const {
     CV_Assert(patternImages.size() == 2);
 
-    auto binoPatternParams = static_cast<BinoPatternParams*>(params_);
+    auto binoPatternParams = static_cast<BinoPatternParams*>(params_.get());
 
 #ifdef WITH_CUDASTRUCTUREDLIGHT_MODULE
     if(isGpu) {
         cv::cuda::SinusCompleGrayCodePattern::Params params;
         params.shiftTime = binoPatternParams->shiftTime_;
         params.confidenceThreshold = binoPatternParams->confidenceThreshold_;
-        params.costMaxDiff = binoPatternParams->costMaxDiff_;
         params.costMinDiff = binoPatternParams->costMinDiff_;
         params.maxCost = binoPatternParams->maxCost_;
         params.height = binoPatternParams->height_;

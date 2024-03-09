@@ -164,10 +164,12 @@ FluContentPage{
                                 Action {
                                     text: Lang.remove
                                     onTriggered: {
-                                        if(left_camera_model.erase(tree_view.currentNode.title) !== -1) {
+                                        if(tree_view.currentNode.parent.title === "Left Camera") {
+                                            left_camera_model.erase(tree_view.currentNode.title);
                                             updateImgPaths(left_camera_model.imgPaths(), 0);
                                         }
-                                        else if(right_camera_model.erase(tree_view.currentNode.title) !== -1) {
+                                        else {
+                                            right_camera_model.erase(tree_view.currentNode.title);
                                             updateImgPaths(right_camera_model.imgPaths(), 1);
                                         }
                                     }

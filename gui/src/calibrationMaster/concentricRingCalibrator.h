@@ -19,6 +19,10 @@ class ConcentricRingCalibrator : public Calibrator {
                      float &process,
                      const ThreshodMethod threshodType = ADAPTED,
                      const bool blobBlack = true) override;
+    /**
+     * @brief 设置同心圆环半径
+     * @param radius 半径，由小至大
+    */
     inline void setRadius(const std::vector<float> &radius) override {
         radius_ = radius;
     };
@@ -88,7 +92,7 @@ class ConcentricRingCalibrator : public Calibrator {
      */
     float getDist_P2L(cv::Point2f pointP, cv::Point2f pointA,
                       cv::Point2f pointB);
-
+    //由小至大排序
     std::vector<float> radius_;
     float distance_;
 };

@@ -29,6 +29,21 @@ FluContentPage {
     property int filter_threshod: CameraEngine.getNumberAttribute("Contrast Threshold")
     property bool enable_gpu: CameraEngine.getBooleanAttribute("Gpu Accelerate")
 
+    function updateParams() {
+        root.cur_method = CameraEngine.getNumberAttribute("Pattern");
+        root.cur_light_strength = CameraEngine.getNumberAttribute("Light Strength");
+        root.cur_exposure_time = CameraEngine.getNumberAttribute("Exposure Time");
+        root.filter_threshod = CameraEngine.getNumberAttribute("Contrast Threshold");
+        root.enable_gpu = CameraEngine.getBooleanAttribute("Gpu Accelerate");
+    }
+
+    Connections {
+        target: GlobalSignals
+        function onCameraParamsUpdate() {
+            root.updateParams();
+        }
+    }
+
     MouseArea {
         id: mouse_area
         anchors.fill: parent
@@ -61,7 +76,7 @@ FluContentPage {
 
                 Keys.onPressed: {
                     if(event.key === Qt.Key_Escape) {
-                        displayBody.cancleSelect();
+                        VTKProcessEngine.cancelClip();
                         canvas.width = -1;
                         canvas.height = -1;
                         canvas.requestPaint();
@@ -232,7 +247,7 @@ FluContentPage {
             Item {
                 Flickable{
                     anchors.fill: parent
-                    contentWidth: settings_area.width
+                    contentWidth: settings_area.width + 5
                     contentHeight: settings_area.height
                     FluArea {
                         id: settings_area
@@ -259,6 +274,7 @@ FluContentPage {
                                 onCurrentIndexChanged: {
                                     root.cur_method = currentIndex;
                                     CameraEngine.setNumberAttribute("Pattern", root.cur_method);
+                                    CameraEngine.setPatternType(root.cur_method);
                                 }
 
                                 Component.onCompleted: {
@@ -512,7 +528,7 @@ FluContentPage {
 
             FluIconButton {
                 Layout.alignment: Qt.AlignHCenter
-                iconSource: FluentIcons.Info
+                iconSource: FluentIcons.Save
                 iconSize: 28
 
                 onClicked: {
@@ -558,6 +574,11 @@ FluContentPage {
             opacity: 0.3
         }
     }
+
+    Component.onCompleted: {
+        root.updateParams();
+    }
+
     /*
     //TODO@LiuYunhuang: 当前只通过相机JSON进行更新
     Connections{

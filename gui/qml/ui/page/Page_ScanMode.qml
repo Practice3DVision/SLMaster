@@ -119,9 +119,9 @@ FluContentPage{
         property var element_tips: [Lang.static_scan_mode_tip, Lang.dynamic_scan_mode_tip, Lang.offline_scan_mode_tip]
 
         Component.onCompleted: {
-            append({icon:"qrc:/res/image/favicon.ico", title: model_header.element_titles[0], desc: model_header.element_tips[0], scan_mode: AppType.Static, url: "qrc:/ui/page/SubPage_StaticScanMode.qml"});
-            append({icon:"qrc:/res/image/favicon.ico", title: model_header.element_titles[1], desc: model_header.element_tips[1], scan_mode: AppType.Dynamic, url:"qrc:/ui/page/SubPage_OfflineCameraCalibration.qml"});
-            append({icon:"qrc:/res/image/favicon.ico", title: model_header.element_titles[2], desc: model_header.element_tips[2], scan_mode: AppType.Offline, url:"qrc:/ui/page/SubPage_OfflineScanMode.qml"});
+            append({icon:"qrc:/res/image/icons8-photo-96.png", title: model_header.element_titles[0], desc: model_header.element_tips[0], scan_mode: AppType.Static, url: "qrc:/ui/page/SubPage_StaticScanMode.qml"});
+            append({icon:"qrc:/res/image/icons8-film-roll-96.png", title: model_header.element_titles[1], desc: model_header.element_tips[1], scan_mode: AppType.Dynamic, url:"qrc:/ui/page/SubPage_OfflineCameraCalibration.qml"});
+            append({icon:"qrc:/res/image/icons8-previous-96.png", title: model_header.element_titles[2], desc: model_header.element_tips[2], scan_mode: AppType.Offline, url:"qrc:/ui/page/SubPage_OfflineScanMode.qml"});
         }
 
         onElement_tipsChanged: {

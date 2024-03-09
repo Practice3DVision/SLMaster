@@ -48,8 +48,7 @@ double ChessBoardCalibrator::calibrate(const std::vector<cv::Mat> &imgs,
             cv::drawChessboardCorners(imgWithFeature, featureNums, imgPointCell,
                                       true);
             drawedFeaturesImgs_.push_back(imgWithFeature);
-            //imgPaintItem_->updateImage(QImage(imgWithFeature.data, imgWithFeature.cols, imgWithFeature.rows, imgWithFeature.step, QImage::Format_BGR888));
-            //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+
             process = static_cast<float>(i + 1) / imgs.size();
         }
     }

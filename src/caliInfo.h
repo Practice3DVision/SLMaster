@@ -44,10 +44,8 @@ struct SLMASTER_API Info {
     cv::Mat D4_;
     /** \深度映射矩阵(CV_64FC1) **/
     cv::Mat Q_;
-    /** \左相机八参数矩阵(CV_64FC1) **/
+    /** \左相机/彩色相机八参数矩阵(CV_64FC1) **/
     cv::Mat K1_;
-    /** \右相机八参数矩阵(CV_64FC1) **/
-    cv::Mat K2_;
     /** \左相机至右相机旋转矩阵(CV_64FC1) **/
     cv::Mat Rlr_;
     /** \左相机至右相机平移矩阵(CV_64FC1) **/
@@ -56,20 +54,22 @@ struct SLMASTER_API Info {
     cv::Mat Rlp_;
     /** \左相机至投影仪平移矩阵(CV_64FC1) **/
     cv::Mat Tlp_;
-    /** \右相机至投影仪旋转矩阵(CV_64FC1) **/
-    cv::Mat Rrp_;
-    /** \右相机至投影仪平移矩阵(CV_64FC1) **/
-    cv::Mat Trp_;
-    /** \左相机至右相机本质矩阵(CV_64FC1) **/
-    cv::Mat E_;
-    /** \左相机至右相机本质矩阵(CV_64FC1) **/
-    cv::Mat F_;
     /** \左相机至彩色相机旋转矩阵(CV_64FC1) **/
     cv::Mat Rlc_;
     /** \左相机至彩色相机平移矩阵(CV_64FC1) **/
     cv::Mat Tlc_;
+    /** \左相机至右相机本质矩阵(CV_64FC1) **/
+    cv::Mat E_;
+    /** \左相机至右相机本质矩阵(CV_64FC1) **/
+    cv::Mat F_;
     /** \相机幅面(CV_64FC1) **/
     cv::Mat S_;
+    /** \极线矩阵 彩色相机至左相机**/
+    cv::Mat epilines31_;
+    /** \极线矩阵 彩色相机至右相机**/
+    cv::Mat epilines32_;
+    /** \极线矩阵 左相机至右相机**/
+    cv::Mat epilines12_;
 };
 
 /** @brief 相机标定信息类 */

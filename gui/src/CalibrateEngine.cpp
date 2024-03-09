@@ -4,6 +4,8 @@
 
 #include <opencv2/structured_light.hpp>
 
+#include <chrono>
+
 CalibrateEngine* CalibrateEngine::calibrateEngine_ = new CalibrateEngine();
 
 CalibrateEngine* CalibrateEngine::instance() {
@@ -26,6 +28,7 @@ Calibrator* CalibrateEngine::getCalibrator(const AppType::TargetType targetType)
     }
     else if(targetType == AppType::TargetType::ConcentricCircle) {
         calibrator = new ConcentricRingCalibrator();
+        calibrator->setRadius(std::vector<float>{concentricRingParams_.innerCircleInnerRadius_, concentricRingParams_.innerCircleExterRadius_, concentricRingParams_.exterCircleInnerRadius_, concentricRingParams_.exterCircleExterRadius_});
     }
 
     return calibrator;
@@ -50,7 +53,8 @@ void CalibrateEngine::singleCalibrate(const int targetType, const int rowNum, co
     }
 
     for (size_t i = 0; i < imgPaths.size(); ++i) {
-        cv::Mat img = cv::imread(leftCameraModel_->curFolderPath().toStdString() + "/" + imgPaths[i].toStdString(), cv::IMREAD_UNCHANGED);
+        auto imgPath = (leftCameraModel_->curFolderPath() + "/" + imgPaths[i]).toLocal8Bit().toStdString();
+        cv::Mat img = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
         leftCalibrator_->emplace(img);
     }
 
@@ -63,7 +67,7 @@ void CalibrateEngine::singleCalibrate(const int targetType, const int rowNum, co
         double error = leftCalibrator_->calibrate(leftCalibrator_->imgs(), caliInfo_.info_.M1_, caliInfo_.info_.D1_, cv::Size(rowNum, colNum), progress_);
 
         if(error > 0.99 || error < 0.001) {
-            emit findFeaturePointsError(leftCameraModel_->curFolderPath() + "/" + imgPaths[(int)error]);
+            emit findFeaturePointsError(leftCameraModel_->curFolderPath() + "/" + leftCameraModel_->imgPaths()[(int)error]);
             qDebug() << QString("Img cann't find feature points, img path is %1").arg(leftCameraModel_->curFolderPath() + "/" + leftCameraModel_->imgPaths()[(int)error]);
         }
         else {
@@ -83,7 +87,7 @@ void CalibrateEngine::singleCalibrate(const int targetType, const int rowNum, co
 }
 
 void CalibrateEngine::stereoCalibrate(const int targetType, const int rowNum, const int colNum,
-                                       const float trueDistance, const bool exportAsLC) {
+                                       const float trueDistance, const bool exportEpilorLine) {
     qInfo() << "start calibrate stereo camera...";
 
     curCaliType_ = AppType::CaliType::Stereo;
@@ -108,9 +112,9 @@ void CalibrateEngine::stereoCalibrate(const int targetType, const int rowNum, co
     }
 
     for (size_t i = 0; i < leftImgPaths.size(); ++i) {
-        cv::Mat img = cv::imread(leftCameraModel_->curFolderPath().toStdString() + "/" + leftImgPaths[i].toStdString(), cv::IMREAD_UNCHANGED);
+        cv::Mat img = cv::imread((leftCameraModel_->curFolderPath() + "/" + leftImgPaths[i]).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
         leftCalibrator_->emplace(img);
-        img = cv::imread(rightCameraModel_->curFolderPath().toStdString() + "/" + rightImgPaths[i].toStdString(), cv::IMREAD_UNCHANGED);
+        img = cv::imread((rightCameraModel_->curFolderPath() + "/" + rightImgPaths[i]).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
         rightCalibrator_->emplace(img);
     }
 
@@ -119,19 +123,7 @@ void CalibrateEngine::stereoCalibrate(const int targetType, const int rowNum, co
     isFinish_.store(false, std::memory_order_release);
     updateThread_ = std::thread(&CalibrateEngine::timer_timeout_slot, this);
 
-    calibrationThread_ = std::thread([&, colNum, rowNum, exportAsLC] {
-        //暂时保存以应对导出彩色相机情况
-        cv::Mat M2 = caliInfo_.info_.M2_;
-        cv::Mat D2 = caliInfo_.info_.D2_;
-        cv::Mat Rlr = caliInfo_.info_.Rlr_;
-        cv::Mat Tlr = caliInfo_.info_.Tlr_;
-        cv::Mat R1 = caliInfo_.info_.R1_;
-        cv::Mat R2 = caliInfo_.info_.R2_;
-        cv::Mat P1 = caliInfo_.info_.P1_;
-        cv::Mat P2 = caliInfo_.info_.P2_;
-        cv::Mat E = caliInfo_.info_.E_;
-        cv::Mat F = caliInfo_.info_.F_;
-
+    calibrationThread_ = std::thread([&, colNum, rowNum] {
         double leftError = leftCalibrator_->calibrate(leftCalibrator_->imgs(), caliInfo_.info_.M1_, caliInfo_.info_.D1_, cv::Size(rowNum, colNum), progress_);
 
         if(leftError > 0.99 || leftError < 0.001) {
@@ -173,30 +165,16 @@ void CalibrateEngine::stereoCalibrate(const int targetType, const int rowNum, co
         cv::stereoRectify(caliInfo_.info_.M1_, caliInfo_.info_.D1_, caliInfo_.info_.M2_, caliInfo_.info_.D2_, cv::Size(rowNum, colNum), caliInfo_.info_.Rlr_, caliInfo_.info_.Tlr_, caliInfo_.info_.R1_, caliInfo_.info_.R2_, caliInfo_.info_.P1_, caliInfo_.info_.P2_, caliInfo_.info_.Q_, 0);
         rectify(leftCalibrator_->imgs()[0], rightCalibrator_->imgs()[0], caliInfo_, rectifiedImg_);
 
+        if(exportEpilorLine) {
+            findEpilines(leftCalibrator_->imgs()[0].rows, leftCalibrator_->imgs()[0].cols, caliInfo_.info_.F_, caliInfo_.info_.epilines12_);
+        }
+
         emit errorReturn(error);
 
         isFinish_.store(true, std::memory_order_release);
         if (updateThread_.joinable()) {
             updateThread_.join();
         }
-
-        //重新导回
-        if(exportAsLC) {
-            caliInfo_.info_.M3_ = caliInfo_.info_.M2_;
-            caliInfo_.info_.D3_ = caliInfo_.info_.D2_;
-            caliInfo_.info_.Rlc_ = caliInfo_.info_.Rlr_;
-            caliInfo_.info_.Tlc_ = caliInfo_.info_.Tlr_;
-            caliInfo_.info_.Rlr_ = Rlr;
-            caliInfo_.info_.Tlr_ = Tlr;
-            caliInfo_.info_.R1_ = R1;
-            caliInfo_.info_.R2_ = R2;
-            caliInfo_.info_.P1_ = P1;
-            caliInfo_.info_.P2_ = P2;
-            caliInfo_.info_.E_ = E;
-            caliInfo_.info_.F_ = F;
-        }
-
-        exportAsLC ? curCaliType_ = AppType::CaliType::Triple : AppType::CaliType::Stereo;
     });
 
     qInfo() << "wating calibrate result...";
@@ -204,26 +182,12 @@ void CalibrateEngine::stereoCalibrate(const int targetType, const int rowNum, co
     return;
 }
 
-QString CalibrateEngine::displayStereoRectify() {
-    cv::Mat rectifyImg;
-    /*
-    rectify(calibrators_[0]->imgs()[0], calibrators_[1]->imgs()[0], info_,
-            rectifyImg);
-    */
-    imwrite("../out/rectify.bmp", rectifyImg);
-
-    return QDir::currentPath() + "/../out/rectify.bmp";
-}
-
 void CalibrateEngine::findEpilines(const int rows, const int cols,
                                     const cv::Mat &fundermental,
-                                    cv::Mat &epilinesA, cv::Mat &epilinesB,
-                                    cv::Mat &epilinesC) {
+                                    cv::Mat &epiline) {
     CV_Assert(!fundermental.empty());
 
-    epilinesA = cv::Mat(rows, cols, CV_32FC1, cv::Scalar(0.f));
-    epilinesB = cv::Mat(rows, cols, CV_32FC1, cv::Scalar(0.f));
-    epilinesC = cv::Mat(rows, cols, CV_32FC1, cv::Scalar(0.f));
+    epiline = cv::Mat(rows, cols, CV_32FC3, cv::Scalar(0.f, 0.f, 0.f));
 
     std::vector<cv::Point2f> points;
     std::vector<cv::Vec3f> epilinesVec;
@@ -236,13 +200,9 @@ void CalibrateEngine::findEpilines(const int rows, const int cols,
 
     computeCorrespondEpilines(points, 1, fundermental, epilinesVec);
     for (int i = 0; i < rows; ++i) {
-        auto ptrEpilinesA = epilinesA.ptr<float>(i);
-        auto ptrEpilinesB = epilinesB.ptr<float>(i);
-        auto ptrEpilinesC = epilinesC.ptr<float>(i);
+        auto ptrEpilines = epiline.ptr<cv::Vec3f>(i);
         for (int j = 0; j < cols; ++j) {
-            ptrEpilinesA[j] = epilinesVec[cols * i + j][0];
-            ptrEpilinesB[j] = epilinesVec[cols * i + j][1];
-            ptrEpilinesC[j] = epilinesVec[cols * i + j][2];
+            ptrEpilines[j] = cv::Vec3f(epilinesVec[cols * i + j][0], epilinesVec[cols * i + j][1], epilinesVec[cols * i + j][2]);
         }
     }
 }
@@ -315,18 +275,20 @@ void CalibrateEngine::timer_timeout_slot() {
 }
 
 void CalibrateEngine::removeProjectImg(const QString& path) {
-    const int index = path.toInt();
+    for (int i = 0; i < projectorModel_->imgPaths().size(); ++i) {
+        if(projectorModel_->imgPaths()[i] == path) {
+            projectorCaliImgs_.erase(projectorCaliImgs_.begin() + i);
+            projCameraPoints_.erase(projCameraPoints_.begin() + i);
+            projectorPoints_.erase(projectorPoints_.begin() + i);
+            if(!projectorErrorDistributes_.empty()) {
+                projectorErrorDistributes_.erase(projectorErrorDistributes_.begin() + i);
+            }
 
-    projectorCaliImgs_.erase(projectorCaliImgs_.begin() + index);
-    projCameraPoints_.erase(projCameraPoints_.begin() + index);
-    projectorPoints_.erase(projectorPoints_.begin() + index);
-    if(!projectorErrorDistributes_.empty()) {
-        projectorErrorDistributes_.erase(projectorErrorDistributes_.begin() + index);
+            projectorModel_->erase(i);
+
+            emit projectorModelChanged();
+        }
     }
-
-    projectorModel_->erase(index);
-
-    emit projectorModelChanged();
 }
 
 void CalibrateEngine::exit() {
@@ -345,8 +307,11 @@ void CalibrateEngine::updateDisplayImg(const QString& imgPath) {
             if(!leftCalibrator_->drawedFeaturesImgs().empty() && !leftCameraModel_->imgPaths().empty()) {
                 for (int i = 0; i < leftCameraModel_->imgPaths().size(); ++i) {
                     if(leftCameraModel_->curFolderPath() + "/" +leftCameraModel_->imgPaths()[i] == imgPath) {
-                        cv::Mat img = leftCalibrator_->drawedFeaturesImgs()[i];
-                        offlineCamPaintItem_->updateImage(QImage(img.data, img.cols, img.rows, img.step, QImage::Format_BGR888));
+                        cv::Mat img = leftCalibrator_->drawedFeaturesImgs().size() > i ? leftCalibrator_->drawedFeaturesImgs()[i] : cv::imread(imgPath.toLocal8Bit().toStdString(), 0).clone();
+                        if(img.type() == CV_8UC1) {
+                            cv::cvtColor(img, img, cv::COLOR_GRAY2BGR);
+                        }
+                        offlineCamPaintItem_->updateImage(QImage(img.data, img.cols, img.rows, img.step, QImage::Format_BGR888).copy());
                         return;
                     }
                 }
@@ -357,8 +322,11 @@ void CalibrateEngine::updateDisplayImg(const QString& imgPath) {
             if(!rightCalibrator_->drawedFeaturesImgs().empty() && !rightCameraModel_->imgPaths().empty()) {
                 for (int i = 0; i < rightCameraModel_->imgPaths().size(); ++i) {
                     if(rightCameraModel_->curFolderPath() + "/" + rightCameraModel_->imgPaths()[i] == imgPath) {
-                        cv::Mat img = rightCalibrator_->drawedFeaturesImgs()[i];
-                        offlineCamPaintItem_->updateImage(QImage(img.data, img.cols, img.rows, img.step, QImage::Format_BGR888));
+                        cv::Mat img = rightCalibrator_->drawedFeaturesImgs().size() > i ? rightCalibrator_->drawedFeaturesImgs()[i] : cv::imread(imgPath.toLocal8Bit().toStdString(), 0).clone();
+                        if(img.type() == CV_8UC1) {
+                            cv::cvtColor(img, img, cv::COLOR_GRAY2BGR);
+                        }
+                        offlineCamPaintItem_->updateImage(QImage(img.data, img.cols, img.rows, img.step, QImage::Format_BGR888).copy());
                         return;
                     }
                 }
@@ -417,6 +385,10 @@ const QVariantList CalibrateEngine::updateErrorDistribute(const QString& imgPath
     else {
         for (int i = 0; i < projectorModel_->imgPaths().size(); ++i) {
             if(projectorModel_->imgPaths()[i] == imgPath) {
+                if (projectorErrorDistributes_.empty()) {
+                    return errorPoints;
+                }
+
                 auto curErrorsDistribute = projectorErrorDistributes_[i];
                 for (auto point : curErrorsDistribute) {
                     errorPoints.append(QVariant::fromValue(QPointF(point.x, point.y)));
@@ -432,7 +404,7 @@ const QVariantList CalibrateEngine::updateErrorDistribute(const QString& imgPath
 void CalibrateEngine::saveCaliInfo(const QString& path) {
     auto filePath = path.mid(8) + "/caliInfo.yml";
     CaliPacker paker(&caliInfo_);
-    paker.writeCaliInfo(curCaliType_, filePath.toStdString());
+    paker.writeCaliInfo(curCaliType_, filePath.toLocal8Bit().toStdString());
 }
 
 void CalibrateEngine::displayStereoRectifyMap() {
@@ -449,6 +421,10 @@ void CalibrateEngine::displayStereoRectifyMap() {
 }
 
 bool CalibrateEngine::captureOnce() {
+    if (!projectorErrorDistributes_.empty()) {
+        projectorErrorDistributes_.clear();
+    }
+
     auto slCamera = CameraEngine::instance()->getSLCamera();
 
     std::string camManufactor, leftCameraName, rightCameraName, colorCameraName, dlpEvmName;
@@ -471,8 +447,8 @@ bool CalibrateEngine::captureOnce() {
     projector->project(false);
 
     const int imgSizeWaitFor = CameraEngine::instance()->getNumberAttribute("Total Fringes");
-    const double totalExposureTime = (CameraEngine::instance()->getNumberAttribute("Pre Exposure Time") + CameraEngine::instance()->getNumberAttribute("Exposure Time") + CameraEngine::instance()->getNumberAttribute("Aft Exposure Time")) / 1000000.f * imgSizeWaitFor;
-    auto endTime = std::chrono::steady_clock::now() + std::chrono::duration<double>(totalExposureTime + 3);
+    const int totalExposureTime = (CameraEngine::instance()->getNumberAttribute("Pre Exposure Time") + CameraEngine::instance()->getNumberAttribute("Exposure Time") + CameraEngine::instance()->getNumberAttribute("Aft Exposure Time")) * imgSizeWaitFor;
+    auto endTime = std::chrono::steady_clock::now() + std::chrono::duration<int, std::ratio<1, 1000000>>(totalExposureTime + 1000000);
     while (leftCamera->getImgs().size() != imgSizeWaitFor) {
         if (std::chrono::steady_clock::now() > endTime) {
             leftCamera->clearImgs();
@@ -486,6 +462,14 @@ bool CalibrateEngine::captureOnce() {
         }
     }
 
+    leftCamera->setTrigMode(device::camera::trigSoftware);
+    leftCamera->setNumberAttribute("ExposureTime", 100000);
+    cv::Mat texture = leftCamera->capture();
+    if(texture.type() == CV_8UC3) {
+        cv::cvtColor(texture, texture, cv::COLOR_BGR2GRAY);
+    }
+    leftCamera->setNumberAttribute("ExposureTime", CameraEngine::instance()->getNumberAttribute("Exposure Time"));
+
     auto orderTablesRecord = CameraEngine::instance()->getOrderTableRecord();
     static cv::Mat honrizonUnwrapMap, verticalUnwrapMap, normHUnwrapMap, normVUnwrapMap, textureMap;
     const int dlpHeight = CameraEngine::instance()->getStringAttribute("DLP Height").toInt();
@@ -495,11 +479,17 @@ bool CalibrateEngine::captureOnce() {
         std::vector<cv::Mat> imgs;
         int index = 0;
         while(index++ < orderTablesRecord[i].patternsNum_) {
-            imgs.push_back(leftCamera->popImg());
+            cv::Mat img = leftCamera->popImg();
+
+            if(img.type() == CV_8UC3) {
+                cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
+            }
+
+            imgs.push_back(img);
         }
 
         cv::structured_light::SinusCompleGrayCodePattern::Params params;
-        params.confidenceThreshold = 100.f;
+        params.confidenceThreshold = CameraEngine::instance()->getNumberAttribute("Contrast Threshold");
         params.height = dlpHeight;
         params.width = dlpWidth;
         params.horizontal = !orderTablesRecord[i].isVertical_;
@@ -518,7 +508,7 @@ bool CalibrateEngine::captureOnce() {
 
         if(orderTablesRecord[i].isVertical_) {
             verticalUnwrapMap = unwrapMap;
-            textureMap = confidenceMap;
+            textureMap = texture;
             normVUnwrapMap = normalizeUnwrapMap;
             normVUnwrapMap.convertTo(normVUnwrapMap, CV_8UC1);
             onlineProjVertiPaintItem_->updateImage(QImage(normVUnwrapMap.data, normVUnwrapMap.cols, normVUnwrapMap.rows, normVUnwrapMap.step, QImage::Format_Grayscale8));
@@ -531,11 +521,19 @@ bool CalibrateEngine::captureOnce() {
         }
     }
 
+    leftCamera->clearImgs();
+    if (rightCamera) {
+        rightCamera->clearImgs();
+    }
+    if (colorCamera) {
+        colorCamera->clearImgs();
+    }
+
     cv::Mat projectorImg = cv::Mat::zeros(dlpHeight, dlpWidth, CV_8UC3);
 
     auto calibrator = getCalibrator(projectorCaliParams_.targetType_);
     std::vector<cv::Point2f> featurePoints;
-    textureMap.convertTo(textureMap, CV_8UC1);
+    //textureMap.convertTo(textureMap, CV_8UC1);
 
     if(!calibrator->findFeaturePoints(textureMap, cv::Size(projectorCaliParams_.rowNum_, projectorCaliParams_.colNum_), featurePoints)) {
         return false;
@@ -573,7 +571,7 @@ bool CalibrateEngine::captureOnce() {
         colorCamera->clearImgs();
     }
 
-    const QString index = projectorModel_->imgPaths().empty() ? 0 : QString::number(projectorModel_->imgPaths()[projectorModel_->imgPaths().size()-1].toInt() + 1);
+    const QString index = projectorModel_->imgPaths().empty() ? "0" : QString::number(projectorModel_->imgPaths()[projectorModel_->imgPaths().size() - 1].toInt() + 1);
     projectorModel_->emplace_back(index);
     emit projectorModelChanged();
 
@@ -618,8 +616,8 @@ double CalibrateEngine::calibrateProjector() {
     const int dlpWidth = CameraEngine::instance()->getStringAttribute("DLP Width").toInt();
 
     std::vector<cv::Point3f> worldPoints;
-    for (int j = 0; j < projectorCaliParams_.colNum_; ++j) {
-        for (int k = 0; k < projectorCaliParams_.rowNum_; ++k) {
+    for (int j = projectorCaliParams_.colNum_ - 1; j >= 0; --j) {
+        for (int k = projectorCaliParams_.rowNum_ - 1; k >= 0; --k) {
             cv::Point3f worldPoint(k * projectorCaliParams_.trueDistance_, j * projectorCaliParams_.trueDistance_, 0);
             worldPoints.emplace_back(worldPoint);
         }
@@ -630,7 +628,7 @@ double CalibrateEngine::calibrateProjector() {
     if(projectorCaliParams_.projCaliType_ == AppType::ProjectorCaliType::Intrinsic) {
         std::vector<std::vector<cv::Point3f>> totoalWorldPoints(projectorPoints_.size(), worldPoints);
         std::vector<cv::Mat> r, t;
-        const double calibrationErrors = cv::calibrateCamera(totoalWorldPoints, projectorPoints_, cv::Size(dlpWidth, dlpHeight), caliInfo_.info_.M4_, caliInfo_.info_.D4_, r, t, cv::CALIB_FIX_PRINCIPAL_POINT,cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 150, DBL_EPSILON));
+        const double calibrationErrors = cv::calibrateCamera(totoalWorldPoints, projectorPoints_, cv::Size(dlpWidth, dlpHeight), caliInfo_.info_.M4_, caliInfo_.info_.D4_, r, t);
 
         for (int i = 0; i < totoalWorldPoints.size(); ++i) {
             std::vector<cv::Point2f> reprojectPoints;
@@ -647,6 +645,11 @@ double CalibrateEngine::calibrateProjector() {
         return calibrationErrors;
     }
     else { //外参标定
+        std::vector<std::vector<cv::Point3f>> totoalWorldPoints(projectorPoints_.size(), worldPoints);
+        std::vector<cv::Mat> tempR, tempT;
+        cv::Mat M1, D1;
+        const double calibrationErrors = cv::calibrateCamera(totoalWorldPoints, projCameraPoints_, cv::Size(1280, 1024), M1, D1, tempR, tempT);
+
         std::vector<cv::Point3f> camPoints;
         for (int i = 0; i < projCameraPoints_.size(); ++i) {
             cv::Mat r, t;
@@ -660,14 +663,14 @@ double CalibrateEngine::calibrateProjector() {
         }
 
         std::vector<cv::Point2f> projectorPixelPoints;
-        std::vector<cv::Mat> solveL;
+        cv::Mat solveL;
         for (auto points : projectorPoints_) {
             projectorPixelPoints.insert(projectorPixelPoints.end(), points.begin(), points.end());
 
             for (auto point : points) {
                 const float phaseVal = (point.x / projectorCaliParams_.verticalPitch_) * CV_2PI;
                 cv::Mat rowData(1, 8, CV_32FC1);
-                const int curIndex = solveL.size();
+                const int curIndex = solveL.rows;
                 rowData.ptr<float>(0)[0] = camPoints[curIndex].x;
                 rowData.ptr<float>(0)[1] = camPoints[curIndex].y;
                 rowData.ptr<float>(0)[2] = camPoints[curIndex].z;
@@ -676,14 +679,42 @@ double CalibrateEngine::calibrateProjector() {
                 rowData.ptr<float>(0)[5] = -phaseVal * camPoints[curIndex].y;
                 rowData.ptr<float>(0)[6] = -phaseVal * camPoints[curIndex].z;
                 rowData.ptr<float>(0)[7] = -phaseVal;
-                solveL.emplace_back(rowData);
+                solveL.push_back(rowData);
             }
         }
 
-        cv::solvePnPRansac(camPoints, projectorPixelPoints, caliInfo_.info_.M4_, caliInfo_.info_.D4_, caliInfo_.info_.Rlp_, caliInfo_.info_.Tlp_);
+        cv::solvePnPRansac(camPoints, projectorPixelPoints, caliInfo_.info_.M4_, caliInfo_.info_.D4_, caliInfo_.info_.Rlp_, caliInfo_.info_.Tlp_, false, 1000000);
+        cv::Rodrigues(caliInfo_.info_.Rlp_, caliInfo_.info_.Rlp_);
         //八参数标定
+        caliInfo_.info_.K1_ = cv::Mat(8, 1, CV_64FC1);
         cv::SVD::solveZ(solveL, caliInfo_.info_.K1_);
     }
 
     return 0.f;
+}
+
+void CalibrateEngine::readLocalCaliFile(const QString& path) {
+    cv::FileStorage fileRead(path.mid(8).toLocal8Bit().toStdString(), cv::FileStorage::READ);
+
+    cv::Mat M1, D1, M4, D4;
+    fileRead["M1"] >> M1;
+    fileRead["D1"] >> D1;
+    fileRead["M4"] >> M4;
+    fileRead["D4"] >> D4;
+
+    if(!M1.empty()) {
+        caliInfo_.info_.M1_ = M1;
+    }
+
+    if(!D1.empty()) {
+        caliInfo_.info_.D1_ = D1;
+    }
+
+    if(!M4.empty()) {
+        caliInfo_.info_.M4_ = M4;
+    }
+
+    if(!D4.empty()) {
+        caliInfo_.info_.D4_ = D4;
+    }
 }

@@ -25,6 +25,12 @@ FluWindow {
     Component.onCompleted: {
         JSONListModel.query = "$.camera.algorithm[*]";
         JSONListModel.source = "qrc:/res/config/binoocularCameraConfig.json";
+
+        //初始化所有的vtk item
+        timeline_nav.curPage = 3;
+        timeline_nav.curPage = 5;
+        timeline_nav.curPage = 0;
+        timeline_nav.updateCheckedState();
     }
 
     appBar: FluAppBar {
@@ -140,12 +146,13 @@ FluWindow {
         anchors.topMargin: 40
 
         onCurPageChanged: {
-            if(curPage >= 3) {
+            if(curPage == 3 || curPage == 5) {
                 window.fillBackground = false;
                 window.fillBackgroundChanged();
 
-                if(GlobalSignals.render_items[curPage - 3] !== undefined) {
-                    VTKProcessEngine.setCurRenderItem(GlobalSignals.render_items[curPage - 3]);
+                var indexItem = curPage == 3 ? 0 : 1;
+                if(GlobalSignals.render_items[indexItem] !== undefined) {
+                    VTKProcessEngine.setCurRenderItem(GlobalSignals.render_items[indexItem]);
                 }
             }
             else {
@@ -161,6 +168,15 @@ FluWindow {
 
             function onStartScan() {
                 timeline_nav.curPage = 3;
+                timeline_nav.updateCheckedState();
+            }
+        }
+
+        Connections {
+            target: VTKProcessEngine
+
+            function onPostProcessOutput() {
+                timeline_nav.curPage = 5;
                 timeline_nav.updateCheckedState();
             }
         }

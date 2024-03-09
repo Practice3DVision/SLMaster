@@ -48,7 +48,7 @@ int CameraModel::erase(const QString &imgInfo) {
 
   endResetModel();
 
-  if (iterator == imgs_.end()) return -1;
+  if (iterator == imgs_.end() && index != imgs_.size()) return -1;
 
   return index;
 }
@@ -70,7 +70,8 @@ void CameraModel::recurseImg(const QString &folderUrl) {
 
   std::vector<cv::String> imgPaths;
   std::vector<std::string> sortPaths;
-  cv::glob(curFolderPath_.toStdString(), imgPaths);
+  auto stdPath = curFolderPath_.toLocal8Bit().toStdString();
+  cv::glob(stdPath + std::string("/*.bmp"), imgPaths);
 
   for (int i = 0; i < imgPaths.size(); ++i) {
     std::string::size_type iPos = imgPaths[i].find_last_of('\\') + 1;
@@ -95,6 +96,8 @@ void CameraModel::recurseImg(const QString &folderUrl) {
   }
 
   endResetModel();
+
+  emit updateImgs();
 }
 
 QHash<int, QByteArray> CameraModel::roleNames() const { return roleNames_; }

@@ -21,7 +21,7 @@ void CaliPacker::writeCaliInfo(const AppType::CaliType caliType, const std::stri
     caliInfoOutPut << "D1" << bundleInfo_->info_.D1_;
     caliInfoOutPut << "S" << bundleInfo_->info_.S_;
 
-    if (caliType == AppType::CaliType::Stereo || caliType == AppType::CaliType::Triple) {
+    if (caliType == AppType::CaliType::Stereo) {
         caliInfoOutPut << "M2" << bundleInfo_->info_.M2_;
         caliInfoOutPut << "D2" << bundleInfo_->info_.D2_;
         caliInfoOutPut << "R1" << bundleInfo_->info_.R1_;
@@ -33,13 +33,9 @@ void CaliPacker::writeCaliInfo(const AppType::CaliType caliType, const std::stri
         caliInfoOutPut << "Tlr" << bundleInfo_->info_.Tlr_;
         caliInfoOutPut << "E" << bundleInfo_->info_.E_;
         caliInfoOutPut << "F" << bundleInfo_->info_.F_;
-    }
-
-    if (caliType == AppType::CaliType::Triple) {
-        caliInfoOutPut << "M3" << bundleInfo_->info_.M3_;
-        caliInfoOutPut << "D3" << bundleInfo_->info_.D3_;
-        caliInfoOutPut << "Rlc" << bundleInfo_->info_.Rlc_;
-        caliInfoOutPut << "Tlc" << bundleInfo_->info_.Tlc_;
+        caliInfoOutPut << "epilines31" << bundleInfo_->info_.epilines31_;
+        caliInfoOutPut << "epilines32" << bundleInfo_->info_.epilines32_;
+        caliInfoOutPut << "epilines12" << bundleInfo_->info_.epilines12_;
     }
 
     if(caliType == AppType::CaliType::Projector) {

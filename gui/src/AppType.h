@@ -13,7 +13,7 @@ class AppType : public QObject
         ScanMode,
         Scan,
         PostProcess,
-        Measurement
+        PostProcessOutput
     };
 
     enum CameraType {
@@ -30,10 +30,6 @@ class AppType : public QObject
     enum Direction {
         Horizion = 0,
         Vertical
-    };
-
-    enum StripeType {
-        SineComplementaryGrayCode = 0,
     };
 
     enum DefocusEncoding {
@@ -57,7 +53,6 @@ class AppType : public QObject
     enum CaliType {
         Single = 0,
         Stereo,
-        Triple,
         Projector,
     };
 
@@ -88,7 +83,6 @@ class AppType : public QObject
     Q_ENUM(CameraType)
     Q_ENUM(PixelDepth)
     Q_ENUM(Direction)
-    Q_ENUM(StripeType)
     Q_ENUM(DefocusEncoding)
     Q_ENUM(ConnectState)
     Q_ENUM(CameraFolderType)

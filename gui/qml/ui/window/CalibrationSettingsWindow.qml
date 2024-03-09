@@ -23,7 +23,7 @@ FluWindow {
     property real inner_circle_externer_radius: 5
     property real externer_circle_inner_radius: 7.5
     property real externer_circle_externer_radius: 10
-    property bool export_as_left_color_calibration: false
+    property bool export_epiline: true
 
     FluArea {
         anchors.fill: parent
@@ -49,11 +49,12 @@ FluWindow {
             }
 
             FluRadioButton {
-                text:Lang.export_as_left_color_calibration
-                checked: window.export_as_left_color_calibration
+                Layout.preferredWidth: parent.width / 3
+                checked: window.export_epiline
+                text: Lang.export_epiline
 
-                onCheckedChanged: {
-                    window.export_as_left_color_calibration = checked;
+                onCheckedChanged:  {
+                    window.export_epiline = checked;
                 }
             }
 
@@ -275,7 +276,7 @@ FluWindow {
                             CalibrateEngine.setConcentricCirclesRadius(window.inner_circle_inner_radius, window.inner_circle_externer_radius, window.externer_circle_inner_radius, window.externer_circle_externer_radius);
                         }
 
-                        CalibrateEngine.stereoCalibrate(window.target_type, window.row_feature_num, window.col_feature_num, window.feature_distance, window.export_as_left_color_calibration);
+                        CalibrateEngine.stereoCalibrate(window.target_type, window.row_feature_num, window.col_feature_num, window.feature_distance, window.export_epiline);
                         window.close();
                     }
                 }

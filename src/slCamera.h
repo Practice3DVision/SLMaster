@@ -20,6 +20,7 @@ namespace slmaster {
 
 typedef pcl::PointXYZRGB Point;
 typedef pcl::PointCloud<Point> Cloud;
+
 /** @brief 单帧数据 */
 struct SLMASTER_API FrameData {
     FrameData() : pointCloud_(new Cloud()) {}
@@ -220,6 +221,11 @@ class SLMASTER_API SLCamera {
      * @return false 失败
      */
     virtual bool updateCamera() = 0;
+    /**
+     * @brief 获取标定信息
+     * @return
+     */
+    CaliInfo* getCaliInfo() { return caliInfo_; }
   protected:
     inline bool readJsonFile(const std::string jsonPath, Json::Value &jsonVal) {
         std::ifstream readStream(jsonPath);

@@ -23,7 +23,8 @@ class CameraModel : public QAbstractListModel {
     Q_INVOKABLE void erase(const int locIndex);
     Q_INVOKABLE const QList<QString> imgPaths() { return imgs_; }
     Q_INVOKABLE const QString curFolderPath() { return curFolderPath_; }
-
+  signals:
+    void updateImgs();
   private:
     QString curFolderPath_;
     QList<QString> imgs_;

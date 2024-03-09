@@ -67,10 +67,12 @@ class CameraEngine : public QObject {
     Q_INVOKABLE double getNumberAttribute(const QString& attributeName);
     Q_INVOKABLE bool getBooleanAttribute(const QString& attributeName);
     Q_INVOKABLE QString getStringAttribute(const QString& attributeName);
+    Q_INVOKABLE const slmaster::FrameData& getCurFrame() { return frame_; }
     std::shared_ptr<slmaster::SLCamera> getSLCamera() { return slCameraFactory_.getCamera(slmaster::CameraType(cameraType_)); }
     std::vector<OrderTableRecord> getOrderTableRecord() { return orderTableRecord_; }
   signals:
     void stripeImgsChanged(const int num);
+    void frameCaptured();
   private:
     CameraEngine();
     ~CameraEngine();

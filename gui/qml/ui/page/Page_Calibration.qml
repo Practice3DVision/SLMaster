@@ -117,9 +117,9 @@ FluContentPage{
         property var element_tips: [Lang.camera_offline_calibration_tip, Lang.camera_online_calibration_tip, Lang.projector_online_calibration_tip]
 
         Component.onCompleted: {
-            append({icon:"qrc:/res/image/favicon.ico", title: model_header.element_titles[0], desc: model_header.element_tips[0], url: "qrc:/ui/page/SubPage_OfflineCameraCalibration.qml"});
-            append({icon:"qrc:/res/image/favicon.ico", title: model_header.element_titles[1], desc: model_header.element_tips[1], url:"qrc:/ui/page/SubPage_OfflineCameraCalibration.qml"});
-            append({icon:"qrc:/res/image/favicon.ico", title: model_header.element_titles[2], desc: model_header.element_tips[2], url:"qrc:/ui/page/SubPage_OnlineProjectorCalibration.qml"});
+            append({icon:"qrc:/res/image/icons8-offline-96.png", title: model_header.element_titles[0], desc: model_header.element_tips[0], url: "qrc:/ui/page/SubPage_OfflineCameraCalibration.qml"});
+            append({icon:"qrc:/res/image/icons8-camera-online-96.png", title: model_header.element_titles[1], desc: model_header.element_tips[1], url:"qrc:/ui/page/SubPage_OfflineCameraCalibration.qml"});
+            append({icon:"qrc:/res/image/icons8-projector-96.png", title: model_header.element_titles[2], desc: model_header.element_tips[2], url:"qrc:/ui/page/SubPage_OnlineProjectorCalibration.qml"});
         }
 
         onElement_tipsChanged: {

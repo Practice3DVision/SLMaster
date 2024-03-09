@@ -36,6 +36,28 @@ FluContentPage{
     property bool isBurnTenLine: false
     property bool isKeepAdd: false
 
+    function updateParams() {
+        root.light_strength = CameraEngine.getNumberAttribute("Light Strength")
+        root.pre_exposure_time = CameraEngine.getNumberAttribute("Pre Exposure Time")
+        root.exposure_time = CameraEngine.getNumberAttribute("Exposure Time")
+        root.aft_exposure_time = CameraEngine.getNumberAttribute("Aft Exposure Time")
+        root.pixel_depth = !CameraEngine.getBooleanAttribute("Is One Bit");
+        root.stripe_direction = CameraEngine.getBooleanAttribute("Is Vertical")
+        root.stripe_type = CameraEngine.getNumberAttribute("Pattern")
+        root.defocus_encoding = pixel_depth ? AppType.Disable : AppType.OptimalPlusWithModulation
+        root.img_width = Number(CameraEngine.getStringAttribute("DLP Width"))
+        root.img_height = Number(CameraEngine.getStringAttribute("DLP Height"))
+        root.cycles = CameraEngine.getNumberAttribute("Cycles")
+        root.shiftTime = CameraEngine.getNumberAttribute("Phase Shift Times")
+    }
+
+    Connections {
+        target: GlobalSignals
+        function onCameraParamsUpdate() {
+            root.updateParams();
+        }
+    }
+
     RowLayout {
         anchors.fill: parent
         anchors.margins: 10
@@ -117,10 +139,10 @@ FluContentPage{
                                     Layout.preferredHeight: 80
 
                                     FluImage {
-                                        Layout.preferredHeight: 80
+                                        Layout.preferredHeight: 60
                                         Layout.preferredWidth: 200
                                         Layout.alignment: Qt.AlignHCenter
-                                        source: "qrc:/res/image/ic_home_github.png"
+                                        source: "qrc:/res/image/icons8-camera-94.png"
                                         fillMode: Image.PreserveAspectFit
                                         horizontalAlignment: Image.AlignHCenter
                                     }
@@ -131,8 +153,8 @@ FluContentPage{
 
                                         FluLoader {
                                             id: loader
-                                            Layout.preferredWidth: 48
-                                            Layout.preferredHeight: 48
+                                            Layout.preferredWidth: 36
+                                            Layout.preferredHeight: 36
                                             Layout.alignment: Qt.AlignHCenter
                                             sourceComponent: CameraEngine.isOnLine ? online_icon : wating_ring
                                         }
@@ -156,12 +178,17 @@ FluContentPage{
                                         model: [Lang.monocular_sl_camera, Lang.binocular_sl_camera, Lang.triple_sl_camera]
                                         currentIndex: root.camera_type
                                         onCurrentIndexChanged: {
-                                            root.camera_type = currentIndex;
-                                            CameraEngine.selectCamera(root.camera_type);
+                                            if(root.camera_type !== currentIndex) {
+                                                root.camera_type = currentIndex;
+                                                CameraEngine.selectCamera(root.camera_type);
+                                                GlobalSignals.cameraParamsUpdate();
+                                            }
                                         }
 
                                         Component.onCompleted: {
-                                            CameraEngine.selectCamera(root.camera_type);
+                                            //CameraEngine.selectCamera(root.camera_type);
+                                            //root.updateParams();
+                                            GlobalSignals.cameraParamsUpdate();
                                         }
                                     }
 
@@ -249,7 +276,7 @@ FluContentPage{
                                         id: pre_exposure_time_slider
                                         Layout.fillWidth: true
                                         from: 100
-                                        to: 100000
+                                        to: 100000000
                                         value: root.pre_exposure_time
                                         enabled: CameraEngine.isConnected
 
@@ -267,7 +294,7 @@ FluContentPage{
                                         up.indicator: undefined
                                         down.indicator: undefined
                                         from: 100
-                                        to: 10000000
+                                        to: 100000000
                                         value: root.pre_exposure_time
                                         enabled: CameraEngine.isConnected
 
@@ -290,7 +317,7 @@ FluContentPage{
                                         id: exposure_time_slider
                                         Layout.fillWidth: true
                                         from: 100
-                                        to: 100000
+                                        to: 100000000
                                         value: root.exposure_time
                                         enabled: CameraEngine.isConnected
 
@@ -308,7 +335,7 @@ FluContentPage{
                                         up.indicator: undefined
                                         down.indicator: undefined
                                         from: 100
-                                        to: 10000000
+                                        to: 100000000
                                         value: root.exposure_time
                                         enabled: CameraEngine.isConnected
 
@@ -331,7 +358,7 @@ FluContentPage{
                                         id: aft_exposure_time_slider
                                         Layout.fillWidth: true
                                         from: 100
-                                        to: 100000
+                                        to: 100000000
                                         value: root.aft_exposure_time
                                         enabled: CameraEngine.isConnected
 
@@ -349,7 +376,7 @@ FluContentPage{
                                         up.indicator: undefined
                                         down.indicator: undefined
                                         from: 100
-                                        to: 10000000
+                                        to: 100000000
                                         value: root.aft_exposure_time
                                         enabled: CameraEngine.isConnected
 
@@ -582,7 +609,7 @@ FluContentPage{
 
                                 FluComboBox {
                                     Layout.fillWidth: true
-                                    model: [Lang.sine_complementary_gray_code]
+                                    model: [Lang.sine_complementary_gray_code, Lang.multi_frequency_heterodyne, Lang.multi_view_stereo_geometry]
                                     currentIndex: root.stripe_type
 
                                     onCurrentIndexChanged: {

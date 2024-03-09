@@ -200,7 +200,7 @@ FluContentPage{
                         FluButton {
                             id: select_color_folder_btn
                             Layout.fillWidth: true
-                            text: Lang.select_right_folder
+                            text: Lang.select_color_folder
 
                             onClicked: {
                                 folder_dialog.camera_folder_type = AppType.Color;
@@ -269,7 +269,7 @@ FluContentPage{
                 FluText {
                     Layout.alignment: Qt.AlignLeft
                     Layout.fillWidth: true
-                    text: Lang.result_display
+                    text: Lang.img_display
                     font: FluTextStyle.Subtitle
                 }
 
@@ -319,7 +319,7 @@ FluContentPage{
                     previousText: Lang.previous_text
                     nextText: Lang.next_text
                     pageCurrent: 1
-                    itemCount: 20
+                    itemCount: 10
                     pageButtonCount: 10
 
                     onPageCurrentChanged: {
@@ -327,7 +327,7 @@ FluContentPage{
                         tree_view.currentNodeChanged();
                     }
                 }
-
+                /*
                 FluProgressBar{
                     id: progress_bar
                     Layout.preferredWidth: 300
@@ -361,15 +361,8 @@ FluContentPage{
                         }
                     }
                 }
+                */
             }
-        }
-    }
-
-    Connections {
-        target: CalibrateEngine
-        function onErrorReturn(error) {
-            showSuccess(Lang.calibration_error + error.toString(), 10000)
-            root.cali_error = error;
         }
     }
 }

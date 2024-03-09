@@ -87,12 +87,12 @@ Item {
         }
 
         TimePoint {
-            id: measurement_point
-            functionName: Lang.measurement
-            statusText: Lang.measurement
+            id: postPocessOutPut_point
+            functionName: Lang.post_process_output
+            statusText: Lang.post_process_output
 
             onCheckStateChanged: {
-                item.curPage = AppType.Measurement;
+                item.curPage = AppType.PostProcessOutput;
                 updateCheckedState();
             }
         }
@@ -103,7 +103,7 @@ Item {
             scan_mode_point.setChecked(item.curPage === AppType.ScanMode);
             scan_point.setChecked(item.curPage === AppType.Scan);
             post_process_point.setChecked(item.curPage === AppType.PostProcess);
-            measurement_point.setChecked(item.curPage === AppType.Measurement);
+            postPocessOutPut_point.setChecked(item.curPage === AppType.PostProcessOutput);
         }
     }
 

@@ -13,8 +13,7 @@
 
 #include "IMVApi.h"
 #include "camera.h"
-
-#include <queue>
+#include "safeQueue.hpp"
 
 #include <opencv2/opencv.hpp>
 
@@ -30,7 +29,7 @@ class DEVICE_API HuarayCammera : public Camera{
     CameraInfo getCameraInfo() override;
     bool connect() override;
     bool disConnect() override;
-    std::queue<cv::Mat> &getImgs() override;
+    SafeQueue<cv::Mat> &getImgs() override;
     bool pushImg(IN const cv::Mat &img) override;
     cv::Mat popImg() override;
     bool clearImgs() override;
@@ -56,13 +55,14 @@ class DEVICE_API HuarayCammera : public Camera{
     bool getBooleanAttribute(IN const std::string attributeName,
                              OUT bool &val) override;
     int getFps() override;
+    IMV_HANDLE* getHandle() { return pCamera_; }
   private:
     //相机ID
     const std::string cameraUserId_;
     //相机指针
     IMV_HANDLE *pCamera_;
     //相机捕获到的图片
-    std::queue<cv::Mat> imgs_;
+    SafeQueue<cv::Mat> imgs_;
 };
 } // namespace camera
 } // namespace device

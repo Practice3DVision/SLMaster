@@ -43,7 +43,6 @@
 #include <vtkVertexGlyphFilter.h>
 #include <vtkPolyDataNormals.h>
 
-#include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/PolygonMesh.h>
 #include <pcl/surface/vtk_smoothing/vtk_utils.h>
 #include <pcl/kdtree/kdtree_flann.h>
@@ -81,16 +80,29 @@ void createLine(const double x1, const double y1, const double z1,
     cells->InsertNextCell(line);
 }
 
-void VTKProcessEngine::initOrientedWidget(VTKRenderItem* item) {
+void VTKProcessEngine::initOrientedWidget(VTKRenderItem* item, const bool isPostProcess) {
     orientedWidgetAxesActor_->SetTotalLength(axesActor_length, axesActor_length, axesActor_length);
-    orientationWidget_ = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
-    orientationWidget_->SetOutlineColor(0.9300, 0.5700, 0.1300);
-    orientationWidget_->SetOrientationMarker(orientedWidgetAxesActor_);
-    orientationWidget_->SetInteractor(item->renderWindow()->renderWindow()->GetInteractor());
-    orientationWidget_->SetViewport(0.8, 0, 0.95, 0.2);
-    orientationWidget_->SetEnabled(true);
-    orientationWidget_->On();
-    orientationWidget_->InteractiveOff();
+
+    if(!isPostProcess) {
+        orientationWidget_ = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
+        orientationWidget_->SetOutlineColor(0.9300, 0.5700, 0.1300);
+        orientationWidget_->SetOrientationMarker(orientedWidgetAxesActor_);
+        orientationWidget_->SetInteractor(item->renderWindow()->renderWindow()->GetInteractor());
+        orientationWidget_->SetViewport(0.8, 0, 0.95, 0.2);
+        orientationWidget_->SetEnabled(true);
+        orientationWidget_->On();
+        orientationWidget_->InteractiveOff();
+    }
+    else {
+        postProcessOrientationWidget_ = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
+        postProcessOrientationWidget_->SetOutlineColor(0.9300, 0.5700, 0.1300);
+        postProcessOrientationWidget_->SetOrientationMarker(orientedWidgetAxesActor_);
+        postProcessOrientationWidget_->SetInteractor(item->renderWindow()->renderWindow()->GetInteractor());
+        postProcessOrientationWidget_->SetViewport(0.8, 0, 0.95, 0.2);
+        postProcessOrientationWidget_->SetEnabled(true);
+        postProcessOrientationWidget_->On();
+        postProcessOrientationWidget_->InteractiveOff();
+    }
 }
 
 void VTKProcessEngine::addAxesActorAndWidget(VTKRenderItem* item) {
@@ -140,12 +152,12 @@ void VTKProcessEngine::addGridActor(VTKRenderItem* item) {
     item->renderer()->AddActor(gridActor_);
 }
 
-void VTKProcessEngine::initRenderWindow(VTKRenderItem* item) {
+void VTKProcessEngine::initRenderWindow(VTKRenderItem* item, const bool isPostProcess) {
     vtkNew<vtkCusInteractorStyleRubberBandPick> style;
     style->SetDefaultRenderer(item->renderer());
     style->bindRenderItem(item);
     style->bindVtkProcessEngine(this);
-    style->bindCloudActor(cloud_);
+    isPostProcess ? style->bindCloudActor(processCloud_) : style->bindCloudActor(cloud_);
 
     vtkNew<vtkAreaPicker> areaPicker;
 
@@ -153,9 +165,9 @@ void VTKProcessEngine::initRenderWindow(VTKRenderItem* item) {
     item->renderWindow()->renderWindow()->GetInteractor()->SetInteractorStyle(style);
 }
 
-void VTKProcessEngine::initRenderItem(VTKRenderItem* item) {
-    initRenderWindow(item);
-    initOrientedWidget(item);
+void VTKProcessEngine::initRenderItem(VTKRenderItem* item, const bool isPostProcess) {
+    initRenderWindow(item, isPostProcess);
+    initOrientedWidget(item, isPostProcess);
     addAxesActorAndWidget(item);
     addGridActor(item);
 
@@ -168,9 +180,9 @@ void VTKProcessEngine::initRenderItem(VTKRenderItem* item) {
     item->renderer()->GetActiveCamera()->SetViewUp(0.0, 0.0, 1.0);
     item->renderer()->GetActiveCamera()->SetFocalPoint(0.0, 0.0, 0.0);
     item->renderer()->GetActiveCamera()->SetClippingRange(0.01, 100000);
-    item->renderer()->AddActor(cloud_);
-    item->renderer()->AddActor(mesh_);
-    item->renderer()->AddActor(scalarBar_);
+    isPostProcess ? item->renderer()->AddActor(processCloud_) : item->renderer()->AddActor(cloud_);
+    isPostProcess ? item->renderer()->AddActor(processmesh_) : item->renderer()->AddActor(mesh_);
+    isPostProcess ? item->renderer()->AddActor(processScalarBar_) : item->renderer()->AddActor(scalarBar_);
     item->renderer()->ResetCamera();
     item->renderer()->DrawOn();
 
@@ -182,30 +194,29 @@ void VTKProcessEngine::initRenderItem(VTKRenderItem* item) {
 void VTKProcessEngine::bindScanRenderItem(VTKRenderItem* item) {
     scanRenderItem_ = item;
 
-    initRenderItem(scanRenderItem_);
+    initRenderItem(scanRenderItem_, false);
 
-    timer_ = new QTimer(scanRenderItem_);
-    timer_->setInterval(10);
-    connect(timer_, &QTimer::timeout, this, &VTKProcessEngine::renderCloud);
+    timer_.reset(new QTimer(item));
+    timer_->setInterval(1);
+    connect(timer_.get(), &QTimer::timeout, this, &VTKProcessEngine::renderCloud);
     timer_->start();
 }
 
 void VTKProcessEngine::bindPostProcessRenderItem(VTKRenderItem* item) {
     postProcessRenderItem_ = item;
 
-    initRenderItem(postProcessRenderItem_);
-}
-
-void VTKProcessEngine::bindMeasurementRenderItem(VTKRenderItem* item) {
-    measurementRenderItem_ = item;
-
-    initRenderItem(measurementRenderItem_);
+    initRenderItem(postProcessRenderItem_, true);
 }
 
 void VTKProcessEngine::setBackgroundColor(QColor color) {
-    if(curItem_) {
-        curItem_->renderer()->SetBackground(color.redF(), color.greenF(), color.blueF());
-        curItem_->update();
+    if(scanRenderItem_) {
+        scanRenderItem_->renderer()->SetBackground(color.redF(), color.greenF(), color.blueF());
+        scanRenderItem_->update();
+    }
+
+    if(postProcessRenderItem_) {
+        postProcessRenderItem_->renderer()->SetBackground(color.redF(), color.greenF(), color.blueF());
+        postProcessRenderItem_->update();
     }
 }
 
@@ -248,11 +259,13 @@ void VTKProcessEngine::enableOriention(const bool isEnable) {
     });
 }
 
-VTKProcessEngine::VTKProcessEngine() : pointSize_(0), vtkExit_(false) {
+VTKProcessEngine::VTKProcessEngine() : pointSize_(0), postProcessPointSize_(0), vtkExit_(false), postProcessRenderItem_(nullptr), scanRenderItem_(nullptr) {
     passCloudToMapperThread_ = std::thread(&VTKProcessEngine::passCloudToMapper, this);
 
     cloud_->GetProperty()->SetRepresentationToPoints();
     cloud_->GetProperty()->SetPointSize(1);
+    processCloud_->GetProperty()->SetRepresentationToPoints();
+    processCloud_->GetProperty()->SetPointSize(1);
 
     scalarBar_->SetTitle("Z(mm)");
     scalarBar_->SetNumberOfLabels(20);
@@ -269,7 +282,23 @@ VTKProcessEngine::VTKProcessEngine() : pointSize_(0), vtkExit_(false) {
     scalarBar_->GetAnnotationTextProperty()->SetColor(1, 1, 1);
     scalarBar_->GetAnnotationTextProperty()->SetFontSize(4);
 
-    enableColorBar(false);
+    processScalarBar_->SetTitle("Z(mm)");
+    processScalarBar_->SetNumberOfLabels(20);
+    processScalarBar_->DrawAnnotationsOn();
+    processScalarBar_->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
+    processScalarBar_->GetPositionCoordinate()->SetValue(0.95f, 0.02f);
+    processScalarBar_->SetWidth(0.04);
+    processScalarBar_->SetHeight(0.5);
+    processScalarBar_->SetTextPositionToPrecedeScalarBar();
+    processScalarBar_->GetTitleTextProperty()->SetColor(1, 1, 1);
+    processScalarBar_->GetTitleTextProperty()->SetFontSize(4);
+    processScalarBar_->GetLabelTextProperty()->SetColor(1, 1, 1);
+    processScalarBar_->GetLabelTextProperty()->SetFontSize(4);
+    processScalarBar_->GetAnnotationTextProperty()->SetColor(1, 1, 1);
+    processScalarBar_->GetAnnotationTextProperty()->SetFontSize(4);
+
+    scalarBar_->VisibilityOff();
+    processScalarBar_->VisibilityOff();
 }
 
 VTKProcessEngine::~VTKProcessEngine() {
@@ -282,12 +311,12 @@ VTKProcessEngine::~VTKProcessEngine() {
 
 void VTKProcessEngine::passCloudToMapper() {
     while(!vtkExit_.load(std::memory_order_acquire)) {
-        if(waitRenderedClouds_.empty()) {
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
+
+        if(!waitRenderedClouds_.try_pop(cloud)) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
             continue;
         }
-
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
-        waitRenderedClouds_.pop(cloud);
 
         const int pointSize = cloud->points.size();
 
@@ -328,32 +357,48 @@ void VTKProcessEngine::passCloudToMapper() {
 }
 
 void VTKProcessEngine::emplaceRenderCloud(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud) {
-    pointSize_ = cloud->points.size();
-    emit pointSizeChanged();
-
     waitRenderedClouds_.push(cloud);
+
+    std::cout << "Cloud Size: " << waitRenderedClouds_.size() << std::endl;
 }
 
 void VTKProcessEngine::renderCloud() {
-    if(waitRenderedMappers_.empty()) {
+    vtkSmartPointer<vtkMapper> mapper;
+
+    if(!waitRenderedMappers_.try_pop(mapper)) {
         return;
     }
 
-        vtkSmartPointer<vtkMapper> mapper;
-        waitRenderedMappers_.pop(mapper);
+    if(curItem_ == scanRenderItem_) {
+        pointSize_ = mapper->GetInput()->GetNumberOfPoints();;
+        emit pointSizeChanged();
+    }
+    else {
+        postProcessPointSize_ = mapper->GetInput()->GetNumberOfPoints();
+        emit postProcessPointSizeChanged();
+    }
 
-         curItem_->pushCommandToQueue([=] {
-         {
-            cloud_->SetMapper(mapper);
-            vtkNew<vtkLookupTable> zLookUpTable;
-            zLookUpTable->SetNumberOfTableValues(10);
-            zLookUpTable->SetHueRange(0.67, 0.0);
-            zLookUpTable->SetTableRange(cloud_->GetZRange()[0], cloud_->GetZRange()[1]);
-            zLookUpTable->Build();
-            scalarBar_->SetLookupTable(zLookUpTable);
-            curItem_->update();
-         }
-         });
+    std::cout << "Mapper Size: " << waitRenderedMappers_.size() << std::endl;
+
+    //在渲染流程中进行操作，否则易出现内存泄露或上下文获取失败
+    curItem_->pushCommandToQueue([&, mapper] {
+        vtkSmartPointer<vtkActor> curCloud = curItem_ == postProcessRenderItem_ ? processCloud_ : cloud_;
+        vtkSmartPointer<vtkScalarBarActor> curScalarBar = curItem_ == postProcessRenderItem_ ? processScalarBar_ : scalarBar_;
+        curCloud->SetMapper(mapper);
+        vtkNew<vtkLookupTable> zLookUpTable;
+        zLookUpTable->SetNumberOfTableValues(10);
+        zLookUpTable->SetHueRange(0.67, 0.0);
+        zLookUpTable->SetTableRange(curCloud->GetZRange()[0], curCloud->GetZRange()[1]);
+        zLookUpTable->Build();
+        curScalarBar->SetLookupTable(zLookUpTable);
+
+        vtkSmartPointer<vtkScalarBarActor> curScalarBarActor = curItem_ == postProcessRenderItem_ ? processScalarBar_ : scalarBar_;
+        if(curScalarBarActor->GetVisibility()) {
+            jetDepthColorMap();
+        }
+
+        curItem_->update();
+    });
 }
 
 void VTKProcessEngine::setCurRenderItem(VTKRenderItem* item) {
@@ -361,7 +406,8 @@ void VTKProcessEngine::setCurRenderItem(VTKRenderItem* item) {
 }
 
 void VTKProcessEngine::enableColorBar(const bool isEnable) {
-          isEnable ? scalarBar_->VisibilityOn() : scalarBar_->VisibilityOff();
+    vtkSmartPointer<vtkScalarBarActor> curScalarBarActor = curItem_ == postProcessRenderItem_ ? processScalarBar_ : scalarBar_;
+    isEnable ? curScalarBarActor->VisibilityOn() : curScalarBarActor->VisibilityOff();
 }
 
 void VTKProcessEngine::enableAreaSelected(const bool isEnable) {
@@ -374,26 +420,27 @@ void VTKProcessEngine::updateSelectedRec() {
 }
 
 void VTKProcessEngine::saveCloud(const QString path) {
-          if(!cloud_->GetMapper()) {
-             return ;
+          vtkSmartPointer<vtkActor> curCloud = curItem_ == postProcessRenderItem_ ? processCloud_ : cloud_;
+          if(!curCloud->GetMapper()) {
+        return ;
           }
 
           if(asyncThread_.joinable()) {
-             asyncThread_.join();
+                asyncThread_.join();
           }
 
-          asyncThread_ = std::thread([&, path] {
+          asyncThread_ = std::thread([&, path, curCloud] {
               double progressVal;
 
               std::thread saveThread = std::thread([&] {
                   vtkNew<vtkDataSetSurfaceFilter> surfaceFilter;
-                  surfaceFilter->SetInputData(cloud_->GetMapper()->GetInput());
+                  surfaceFilter->SetInputData(curCloud->GetMapper()->GetInput());
                   surfaceFilter->Update();
 
-                  auto lookup = vtkLookupTable::SafeDownCast(cloud_->GetMapper()->GetLookupTable());
+                  auto lookup = vtkLookupTable::SafeDownCast(curCloud->GetMapper()->GetLookupTable());
 
                   vtkNew<vtkPLYWriter> writer;
-                  writer->SetFileName(path.mid(8).toStdString().data());
+                  writer->SetFileName(path.mid(8).toLocal8Bit().toStdString().c_str());
                   writer->SetInputData(surfaceFilter->GetOutput());
                   writer->SetLookupTable(lookup);
                   writer->SetArrayName("colorTable");
@@ -423,7 +470,9 @@ void VTKProcessEngine::saveCloud(const QString path) {
 }
 
 void VTKProcessEngine::clip(const bool isClipInner) {
-          if(!cloud_->GetMapper()) {
+          vtkSmartPointer<vtkActor> curCloud = curItem_ == postProcessRenderItem_ ? processCloud_ : cloud_;
+
+          if(!curCloud->GetMapper()) {
              cancelClip();
              return;
           }
@@ -462,8 +511,8 @@ void VTKProcessEngine::clip(const bool isClipInner) {
 }
 
 void VTKProcessEngine::cancelClip() {
-          auto style = static_cast<vtkCusInteractorStyleRubberBandPick*>(curItem_->renderWindow()->renderWindow()->GetInteractor()->GetInteractorStyle());
-          style->cancelClip();
+    auto style = static_cast<vtkCusInteractorStyleRubberBandPick*>(curItem_->renderWindow()->renderWindow()->GetInteractor()->GetInteractorStyle());
+    style->cancelClip();
 }
 
 void VTKProcessEngine::enablePointInfo(const bool isEnable) {
@@ -472,241 +521,66 @@ void VTKProcessEngine::enablePointInfo(const bool isEnable) {
 }
 
 void VTKProcessEngine::release() {
-          if(asyncThread_.joinable()) {
-             asyncThread_.join();
-          }
-}
-
-void VTKProcessEngine::statisticalOutRemoval(const float stdThreshold, const float meanK) {
-          if(!cloud_->GetMapper()) {
-             return;
-          }
-
-          if(asyncThread_.joinable()) {
-             asyncThread_.join();
-          }
-
-          asyncThread_ = std::thread([&, stdThreshold, meanK] {
-              pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-              auto lookupTable = vtkLookupTable::SafeDownCast(cloud_->GetMapper()->GetLookupTable());
-
-              vtkNew<vtkDataSetSurfaceFilter> surfaceFilter;
-              surfaceFilter->SetInputData(cloud_->GetMapper()->GetInput());
-              surfaceFilter->Update();
-              auto points = surfaceFilter->GetOutput()->GetPoints();
-
-              progressVal_ = 0.1;
-              emit progressValChanged();
-
-              for (size_t i = 0; i < points->GetNumberOfPoints(); ++i) {
-                  double x = points->GetPoint(i)[0];
-                  double y = points->GetPoint(i)[1];
-                  double z = points->GetPoint(i)[2];
-                  double r = lookupTable->GetTableValue(i)[0] * 255;
-                  double g = lookupTable->GetTableValue(i)[1] * 255;
-                  double b = lookupTable->GetTableValue(i)[2] * 255;
-                  cloud->points.emplace_back(pcl::PointXYZRGB(x, y, z, r, g, b));
-              }
-
-              progressVal_ = 0.3;
-              emit progressValChanged();
-
-              cloud->is_dense = false;
-              cloud->width = cloud->points.size();
-              cloud->height = 1;
-
-              pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> filter;
-              filter.setStddevMulThresh(stdThreshold);
-              filter.setMeanK(meanK);
-              filter.setInputCloud(cloud);
-
-              pcl::Indices indicesFiltered;
-              filter.filter(indicesFiltered);
-
-              progressVal_ = 0.7;
-              emit progressValChanged();
-
-              vtkNew<vtkPoints> pointsVertex;
-              vtkNew<vtkPolyVertex> polyVertex;
-              vtkNew<vtkFloatArray> scalars;
-              scalars->SetName("colorTable");
-              vtkNew<vtkUnstructuredGrid> grid;
-              lookupTable->SetNumberOfTableValues(indicesFiltered.size());
-              polyVertex->GetPointIds()->SetNumberOfIds(indicesFiltered.size());
-              scalars->SetNumberOfTuples(indicesFiltered.size());
-              lookupTable->Build();
-
-              for (size_t i = 0; i< indicesFiltered.size(); ++i) {
-                  vtkIdType pid[1];
-                  pid[0] =  pointsVertex->InsertNextPoint(cloud->points[indicesFiltered[i]].x, cloud->points[indicesFiltered[i]].y, cloud->points[indicesFiltered[i]].z);
-                  lookupTable->SetTableValue(i, cloud->points[indicesFiltered[i]].r / 255.f, cloud->points[indicesFiltered[i]].g / 255.f, cloud->points[indicesFiltered[i]].b / 255.f, 1);
-                  polyVertex->GetPointIds()->SetId(i, i);
-                  scalars->InsertValue(i, i);
-              }
-
-              progressVal_ = 0.95;
-              emit progressValChanged();
-
-              grid->Allocate(1, 1);
-              grid->SetPoints(pointsVertex);
-              grid->GetPointData()->SetScalars(scalars);
-              grid->InsertNextCell(polyVertex->GetCellType(), polyVertex->GetPointIds());
-
-              vtkDataSetMapper::SafeDownCast(cloud_->GetMapper())->SetInputData(grid);
-              vtkDataSetMapper::SafeDownCast(cloud_->GetMapper())->SetScalarRange(0, indicesFiltered.size() - 1);
-
-              vtkLookupTable::SafeDownCast(scalarBar_->GetLookupTable())->SetTableRange(cloud_->GetZRange()[0], cloud_->GetZRange()[1]);
-
-              progressVal_ = 1;
-              emit progressValChanged();
-          });
-}
-
-void VTKProcessEngine::surfaceRestruction() {
-          if(!cloud_->GetMapper()) {
-             return;
-          }
-
-          if(asyncThread_.joinable()) {
-             asyncThread_.join();
-          }
-
-          asyncThread_ = std::thread([&] {
-              double progressVal = 0;
-
-              std::thread workThread = std::thread([&] {
-                  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
-
-                  vtkNew<vtkDataSetSurfaceFilter> surfaceFilter;
-                  surfaceFilter->SetInputData(cloud_->GetMapper()->GetInput());
-                  surfaceFilter->Update();
-                  auto points = surfaceFilter->GetOutput()->GetPoints();
-
-                  progressVal = 0.1;
-
-                  for (size_t i = 0; i < points->GetNumberOfPoints(); ++i) {
-                      double x = points->GetPoint(i)[0];
-                      double y = points->GetPoint(i)[1];
-                      double z = points->GetPoint(i)[2];
-                      cloud->points.emplace_back(pcl::PointXYZ(x, y, z));
-                  }
-
-                  progressVal = 0.3;
-
-                  cloud->is_dense = false;
-                  cloud->width = cloud->points.size();
-                  cloud->height = 1;
-
-                  pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normalEstimation;
-                  pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
-                  pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
-                  tree->setInputCloud(cloud);
-                  normalEstimation.setInputCloud(cloud);
-                  normalEstimation.setSearchMethod(tree);
-                  normalEstimation.setKSearch(20);
-                  normalEstimation.compute(*normals);
-
-                  progressVal = 0.5;
-
-                  pcl::PointCloud<pcl::PointNormal>::Ptr cloudNormals(new pcl::PointCloud<pcl::PointNormal>);
-                  pcl::concatenateFields(*cloud, *normals, *cloudNormals);
-
-                  pcl::search::KdTree<pcl::PointNormal>::Ptr searchTreeNormals(new pcl::search::KdTree<pcl::PointNormal>);
-                  searchTreeNormals->setInputCloud(cloudNormals);
-
-                  pcl::GreedyProjectionTriangulation<pcl::PointNormal> gp3;
-                  pcl::PolygonMesh meshPcl;
-
-                  gp3.setSearchRadius(20);
-                  gp3.setMu(2.5f);
-                  gp3.setMaximumNearestNeighbors(200);
-                  gp3.setMaximumSurfaceAngle(M_PI / 4);
-                  gp3.setMinimumAngle(M_PI / 18);
-                  gp3.setMaximumAngle(2 * M_PI / 3);
-                  gp3.setNormalConsistency(false);
-                  gp3.setInputCloud(cloudNormals);
-                  gp3.setSearchMethod(searchTreeNormals);
-
-                  gp3.reconstruct(meshPcl);
-
-                  progressVal = 0.9;
-
-                  vtkSmartPointer<vtkPolyData> meshVtk;
-                  pcl::VTKUtils::mesh2vtk(meshPcl, meshVtk);
-
-                  vtkNew<vtkPolyDataMapper> meshMapper;
-                  meshMapper->SetInputData(meshVtk);
-                  mesh_->SetMapper(meshMapper);
-                  mesh_->GetProperty()->SetRepresentationToSurface();
-
-                  progressVal = 1;
-              });
-
-              while(progressVal < 1) {
-                  progressVal_ = progressVal;
-                  emit progressValChanged();
-
-                  std::this_thread::sleep_for(std::chrono::milliseconds(300));
-              }
-
-              progressVal_ = 1;
-              emit progressValChanged();
-
-              if(workThread.joinable()) {
-                  workThread.join();
-              }
-          });
+    if(asyncThread_.joinable()) {
+        asyncThread_.join();
+    }
 }
 
 void VTKProcessEngine::colorizeCloud(QColor color) {
-          if(!cloud_->GetMapper()) {
+          vtkSmartPointer<vtkActor> curCloud = curItem_ == postProcessRenderItem_ ? processCloud_ : cloud_;
+
+          if(!curCloud->GetMapper()) {
              return;
           }
 
           auto r = color.redF();
           auto g = color.greenF();
           auto b = color.blueF();
-          cloud_->GetProperty()->SetColor(r, g, b);
+          curCloud->GetProperty()->SetColor(r, g, b);
 
-          cloud_->GetMapper()->SetScalarVisibility(false);
+          curCloud->GetMapper()->SetScalarVisibility(false);
 
           curItem_->update();
 }
 
 void VTKProcessEngine::cancelColorizeCloud() {
-          if(!cloud_->GetMapper()) {
+          vtkSmartPointer<vtkActor> curCloud = curItem_ == postProcessRenderItem_ ? processCloud_ : cloud_;
+
+          if(!curCloud->GetMapper()) {
              return;
           }
 
-          cloud_->GetMapper()->SetScalarVisibility(true);
-          auto lookUp = static_cast<vtkLookupTable*>(cloud_->GetMapper()->GetLookupTable());
+          curCloud->GetMapper()->SetScalarVisibility(true);
+          auto lookUp = static_cast<vtkLookupTable*>(curCloud->GetMapper()->GetLookupTable());
           lookUp->DeepCopy(lookupPre);
 
           curItem_->update();
 }
 
 void VTKProcessEngine::jetDepthColorMap() {
-          if(!cloud_->GetMapper()) {
+          vtkSmartPointer<vtkActor> curCloud = curItem_ == postProcessRenderItem_ ? processCloud_ : cloud_;
+
+          if(!curCloud->GetMapper()) {
              return;
           }
 
           vtkNew<vtkDataSetSurfaceFilter> surfaceFilter;
-          surfaceFilter->SetInputData(cloud_->GetMapper()->GetInput());
+          surfaceFilter->SetInputData(curCloud->GetMapper()->GetInput());
           surfaceFilter->Update();
 
           double zMin = surfaceFilter->GetOutput()->GetBounds()[4];
           double zMax = surfaceFilter->GetOutput()->GetBounds()[5];
 
-          auto points = vtkUnstructuredGrid::SafeDownCast(cloud_->GetMapper()->GetInput())->GetPoints();
+          auto points = vtkUnstructuredGrid::SafeDownCast(curCloud->GetMapper()->GetInput())->GetPoints();
           vtkNew<vtkLookupTable> jetMapLookup;
           jetMapLookup->SetHueRange(0.67, 0.0);
           jetMapLookup->SetTableRange(zMin, zMax);
           jetMapLookup->Build();
 
-          auto lookUp = static_cast<vtkLookupTable*>(cloud_->GetMapper()->GetLookupTable());
+          auto lookUp = static_cast<vtkLookupTable*>(curCloud->GetMapper()->GetLookupTable());
           lookupPre->DeepCopy(lookUp);
 
-          auto scalars = vtkFloatArray::SafeDownCast(vtkUnstructuredGrid::SafeDownCast(vtkDataSetMapper::SafeDownCast(cloud_->GetMapper())->GetInput())->GetPointData()->GetScalars());
+          auto scalars = vtkFloatArray::SafeDownCast(vtkUnstructuredGrid::SafeDownCast(vtkDataSetMapper::SafeDownCast(curCloud->GetMapper())->GetInput())->GetPointData()->GetScalars());
 
           for (size_t i = 0; i < scalars->GetNumberOfTuples(); ++i) {
              double tabColor[3];
@@ -714,18 +588,19 @@ void VTKProcessEngine::jetDepthColorMap() {
              lookUp->SetTableValue(scalars->GetValue(i), tabColor[0], tabColor[1], tabColor[2]);
           }
 
-          cloud_->GetMapper()->SetScalarVisibility(true);
-          cloud_->GetProperty()->SetRepresentationToPoints();
+          curCloud->GetMapper()->SetScalarVisibility(true);
+          curCloud->GetProperty()->SetRepresentationToPoints();
 
           curItem_->update();
 }
 
 void VTKProcessEngine::setCameraViewPort(double x, double y, double z, double fx, double fy, double fz, double vx, double vy, double vz) {
+          vtkSmartPointer<vtkActor> curCloud = curItem_ == postProcessRenderItem_ ? processCloud_ : cloud_;
           vtkNew<vtkCamera> camera;
 
-          if(cloud_->GetMapper()) {
+          if(curCloud->GetMapper()) {
              vtkNew<vtkDataSetSurfaceFilter> surfaceFilter;
-             surfaceFilter->SetInputData(cloud_->GetMapper()->GetInput());
+             surfaceFilter->SetInputData(curCloud->GetMapper()->GetInput());
              surfaceFilter->Update();
 
              double bounds[6], center[3];
@@ -764,21 +639,76 @@ void VTKProcessEngine::getCameraViewPort(double& x, double& y, double& z, double
 }
 
 void VTKProcessEngine::enableMesh(const bool isEnable) {
-    if(!mesh_->GetMapper()) {
+   vtkSmartPointer<vtkActor> curMesh = curItem_ == postProcessRenderItem_ ? processmesh_ : mesh_;
+
+    if(!curMesh->GetMapper()) {
         return;
     }
 
-    isEnable ? mesh_->VisibilityOn() : mesh_->VisibilityOff();
+    isEnable ? curMesh->VisibilityOn() : curMesh->VisibilityOff();
 
     curItem_->update();
 }
 
 void VTKProcessEngine::enableCloud(const bool isEnable) {
-    if(!cloud_->GetMapper()) {
+    vtkSmartPointer<vtkActor> curCloud = curItem_ == postProcessRenderItem_ ? processCloud_ : cloud_;
+
+    if(!curCloud->GetMapper()) {
         return;
     }
 
-    isEnable ? cloud_->VisibilityOn() : cloud_->VisibilityOff();
+    isEnable ? curCloud->VisibilityOn() : curCloud->VisibilityOff();
+
+    curItem_->update();
+}
+
+void VTKProcessEngine::updateProcessActor(vtkSmartPointer<vtkActor> actor) {
+    curItem_ = postProcessRenderItem_;
+
+    emit postProcessOutput();
+
+    enableCloud(true);
+    enableMesh(true);
+
+    if(actor) {
+        processActor_->ShallowCopy(actor);
+        curItem_->renderer()->AddActor(processActor_);
+        curItem_->update();
+    }
+}
+
+void VTKProcessEngine::updateProcessCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud) {
+    curItem_ = postProcessRenderItem_;
+    //如果点云不为空，则跳转至结果页面
+    if(!cloud->empty()) {
+        emit postProcessOutput();
+    }
+
+    enableCloud(true);
+    enableMesh(false);
+
+    emplaceRenderCloud(cloud);
+}
+
+void VTKProcessEngine::updateProcessMesh(pcl::PolygonMesh::Ptr mesh) {
+    curItem_ = postProcessRenderItem_;
+
+    if(!mesh->polygons.empty()) {
+        emit postProcessOutput();
+    }
+
+    vtkSmartPointer<vtkPolyData> meshVtk;
+    pcl::VTKUtils::mesh2vtk(*mesh, meshVtk);
+
+    vtkNew<vtkPolyDataMapper> meshMapper;
+    meshMapper->SetInputData(meshVtk);
+
+    vtkSmartPointer<vtkActor> curMesh = curItem_ == postProcessRenderItem_ ? processmesh_ : mesh_;
+    curMesh->SetMapper(meshMapper);
+    curMesh->GetProperty()->SetRepresentationToSurface();
+
+    enableCloud(false);
+    enableMesh(true);
 
     curItem_->update();
 }

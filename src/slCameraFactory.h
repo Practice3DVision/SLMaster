@@ -4,7 +4,6 @@
 #include "common.h"
 
 #include "slCamera.h"
-#include "binoocularCamera.h"
 
 namespace slmaster{
 

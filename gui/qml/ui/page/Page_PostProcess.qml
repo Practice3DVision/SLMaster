@@ -6,6 +6,8 @@ import Qt.labs.platform 1.1
 
 import FluentUI 1.0
 import SLMasterGui 1.0
+import QuickQanava 2.0 as Qan
+import "qrc:/../../../../../QuickQanava" as Qan
 
 import "qrc:///ui/global"
 
@@ -23,369 +25,395 @@ FluContentPage {
     rightPadding: 0
     bottomPadding: 0
 
-    property int cur_method: CameraEngine.getNumberAttribute("Pattern")
-    property real cur_light_strength: CameraEngine.getNumberAttribute("Light Strength")
-    property int cur_exposure_time: CameraEngine.getNumberAttribute("Exposure Time")
-    property int filter_threshod: CameraEngine.getNumberAttribute("Contrast Threshold")
-    property bool enable_gpu: CameraEngine.getBooleanAttribute("Gpu Accelerate")
-
-    MouseArea {
-        id: mouse_area
-        anchors.fill: parent
-        propagateComposedEvents: true
-        acceptedButtons: Qt.AllButtons
-        Keys.enabled: true
-        focus: true
-
-        property bool has_pressed: false
-        property var select_area_pos: [0, 0, 0, 0]
-
-        VTKRenderWindow {
-            id: vtk_render_window
-            anchors.fill: parent
-            z: 99999999999
-
-            VTKRenderItem {
-                id: vtk_render_item
-                anchors.fill: vtk_render_window
-                renderWindow: vtk_render_window
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                propagateComposedEvents: true
-                acceptedButtons: Qt.AllButtons
-                Keys.enabled: true
-                hoverEnabled: true
-                focus: true
-
-                Keys.onPressed: {
-                    if(event.key === Qt.Key_Escape) {
-                        displayBody.cancleSelect();
-                        canvas.width = -1;
-                        canvas.height = -1;
-                        canvas.requestPaint();
-                    }
-
-                    event.accepted = false;
-                }
-
-                onPressed: (mouse)=> {
-                    if(mouse.button === Qt.LeftButton) {
-                        if(operation_area.isAreaSelect) {
-                            mouse_area.select_area_pos[0] = mouse.x;
-                            mouse_area.select_area_pos[1] = mouse.y;
-                            mouse_area.has_pressed = true;
-                        }
-                    }
-
-                    if(mouse.button === Qt.RightButton) {
-                        mouse_area.has_pressed = false;
-                        finishSelectRec();
-                    }
-
-                    mouse.accepted = false;
-                }
-
-                onPositionChanged: (mouse)=> {
-                    if(operation_area.isAreaSelect && mouse_area.has_pressed) {
-                        mouse_area.select_area_pos[2] = mouse.x;
-                        mouse_area.select_area_pos[3] = mouse.y;
-                        drawSelectRec();
-                    }
-
-                    mouse.accepted = false;
-                }
-            }
-
-            Component.onCompleted: {
-                GlobalSignals.render_items[1] = vtk_render_item;
-
-                VTKProcessEngine.bindPostProcessRenderItem(vtk_render_item);
-                VTKProcessEngine.setCurRenderItem(vtk_render_item);
-                VTKProcessEngine.setBackgroundColor(FluTheme.windowBackgroundColor);
-            }
-        }
-    }
-
-    Canvas{
-        id:canvas
-        onPaint: {
-            var ctx = getContext("2d");
-            //ctx.fillStyle = FluTheme.primaryColor
-            ctx.strokeStyle = FluTheme.dark ? Qt.rgba(230, 240, 230, 1) : Qt.rgba(20, 20, 20, 1);
-            ctx.lineWidth = 3
-            ctx.lineJoin = "round"
-            //ctx.fillRect(0, 0, width, height)
-            //ctx.clearRect(ctx.lineWidth,ctx.lineWidth,width - ctx.lineWidth,height - ctx.lineWidth)
-            ctx.strokeRect(0, 0, width, height)
-        }
-    }
-
-    function drawSelectRec() {
-        canvas.x = mouse_area.select_area_pos[0];
-        canvas.y = mouse_area.select_area_pos[1];
-        canvas.width = Math.abs(mouse_area.select_area_pos[2] - mouse_area.select_area_pos[0]);
-        canvas.height = Math.abs(mouse_area.select_area_pos[3] - mouse_area.select_area_pos[1]);
-        canvas.requestPaint();
-
-        showInfo(Lang.please_select, 3000);
-    }
-
-    function finishSelectRec() {
-        if(operation_area.isAreaSelect) {
-            canvas.width = -1;
-            canvas.height = -1;
-            canvas.requestPaint();
-
-            select_operation_menu.x = mouse_area.select_area_pos[2];
-            select_operation_menu.y = mouse_area.select_area_pos[3];
-            select_operation_menu.open();
-
-            showInfo(Lang.select_finished, 3000);
-        }
-    }
-
-    FluMenu {
-        id: select_operation_menu
-        FluMenuItem {
-            text: Lang.reserved
-            iconSource: FluentIcons.CheckboxComposite
-
-            onClicked: {
-                VTKProcessEngine.clip(true);
-                select_operation_menu.close();
-            }
-        }
-
-        FluMenuItem {
-            text: Lang.remove
-            iconSource: FluentIcons.Broom
-
-            onClicked: {
-                VTKProcessEngine.clip(false);
-                select_operation_menu.close();
-            }
-        }
-
-        FluMenuItem {
-            text: Lang.cancel
-            iconSource: FluentIcons.Clear
-
-            onClicked: {
-                VTKProcessEngine.cancelClip();
-                select_operation_menu.close();
-            }
-        }
-    }
+    property bool linkCamera: true
+    property var sourceNode
 
     Connections {
-        target: FluTheme
-        function onDarkModeChanged() {
-            VTKProcessEngine.setBackgroundColor(FluTheme.dark ? Qt.rgba(32 / 255, 32 / 255 , 32 / 255, 1) : Qt.rgba(237 / 255, 237 / 255, 237 / 255, 1));
+        target: CameraEngine
+
+        function onFrameCaptured() {
+            if(linkCamera) {
+                sourceNode.updateSource();
+            }
         }
     }
 
-    ColumnLayout {
-        id: layout
-        anchors.left: parent.left
-        anchors.top: parent.top
-        anchors.leftMargin: 20
-        anchors.topMargin: 20
-        width: root.width / 6 + 10
+    Rectangle {
+        id: backgroundRec
+        anchors.fill: parent
+        color: FluTheme.windowBackgroundColor
 
-        FluExpander {
-            id: setting_expander
-            headerText: Lang.operation_dialog
-            Layout.fillWidth: true
-            contentHeight: settings_area.height + 10
+        FluMenu {
+            id: menu
+            property var operate_node
+            FluMenuItem {
+                text: "delete"
 
-            Item {
-                Flickable{
-                    anchors.fill: parent
-                    contentWidth: settings_area.width
-                    contentHeight: settings_area.height
-                    FluArea {
-                        id: settings_area
-                        width: root.width / 6
-                        height: 400
-                        anchors.left: parent.left
-                        anchors.top: parent.top
-                        anchors.leftMargin: 5
-                        anchors.topMargin: 5
-
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: 4
-
-                            FluText {
-                                text: Lang.pattern_type
-                            }
-
-                            FluComboBox {
-                                Layout.fillWidth: true
-                                model: [Lang.sinus_comple_gray_code, Lang.multi_frequency_heterodyne, Lang.multi_view_stereo_geometry]
-                                currentIndex: root.cur_method
-
-                                onCurrentIndexChanged: {
-                                    root.cur_method = currentIndex;
-                                    CameraEngine.setNumberAttribute("Pattern", root.cur_method);
-                                }
-
-                                Component.onCompleted: {
-                                    CameraEngine.setPatternType(root.cur_method);
-                                }
-                            }
-
-                            FluToggleSwitch {
-                                text: Lang.enable_gpu
-                                checked: root.enable_gpu
-
-                                onCheckedChanged: {
-                                    root.enable_gpu = checked;
-                                    CameraEngine.setBooleanAttribute("Gpu Accelerate", root.enable_gpu);
-                                }
-                            }
-
-                            FluText {
-                                text: Lang.light_strength
-                            }
-
-                            RowLayout {
-                                Layout.fillWidth: true
-
-                                FluSlider {
-                                    id: light_strengh_slider
-                                    Layout.fillWidth: true
-                                    from: 10
-                                    to: 100
-                                    value: root.cur_light_strength * 100
-                                    enabled: CameraEngine.isConnected
-
-                                    onValueChanged: {
-                                        root.cur_light_strength = value / 100;
-                                        light_strength_spinbox.value = root.cur_light_strength * 100;
-                                        CameraEngine.setNumberAttribute("Light Strength", root.cur_light_strength);
-                                    }
-                                }
-
-                                FluSpinBox {
-                                    id: light_strength_spinbox
-                                    Layout.preferredWidth: parent.width / 3
-                                    editable: true
-                                    up.indicator: undefined
-                                    down.indicator: undefined
-                                    from: 10
-                                    to: 100
-                                    stepSize: 100
-                                    value: root.cur_light_strength * 100
-                                    enabled: CameraEngine.isConnected
-
-                                    property int decimals: 2
-                                    property real realValue: value / 100
-                                    textFromValue: function(value, locale) {
-                                        return Number(value / 100).toLocaleString(locale, 'f', decimals)
-                                    }
-
-                                    valueFromText: function(text, locale) {
-                                        return Number.fromLocaleString(locale, text) * 100
-                                    }
-
-                                    onValueChanged: {
-                                        root.cur_light_strength = value / 100;
-                                        light_strengh_slider.value = value;
-                                        CameraEngine.setNumberAttribute("Light Strength", root.cur_light_strength);
-                                    }
-                                }
-                            }
-
-                            FluText {
-                                text: Lang.exposure_time
-                            }
-
-                            RowLayout {
-                                Layout.fillWidth: true
-
-                                FluSlider {
-                                    id: exposure_time_slider
-                                    Layout.fillWidth: true
-                                    from: 100
-                                    to: 100000
-                                    value: root.cur_exposure_time
-                                    enabled: CameraEngine.isConnected
-
-                                    onValueChanged: {
-                                        root.cur_exposure_time = value;
-                                        exposure_time_spinbox.value = root.cur_exposure_time;
-                                        CameraEngine.setNumberAttribute("Exposure Time", root.cur_exposure_time);
-                                    }
-                                }
-
-                                FluSpinBox {
-                                    id: exposure_time_spinbox
-                                    Layout.preferredWidth: parent.width / 3
-                                    editable: true
-                                    up.indicator: undefined
-                                    down.indicator: undefined
-                                    from: 100
-                                    to: 10000000
-                                    value: root.cur_exposure_time
-                                    enabled: CameraEngine.isConnected
-
-                                    onValueChanged: {
-                                        root.cur_exposure_time = value;
-                                        exposure_time_slider.value = root.cur_exposure_time;
-                                        CameraEngine.setNumberAttribute("Exposure Time", root.cur_exposure_time);
-                                    }
-                                }
-                            }
-
-                            FluText {
-                                text: Lang.filter_threshod
-                            }
-
-                            RowLayout {
-                                Layout.fillWidth: true
-
-                                FluSlider {
-                                    id: filter_threshod_slider
-                                    Layout.fillWidth: true
-                                    from: 0
-                                    to: 255
-                                    value: root.filter_threshod
-
-                                    onValueChanged: {
-                                        root.filter_threshod = value;
-                                        filter_threshod_spinbox.value = root.filter_threshod;
-                                        CameraEngine.setNumberAttribute("Contrast Threshold", root.filter_threshod);
-                                    }
-                                }
-
-                                FluSpinBox {
-                                    id: filter_threshod_spinbox
-                                    Layout.preferredWidth: parent.width / 3
-                                    editable: true
-                                    up.indicator: undefined
-                                    down.indicator: undefined
-                                    from: 0
-                                    to: 255
-                                    value: root.filter_threshod
-
-                                    onValueChanged: {
-                                        root.filter_threshod = value;
-                                        filter_threshod_slider.value = root.filter_threshod;
-                                        CameraEngine.setNumberAttribute("Contrast Threshold", root.filter_threshod);
-                                    }
-                                }
-                            }
-
-                            FluButton {
-                                Layout.alignment: Qt.AlignRight
-                                text: Lang.execute
-                            }
-                        }
+                onClicked: {
+                    if(topology.selected_element_type === 0) {
+                        topology.removeNode(topology.selected_element)
+                    }
+                    else if(topology.selected_element_type === 1) {
+                        topology.removeEdge(topology.selected_element)
+                    }
+                    else if(topology.selected_element_type === 2) {
+                        topology.removeGroup(topology.selected_element)
                     }
                 }
+            }
+        }
+
+        Qan.GraphView {
+          id: graphView
+          anchors.fill: parent
+          navigable   : true
+          resizeHandlerColor: FluTheme.windowActiveBackgroundColor
+          gridThickColor: FluTheme.darkMode ? Qt.rgba(0.3, 0.3, 0.3, 0.5) : Qt.rgba(0.1, 0.1, 0.1, 0.5)
+            /*
+          MouseArea {
+              anchors.fill: parent
+              propagateComposedEvents: true
+              focus: true
+
+              Keys.onPressed: {
+                  console.debug("dsafasdfsdafasdfdfsed")
+              }
+          }
+            */
+            function centerItem(item) {
+                if (!item)
+                    return
+                var windowCenter = Qt.point((backgroundRec.width - item.width) / 2.,
+                    (backgroundRec.height - item.height) / 2.)
+                var graphNodeCenter = backgroundRec.mapToItem(containerItem, windowCenter.x, windowCenter.y)
+                item.x = graphNodeCenter.x
+                item.y = graphNodeCenter.y
+            }
+
+          graph: FlowGraph {
+              id: topology
+
+              property var selected_element
+              property var selected_element_type //0: node, 1: edge, 2:group
+
+              connectorEnabled: true
+              connectorEdgeColor: "lightblue"
+              connectorColor: FluTheme.primaryColor
+              selectionColor: FluTheme.primaryColor
+
+              portDelegate: Component {
+                  Qan.PortItem {
+                      width: 16;
+                      height: 16
+                      Rectangle {
+                          anchors.fill: parent
+                          color: "green"
+                          border.color: "yellow"
+                          border.width: 2
+                      }
+                  }
+              }
+
+               Component.onCompleted: {
+                   defaultEdgeStyle.lineType = Qan.EdgeStyle.Curved
+                   defaultEdgeStyle.lineColor = Qt.rgba(224/255,78/255,97/255,1)
+               }
+
+               onNodeRightClicked: (node, pos) =>{
+                   topology.selected_element = node;
+                   topology.selected_element_type = 0;
+                   var itemPos = backgroundRec.mapFromItem(node.item, pos)
+                   menu.x = itemPos.x;
+                   menu.y = itemPos.y;
+                   menu.open();
+               }
+
+               onEdgeRightClicked: (edge, pos) =>{
+                   topology.selected_element = edge;
+                   topology.selected_element_type = 1;
+                   var itemPos = backgroundRec.mapFromItem(edge.item, pos)
+                   menu.x = itemPos.x;
+                   menu.y = itemPos.y;
+                   menu.open();
+               }
+
+               onGroupRightClicked: (group, pos) =>{
+                   topology.selected_element = group;
+                   topology.selected_element_type = 2;
+                   var itemPos = backgroundRec.mapFromItem(group.item, pos)
+                   menu.x = itemPos.x;
+                   menu.y = itemPos.y;
+                   menu.open();
+               }
+            }
+
+          FluExpander {
+              id: setting_expander
+              anchors.left: parent.left
+              anchors.top: parent.top
+              anchors.leftMargin: 20
+              anchors.topMargin: 20
+              width: settings_area.width
+              headerText: Lang.nodes
+              contentHeight: settings_area.height + 10
+
+              Item {
+                  Flickable{
+                      anchors.fill: parent
+                      contentWidth: settings_area.width + 5
+                      contentHeight: settings_area.height
+                      FluArea {
+                          id: settings_area
+                          width: root.width / 6
+                          height: column.height
+                          anchors.left: parent.left
+                          anchors.top: parent.top
+                          anchors.leftMargin: 5
+                          anchors.topMargin: 5
+
+                          ColumnLayout {
+                              id: column
+                              FluText {
+                                  text: Lang.inoutput
+                              }
+
+                              GridLayout {
+                                //rows: 8
+                                columns: 4
+
+                                FluIconButton {
+                                    iconSource: FluentIcons.Cloud
+                                    iconSize: 28
+                                    text: Lang.cloudInputNode
+
+                                    onClicked: {
+                                        sourceNode = topology.insertFlowNode(FlowNode.CloudInput);
+                                        graphView.centerItem(sourceNode.item);
+                                    }
+                                }
+
+                                FluIconButton {
+                                    iconSource: FluentIcons.SignOut
+                                    iconSize: 28
+                                    text: Lang.cloudOutputNode
+
+                                    onClicked: {
+                                        var node = topology.insertFlowNode(FlowNode.CloudOutput);
+                                        graphView.centerItem(node.item);
+                                    }
+                                }
+
+                                FluIconButton {
+                                    iconSource: FluentIcons.SurfaceHub
+                                    iconSize: 28
+                                    text: Lang.meshOutputNode
+
+                                    onClicked: {
+                                        var node = topology.insertFlowNode(FlowNode.MeshOutput);
+                                        graphView.centerItem(node.item);
+                                    }
+                                }
+
+                                FluIconButton {
+                                    iconSource: FluentIcons.Group
+                                    iconSize: 28
+                                    text: Lang.group
+
+                                    onClicked: {
+                                        var gg = topology.insertGroup();
+                                        graphView.centerItem(gg.item);
+                                    }
+                                }
+
+                                FluIconButton {
+                                    iconSource: FluentIcons.Split20
+                                    iconSize: 28
+                                    text: Lang.split_output_node
+
+                                    onClicked: {
+                                        var node = topology.insertFlowNode(FlowNode.SplitOutput);
+                                        graphView.centerItem(node.item);
+                                    }
+                                }
+
+                                FluIconButton {
+                                    iconSource: FluentIcons.Movies
+                                    iconSize: 28
+                                    text: Lang.actor_output_node
+
+                                    onClicked: {
+                                        var node = topology.insertFlowNode(FlowNode.ActorOutput);
+                                        graphView.centerItem(node.item);
+                                    }
+                                }
+                              }
+
+                              FluText {
+                                  text: Lang.filters
+                              }
+
+                              GridLayout {
+                                  FluIconButton {
+                                      iconSource: FluentIcons.Filter
+                                      iconSize: 28
+                                      text: Lang.passThroughFilterNode
+
+                                      onClicked: {
+                                          var node = topology.insertFlowNode(FlowNode.PassThroughFilter);
+                                          graphView.centerItem(node.item);
+                                      }
+                                  }
+
+                                  FluIconButton {
+                                      iconSource: FluentIcons.AreaChart
+                                      iconSize: 28
+                                      text: Lang.staticRemovel
+
+                                      onClicked: {
+                                          var node = topology.insertFlowNode(FlowNode.StatisticalOutlierRemoval);
+                                          graphView.centerItem(node.item);
+                                      }
+                                  }
+                              }
+
+                              FluText {
+                                  text: Lang.registration
+                              }
+
+                              FluText {
+                                  text: Lang.sample_consensus
+                              }
+
+                              FluText {
+                                  text: Lang.segmentation
+                              }
+
+                              GridLayout {
+                                  FluIconButton {
+                                      iconSource: FluentIcons.Edit
+                                      iconSize: 28
+                                      text: Lang.sac_segment
+
+                                      onClicked: {
+                                          var node = topology.insertFlowNode(FlowNode.SACSegment);
+                                          graphView.centerItem(node.item);
+                                      }
+                                  }
+
+                                  FluIconButton {
+                                      iconSource: FluentIcons.HWPNewLine
+                                      iconSize: 28
+                                      text: Lang.intersection_line_node
+
+                                      onClicked: {
+                                          var node = topology.insertFlowNode(FlowNode.IntersectionLine);
+                                          graphView.centerItem(node.item);
+                                      }
+                                  }
+
+                                  FluIconButton {
+                                      iconSource: FluentIcons.Walk
+                                      iconSize: 28
+                                      text: Lang.three_line_intersection_node
+
+                                      onClicked: {
+                                          var node = topology.insertFlowNode(FlowNode.ThreeLineIntersection);
+                                          graphView.centerItem(node.item);
+                                      }
+                                  }
+                              }
+
+                              FluText {
+                                  text: Lang.surface
+                              }
+
+                              GridLayout {
+                                  FluIconButton {
+                                      iconSource: FluentIcons.StatusTriangleInner
+                                      iconSize: 28
+                                      text: Lang.greedyProjectionTriangulation
+
+                                      onClicked: {
+                                          var node = topology.insertFlowNode(FlowNode.GreedyProjectionTriangulation);
+                                          graphView.centerItem(node.item);
+                                      }
+                                  }
+
+                                  FluIconButton {
+                                      iconSource: FluentIcons.Emoji
+                                      iconSize: 28
+                                      text: Lang.poisson
+
+                                      onClicked: {
+                                          var node = topology.insertFlowNode(FlowNode.Poisson);
+                                          graphView.centerItem(node.item);
+                                      }
+                                  }
+                              }
+
+                              FluText {
+                                  text: Lang.features
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+        }
+
+        Qan.GraphPreview {
+            id: graphPreview
+            source: graphView
+            viewWindowColor: FluTheme.primaryColor
+            anchors.right: graphView.right; anchors.bottom: graphView.bottom
+            anchors.rightMargin: 8; anchors.bottomMargin: 8
+            width: previewMenu.mediumPreview.width
+            height: previewMenu.mediumPreview.height
+            FluMenu {
+                id: previewMenu
+                readonly property size smallPreview: Qt.size(150, 85)
+                readonly property size mediumPreview: Qt.size(250, 141)
+                readonly property size largePreview: Qt.size(350, 198)
+                FluMenuItem {
+                    text: "Hide preview"
+                    onTriggered: graphPreview.visible = false
+                }
+                FluMenuSeparator { }
+                FluMenuItem {
+                    text: qsTr('Small')
+                    checkable: true
+                    checked: graphPreview.width === previewMenu.smallPreview.width &&
+                             graphPreview.height === previewMenu.smallPreview.height
+                    onTriggered: {
+                        graphPreview.width = previewMenu.smallPreview.width
+                        graphPreview.height = previewMenu.smallPreview.height
+                    }
+                }
+                FluMenuItem {
+                    text: qsTr('Medium')
+                    checkable: true
+                    checked: graphPreview.width === previewMenu.mediumPreview.width &&
+                             graphPreview.height === previewMenu.mediumPreview.height
+                    onTriggered: {
+                        graphPreview.width = previewMenu.mediumPreview.width
+                        graphPreview.height = previewMenu.mediumPreview.height
+                    }
+                }
+                FluMenuItem {
+                    text: qsTr('Large')
+                    checkable: true
+                    checked: graphPreview.width === previewMenu.largePreview.width &&
+                             graphPreview.height === previewMenu.largePreview.height
+                    onTriggered: {
+                        graphPreview.width = previewMenu.largePreview.width
+                        graphPreview.height = previewMenu.largePreview.height
+                    }
+                }
+            }
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.RightButton
+                onClicked: previewMenu.open(mouse.x, mouse.y)
             }
         }
     }
@@ -399,87 +427,52 @@ FluContentPage {
         width: 48
         height: operation_layout.height
 
-        property bool isColorized: false
-        property bool isAreaSelect: false
-        property bool isEnablePointInfo: false
-
         ColumnLayout {
-            //anchors.fill: parent
             id: operation_layout
             width: parent.width
             anchors.left: parent.left
             anchors.top: parent.top
 
             FluIconButton {
-                id: colorized_button
                 Layout.alignment: Qt.AlignHCenter
-                iconSource: operation_area.isColorized ? FluentIcons.ColorOff : FluentIcons.Color
+                iconSource: FluentIcons.Play
                 iconSize: 28
 
                 onClicked: {
-                    operation_area.isColorized = !operation_area.isColorized;
-                    VTKProcessEngine.enableColorBar(operation_area.isColorized);
-                    operation_area.isColorized ? VTKProcessEngine.jetDepthColorMap() : VTKProcessEngine.cancelColorizeCloud();
-                    colorized_button.color = operation_area.isColorized ? FluTheme.primaryColor : colorized_button.normalColor;
+                    sourceNode.updateSource();
                 }
             }
 
             FluIconButton {
-                id: area_select_button
                 Layout.alignment: Qt.AlignHCenter
-                iconSource: operation_area.isAreaSelect ? FluentIcons.Cancel : FluentIcons.ClearSelection
+                iconSource: FluentIcons.Save
                 iconSize: 28
 
                 onClicked: {
-                    operation_area.isAreaSelect = !operation_area.isAreaSelect;
-                    VTKProcessEngine.enableAreaSelected(operation_area.isAreaSelect);
-                    operation_area.isAreaSelect ? showInfo(Lang.please_select_start_point, 3000) : showInfo(Lang.cancel, 3000);
-                    area_select_button.color = operation_area.isAreaSelect ? FluTheme.primaryColor : area_select_button.normalColor;
-                    //operation_area.isColorized ? VTKProcessEngine.jetDepthColorMap() : VTKProcessEngine.cancelColorizeCloud();
+                    saveFolderDialog.open();
                 }
             }
 
             FluIconButton {
-                id: is_enable_point_info_button
                 Layout.alignment: Qt.AlignHCenter
-                iconSource: FluentIcons.Info
+                iconSource: FluentIcons.OpenFile
                 iconSize: 28
 
                 onClicked: {
-                    operation_area.isEnablePointInfo = !operation_area.isEnablePointInfo;
-                    VTKProcessEngine.enablePointInfo(operation_area.isEnablePointInfo);
-                    operation_area.isEnablePointInfo ? showInfo(Lang.please_select_point_to_see_info, 3000) : showInfo(Lang.cancel, 3000);
-                    is_enable_point_info_button.color = operation_area.isEnablePointInfo ? FluTheme.primaryColor : is_enable_point_info_button.normalColor;
-                    //operation_area.isColorized ? VTKProcessEngine.jetDepthColorMap() : VTKProcessEngine.cancelColorizeCloud();
+                    saveFolderDialog.open();
                 }
             }
-        }
-    }
 
-    Connections {
-        target: VTKProcessEngine
+            FluIconButton {
+                Layout.alignment: Qt.AlignHCenter
+                iconSource: FluentIcons.Link
+                iconSize: 28
+                color: linkCamera ? FluTheme.primaryColor : FluTheme.itemNormalColor
 
-        function onPointInfoChanged(x, y, z) {
-            showSuccess("Point Loc: " + x.toString() + ", " + y.toString() + ", " + z.toString(), 3000);
-        }
-    }
-
-    ColumnLayout {
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.rightMargin: parent.width * 0.1
-        anchors.bottomMargin: parent.height * 0.2
-
-        FluText {
-            Layout.fillWidth: true
-            text: ("cloud size: %1").arg(VTKProcessEngine.pointSize)
-            opacity: 0.3
-        }
-
-        FluText {
-            Layout.fillWidth: true
-            text: ("fps: %1").arg(vtk_render_item.fps)
-            opacity: 0.3
+                onClicked: {
+                    linkCamera = !linkCamera;
+                }
+            }
         }
     }
 }

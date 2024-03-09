@@ -69,11 +69,11 @@ FluObject{
     }
 
     FluPaneItem{
-        id:item_measurement
-        url: "qrc:/ui/page/Page_Measurement.qml"
+        id:item_postProcessOutput
+        url: "qrc:/ui/page/Page_PostProcessOutput.qml"
         onTap:{
             if(navigationView.getCurrentUrl()){
-                item_measurement.count = 0
+                item_postProcessOutput.count = 0
             }
             navigationView.push(url)
         }

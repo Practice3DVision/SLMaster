@@ -116,7 +116,7 @@ bool CYPRESS_I2C_RequestI2CBusAccess()
 		return false;
     }
 
-    while ((std::chrono::steady_clock::now() - StartTime).count() * 1000 < I2C_TIMEOUT_MILLISECONDS)
+    while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - StartTime).count() * (double)std::chrono::milliseconds::period::num / std::chrono::milliseconds::period::den < I2C_TIMEOUT_MILLISECONDS)
     {
         if (!CYPRESS_I2C_GetCyGpio(I2C_ACCESS_GRANTED_GPIO, &Value))
         {

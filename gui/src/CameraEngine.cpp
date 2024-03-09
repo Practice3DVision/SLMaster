@@ -4,7 +4,11 @@
 #include <QDebug>
 #include <QString>
 
+#include <Eigen/Eigen>
+#include <opencv2/core/eigen.hpp>
+
 #include <binosSinusCompleGrayCodePattern.h>
+#include <trinocularMultiViewStereoGeometryPattern.h>
 #include <defocusMethod.hpp>
 #ifdef WITH_CUDASTRUCTUREDLIGHT_MODULE
 #include <opencv2/cudastructuredlight.hpp>
@@ -23,7 +27,7 @@ CameraEngine* CameraEngine::instance() {
 
 static auto lastTime = std::chrono::steady_clock::now();
 
-CameraEngine::CameraEngine() : stripePaintItem_(nullptr), isOnLine_(false), isConnected_(false), appExit_(false), cameraType_(AppType::BinocularSLCamera), isProject_(false), isContinusStop_(true) { }
+CameraEngine::CameraEngine() : stripePaintItem_(nullptr), isOnLine_(false), isConnected_(false), appExit_(false), cameraType_(AppType::BinocularSLCamera), isProject_(false), isContinusStop_(true) {}
 
 void CameraEngine::startDetectCameraState() {
     onlineDetectThread_ = std::thread([&] {
@@ -60,8 +64,11 @@ int CameraEngine::createStripe(const int pixelDepth, const int direction, const 
     qInfo() << "start create stripe...";
 
     unique_ptr<Pattern> pattern;
-    if(stripeType == AppType::StripeType::SineComplementaryGrayCode) {
+    if(stripeType == AppType::PatternMethod::SinusCompleGrayCode) {
         pattern = make_unique<BinoSinusCompleGrayCodePattern>();
+    }
+    else if(stripeType == AppType::PatternMethod::MultiViewStereoGeometry) {
+        pattern = make_unique<TrinocularMultiViewStereoGeometryPattern>();
     }
 
     pattern->params_->height_ = imgHeight;
@@ -212,7 +219,29 @@ void CameraEngine::saveStripe(const QString& path) {
 void CameraEngine::selectCamera(const int cameraType) {
     qInfo() << QString("select camera: %1.").arg(cameraType);
 
+    if(onlineDetectThread_.joinable() && cameraType != cameraType_) {
+        appExit_.store(true, std::memory_order_release);
+        onlineDetectThread_.join();
+    }
+
     cameraType_ = AppType::CameraType(cameraType);
+
+    if(cameraType == AppType::CameraType::BinocularSLCamera) {
+        slCameraFactory_.setCameraJsonPath("../../gui/qml/res/config/binoocularCameraConfig.json");
+    }
+    else if(cameraType == AppType::CameraType::TripleSLCamera) {
+        slCameraFactory_.setCameraJsonPath("../../gui/qml/res/config/trinocularCameraConfig.json");
+    }
+    else {
+        qDebug() << "We don't support monocualr camera in current!";
+    }
+
+    slCameraFactory_.getCamera(slmaster::CameraType(cameraType_));
+
+    if(appExit_.load(std::memory_order_acquire)) {
+        appExit_.store(false, std::memory_order_release);
+        startDetectCameraState();
+    }
 }
 
 void CameraEngine::setCameraJsonPath(const std::string jsonPath) {
@@ -363,7 +392,8 @@ void CameraEngine::startScan() {
         if(!leftImgPaths.empty()) {
             std::vector<cv::Mat> leftImgs;
             for(auto path : leftImgPaths) {
-                cv::Mat img = cv::imread((leftCamModel_->curFolderPath() + "/" + path).toStdString(), 0);
+                auto imgPath = (leftCamModel_->curFolderPath() + "/" + path).toLocal8Bit().toStdString();
+                cv::Mat img = cv::imread(imgPath, 0);
                 leftImgs.emplace_back(img);
             }
             imgs.emplace_back(leftImgs);
@@ -373,7 +403,8 @@ void CameraEngine::startScan() {
         if(!rightImgPaths.empty()) {
             std::vector<cv::Mat> rightImgs;
             for(auto path : rightImgPaths) {
-                cv::Mat img = cv::imread((rightCamModel_->curFolderPath() + "/" + path).toStdString(), 0);
+                auto imgPath = (rightCamModel_->curFolderPath() + "/" + path).toLocal8Bit().toStdString();
+                cv::Mat img = cv::imread(imgPath, 0);
                 rightImgs.emplace_back(img);
             }
             imgs.emplace_back(rightImgs);
@@ -383,9 +414,11 @@ void CameraEngine::startScan() {
         if(!colorImgPaths.empty()) {
             std::vector<cv::Mat> colorImgs;
             for(auto path : colorImgPaths) {
-                cv::Mat img = cv::imread((colorCamModel_->curFolderPath() + "/" + path).toStdString(), 0);
+                auto imgPath = (colorCamModel_->curFolderPath() + "/" + path).toLocal8Bit().toStdString();
+                cv::Mat img = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
                 colorImgs.emplace_back(img);
             }
+
             imgs.emplace_back(colorImgs);
         }
 
@@ -400,6 +433,13 @@ void CameraEngine::startScan() {
             if(slCamera->capture(frame_)) {
                 scanTexturePaintItem_->updateImage(QImage(frame_.textureMap_.data, frame_.textureMap_.cols, frame_.textureMap_.rows, frame_.textureMap_.step, QImage::Format_BGR888));
                 VTKProcessEngine::instance()->emplaceRenderCloud(frame_.pointCloud_);
+
+                emit frameCaptured();
+
+                qInfo() << "Capture once sucess.";
+            }
+            else {
+                qWarning() << "Capture once failed.";
             }
         });
     }
@@ -420,23 +460,23 @@ void CameraEngine::continuesScan() {
     workThread_ = std::thread([&]{
         auto renderLastTime = std::chrono::steady_clock::now();
         while(!isContinusStop_.load(std::memory_order_acquire)) {
-            if(frameDatasQueue_.empty()) {
-                continue;
+            if(frameDatasQueue_.try_pop(frame_)) {
+                if (std::chrono::duration<double>(std::chrono::steady_clock::now() - renderLastTime).count() > 0.035) {
+                    scanTexturePaintItem_->updateImage(QImage(frame_.textureMap_.data, frame_.textureMap_.cols, frame_.textureMap_.rows, frame_.textureMap_.step, QImage::Format_BGR888).copy());
+                    VTKProcessEngine::instance()->emplaceRenderCloud(std::move(frame_.pointCloud_));
+                    renderLastTime = std::chrono::steady_clock::now();
+                }
             }
-
-            FrameData frame_;
-            frameDatasQueue_.move_pop(frame_);
-            
-            if (std::chrono::duration<double>(std::chrono::steady_clock::now() - renderLastTime).count() > 0.035) {
-                scanTexturePaintItem_->updateImage(QImage(frame_.textureMap_.data, frame_.textureMap_.cols, frame_.textureMap_.rows, frame_.textureMap_.step, QImage::Format_BGR888).copy());
-                VTKProcessEngine::instance()->emplaceRenderCloud(std::move(frame_.pointCloud_));
-                renderLastTime = std::chrono::steady_clock::now();
+            else {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
         }
     });
 
     auto slCamera = getSLCamera();
     slCamera->continuesCapture(frameDatasQueue_);
+
+    //连续重建不与点云处理流程链接
 }
 
 void CameraEngine::pauseScan() {
@@ -484,7 +524,7 @@ void CameraEngine::setPatternType(const int patternType) {
 
     if(patternType == AppType::PatternMethod::SinusCompleGrayCode) {
         pattern_ = new BinoSinusCompleGrayCodePattern();
-        auto castPatternParams = static_cast<BinoPatternParams*>(pattern_->params_);
+        auto castPatternParams = static_cast<BinoPatternParams*>(pattern_->params_.get());
         castPatternParams->shiftTime_ = std::round(shiftTime);
         castPatternParams->cycles_ = std::round(cycles);
         castPatternParams->horizontal_ = !isVertical;
@@ -492,7 +532,6 @@ void CameraEngine::setPatternType(const int patternType) {
         castPatternParams->height_ = std::stoi(dlpHeight);
         castPatternParams->confidenceThreshold_ = confidenceThreshold;
         castPatternParams->costMinDiff_ = costMinDiff;
-        castPatternParams->costMaxDiff_ = costMaxDiff;
         castPatternParams->maxCost_ = maxCost;
         castPatternParams->minDisparity_ = minDisp;
         castPatternParams->maxDisparity_ = maxDisp;
@@ -501,7 +540,62 @@ void CameraEngine::setPatternType(const int patternType) {
 
     }
     else if(patternType == AppType::PatternMethod::MultiViewStereoGeometry) {
+        pattern_ = new TrinocularMultiViewStereoGeometryPattern();
+        auto castPatternParams = static_cast<TrinoPatternParams*>(pattern_->params_.get());
 
+        castPatternParams->shiftTime_ = std::round(shiftTime);
+        castPatternParams->cycles_ = std::round(cycles);
+        castPatternParams->horizontal_ = !isVertical;
+        castPatternParams->width_ = std::stoi(dlpWidth);
+        castPatternParams->height_ = std::stoi(dlpHeight);
+        castPatternParams->confidenceThreshold_ = confidenceThreshold;
+        castPatternParams->costMinDiff_ = costMinDiff;
+        castPatternParams->maxCost_ = maxCost;
+        castPatternParams->costMaxDiff_ = 1.f;
+        castPatternParams->minDepth_ = minDepth;
+        castPatternParams->maxDepth_ = maxDepth;
+        //左相机作为相机1
+        cv::Mat tempMat;
+        slCamera->getCaliInfo()->info_.M1_.convertTo(tempMat, CV_32FC1);
+        cv::cv2eigen(tempMat, castPatternParams->M1_);
+        //右相机作为相机2
+        slCamera->getCaliInfo()->info_.M2_.convertTo(tempMat, CV_32FC1);
+        cv::cv2eigen(tempMat, castPatternParams->M2_);
+        //彩色相机作为相机3
+        slCamera->getCaliInfo()->info_.M3_.convertTo(tempMat, CV_32FC1);
+        cv::cv2eigen(tempMat, castPatternParams->M3_);
+        //slCamera->getCaliInfo()->info_.K1_.convertTo(tempMat, CV_32FC1);
+        //cv::cv2eigen(tempMat, castPatternParams->K_);
+        slCamera->getCaliInfo()->info_.Rlr_.convertTo(tempMat, CV_32FC1);
+        cv::cv2eigen(tempMat, castPatternParams->R12_);
+        slCamera->getCaliInfo()->info_.Tlr_.convertTo(tempMat, CV_32FC1);
+        cv::cv2eigen(tempMat, castPatternParams->T12_);
+        slCamera->getCaliInfo()->info_.Rlc_.convertTo(tempMat, CV_32FC1);
+        cv::cv2eigen(tempMat, castPatternParams->R13_);
+        slCamera->getCaliInfo()->info_.Tlc_.convertTo(tempMat, CV_32FC1);
+        cv::cv2eigen(tempMat, castPatternParams->T13_);
+
+        std::string refUnwrapImgPath;
+        slCamera->getStringAttribute("Ref UnwrapImg Path", refUnwrapImgPath);
+        cv::Mat refUnwrapImg = cv::imread(refUnwrapImgPath, cv::IMREAD_UNCHANGED);
+        castPatternParams->refUnwrappedMap_.upload(refUnwrapImg);
+        cv::Mat PL1 = cv::Mat::eye(4, 4, CV_32FC1);
+        slCamera->getCaliInfo()->info_.M1_.copyTo(PL1(cv::Rect(0, 0, 3, 3)));
+        cv::cv2eigen(PL1, castPatternParams->PL1_);
+        cv::Mat PR2 = cv::Mat::eye(4, 4, CV_32FC1);
+        slCamera->getCaliInfo()->info_.Rlr_.copyTo(PR2(cv::Rect(0, 0, 3, 3)));
+        slCamera->getCaliInfo()->info_.Tlr_.copyTo(PR2(cv::Rect(3, 0, 1, 3)));
+        cv::Mat M2Normal = cv::Mat::eye(4, 4, CV_32FC1);
+        slCamera->getCaliInfo()->info_.M2_.copyTo(M2Normal(cv::Rect(0, 0, 3, 3)));
+        PR2 = M2Normal * PR2;
+        cv::cv2eigen(PR2, castPatternParams->PR2_);
+        cv::Mat PR4 = cv::Mat::eye(4, 4, CV_32FC1);
+        slCamera->getCaliInfo()->info_.Rlp_.copyTo(PR4(cv::Rect(0, 0, 3, 3)));
+        slCamera->getCaliInfo()->info_.Tlp_.copyTo(PR4(cv::Rect(3, 0, 1, 3)));
+        cv::Mat M4Normal = cv::Mat::eye(4, 4, CV_32FC1);
+        slCamera->getCaliInfo()->info_.M4_.copyTo(M4Normal(cv::Rect(0, 0, 3, 3)));
+        PR4 = M4Normal * PR4;
+        cv::cv2eigen(PR4, castPatternParams->PR4_);
     }
 
     slCamera->setPattern(pattern_);
@@ -570,7 +664,8 @@ void CameraEngine::projectOnce() {
         while (std::chrono::steady_clock::now() < endTime || !leftCamera->getImgs().empty()) {
             if(!leftCamera->getImgs().empty()) {
                 cv::Mat img = leftCamera->popImg();
-                QImage qImage = QImage(img.data, img.cols, img.rows, img.step, QImage::Format_Grayscale8).copy();
+                QImage::Format formatType = img.type() == CV_8UC3 ? QImage::Format_BGR888 : QImage::Format_Grayscale8;
+                QImage qImage = QImage(img.data, img.cols, img.rows, img.step, formatType).copy();
                 stripeImgs_.emplace_back(qImage);
                 realTimeRenderImg(qImage);
             }
@@ -638,7 +733,8 @@ void CameraEngine::projectContinues() {
                 }
             }
 
-            QImage qImg = QImage(img.data, img.cols, img.rows, img.step, QImage::Format_Grayscale8).copy();
+            QImage::Format formatType = img.type() == CV_8UC3 ? QImage::Format_BGR888 : QImage::Format_Grayscale8;
+            QImage qImg = QImage(img.data, img.cols, img.rows, img.step, formatType).copy();
 
             realTimeRenderImg(qImg);
         }

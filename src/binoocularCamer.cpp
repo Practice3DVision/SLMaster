@@ -127,8 +127,7 @@ SLCameraInfo BinocularCamera::getCameraInfo() {
     slCameraInfo.cameraName_ =
         slCameraInfo.isFind_ ? stringProperties_["Camera Name"] : "NOT_FOUND";
     slCameraInfo.intrinsic_ = slCameraInfo.isFind_
-                                   ? caliInfo_->info_.M1_
-                                   : cv::Mat::zeros(3, 3, CV_32FC1);
+                                  ? caliInfo_->info_.M1_ : cv::Mat::zeros(3, 3, CV_32FC1);
 
     return slCameraInfo;
 }
@@ -152,8 +151,15 @@ bool BinocularCamera::connect() {
         const bool connectProjector =
             projectorFactory_.getProjector(stringProperties_["DLP Evm"])
                 ->connect();
+
+        bool hasColorCamera = (stringProperties_["Color Camera Name"] != "");
+        bool connectColorCamera = true;
+        if(hasColorCamera) {
+            connectColorCamera = cameraFactory_.getCamera(stringProperties_["Color Camera Name"], manufator)->connect();
+        }
+
         connectState =
-            connectLeftCamera && connectRightCamera && connectProjector;
+            connectLeftCamera && connectRightCamera && connectProjector && connectColorCamera;
 
         if (connectState) {
             updateEnableDepthCamera();
@@ -166,6 +172,12 @@ bool BinocularCamera::connect() {
             cameraFactory_
                 .getCamera(stringProperties_["Right Camera Name"], manufator)
                 ->start();
+
+            if(hasColorCamera) {
+                cameraFactory_
+                    .getCamera(stringProperties_["Color Camera Name"], manufator)
+                    ->start();
+            }
         } else {
             if (cameraFactory_
                     .getCamera(stringProperties_["Left Camera Name"],
@@ -186,6 +198,11 @@ bool BinocularCamera::connect() {
                                manufator)
                     ->disConnect();
             }
+
+            if(hasColorCamera && cameraFactory_.getCamera(stringProperties_["Color Camera Name"], manufator)->isConnect()) {
+                cameraFactory_.getCamera(stringProperties_["Color Camera Name"], manufator)->disConnect();
+            }
+
             if (projectorFactory_.getProjector(stringProperties_["DLP Evm"])
                     ->isConnect()) {
                 projectorFactory_.getProjector(stringProperties_["DLP Evm"])
@@ -217,7 +234,15 @@ bool BinocularCamera::disConnect() {
     const bool disConnectProjector =
         projectorFactory_.getProjector(stringProperties_["DLP Evm"])
             ->disConnect();
-    return disConnectLeftCamera && disConnectRightCamera && disConnectProjector;
+    bool disConnectcolorCamera = true;
+    if(stringProperties_["Color Camera Name"] == "") {
+        disConnectcolorCamera =
+            cameraFactory_
+                .getCamera(stringProperties_["Color Camera Name"], manufator)
+                ->disConnect();
+    }
+
+    return disConnectLeftCamera && disConnectRightCamera && disConnectProjector && disConnectcolorCamera;
 }
 
 bool BinocularCamera::isConnect() {
@@ -236,22 +261,29 @@ bool BinocularCamera::isConnect() {
     const bool isConnectProjector =
         projectorFactory_.getProjector(stringProperties_["DLP Evm"])
             ->isConnect();
+    bool isConnectColorCamera = true;
+    if(stringProperties_["Color Camera Name"] == "") {
+        isConnectColorCamera =
+            cameraFactory_
+                .getCamera(stringProperties_["Color Camera Name"], manufator)
+                ->isConnect();
+    }
 
-    return isConnectLeftCamera && isConnectRightCamera && isConnectProjector;
+    return isConnectLeftCamera && isConnectRightCamera && isConnectProjector && isConnectColorCamera;
 }
 
 void BinocularCamera::decode(const std::vector<std::vector<cv::Mat>> &imgs,
                              FrameData &frameData) {
     //默认深度相机为左相机，纹理相机为左相机
-    frameData.textureMap_ = cv::Mat::zeros(imgs[0][0].size(), imgs[0][0].type());
+    const int index = imgs.size() == 3 ? 2 : 0;
+    frameData.textureMap_ = cv::Mat::zeros(imgs[index][0].size(), imgs[index][0].type());
     for (int i = 0; i < pattern_->params_->shiftTime_; ++i) {
-        frameData.textureMap_ += (imgs[0][i] / pattern_->params_->shiftTime_);
+        frameData.textureMap_ += (imgs[index][i] / pattern_->params_->shiftTime_);
     }
     if(frameData.textureMap_.type() == CV_8UC1) {
         cv::cvtColor(frameData.textureMap_, frameData.textureMap_, cv::COLOR_GRAY2BGR);
     }
 
-    cv::Size imgSize(caliInfo_->info_.S_.at<double>(0, 0), caliInfo_->info_.S_.at<double>(1, 0));
     cv::Mat disparityMap, textureMapped;
 
     std::vector<std::vector<cv::Mat>> remapedImgs(2, std::vector<cv::Mat>(imgs[0].size()));
@@ -260,14 +292,19 @@ void BinocularCamera::decode(const std::vector<std::vector<cv::Mat>> &imgs,
             cv::remap(imgs[0][i], remapedImgs[0][i], mapLX_, mapLY_, cv::INTER_LINEAR);
             cv::remap(imgs[1][i], remapedImgs[1][i], mapRX_, mapRY_, cv::INTER_LINEAR);
         }
-        if(range.start == 0) {
+        if(range.start == 0 && index == 0) {
             cv::remap(frameData.textureMap_, textureMapped, mapLX_, mapLY_, cv::INTER_LINEAR);
         }
     });
 
     pattern_->decode(remapedImgs, disparityMap, booleanProperties_["Gpu Accelerate"]);
 
-    fromDispairtyMapToCloud(disparityMap, textureMapped, *caliInfo_, *frameData.pointCloud_);
+    if(booleanProperties_["Noise Filter"]) {
+        cv::Mat operateMap = disparityMap.clone();
+        cv::bilateralFilter(operateMap, disparityMap, 15, 20, 50);
+    }
+
+    fromDispairtyMapToCloud(disparityMap, textureMapped, *caliInfo_, *frameData.pointCloud_, index == 3);
 }
 
 bool BinocularCamera::offlineCapture(const std::vector<std::vector<cv::Mat>> &imgs,
@@ -301,37 +338,52 @@ bool BinocularCamera::continuesCapture(SafeQueue<FrameData>& frameDataQueue) {
             stringProperties_["Left Camera Name"], manufator);
         auto pRightCamera = cameraFactory_.getCamera(
             stringProperties_["Right Camera Name"], manufator);
+
+        device::camera::Camera* pColorCamera = nullptr;
+        if(stringProperties_["Color Camera Name"] != "") {
+            pColorCamera = cameraFactory_.getCamera(
+                stringProperties_["Color Camera Name"], manufator);
+        }
+
         const int imgSizeWaitFor = numbericalProperties_["Total Fringes"];
 
         while(!isCaptureStop_.load(std::memory_order_acquire)) {
-            //if(pLeftCamera->getImgs().size() >= imgSizeWaitFor && pRightCamera->getImgs().size() >= imgSizeWaitFor) {
-                std::vector<std::vector<cv::Mat>> imgs(2);
+            if(pLeftCamera->getImgs().size() >= imgSizeWaitFor && pRightCamera->getImgs().size() >= imgSizeWaitFor && (pColorCamera ? pColorCamera->getImgs().size() >= imgSizeWaitFor : true)) {
+                std::vector<std::vector<cv::Mat>> imgs(pColorCamera ? 3 : 2);
                 int index = 0;
                 while(index != imgSizeWaitFor) {
-                    //imgs[0].emplace_back(pLeftCamera->popImg());
-                    //imgs[1].emplace_back(pRightCamera->popImg());
-                    imgs[0].emplace_back(cv::imread("C:/Users/Liuyunhuang/Desktop/code/Qt/SLMaster/data/L/" + std::to_string(index) + ".bmp", 0));
-                    imgs[1].emplace_back(cv::imread("C:/Users/Liuyunhuang/Desktop/code/Qt/SLMaster/data/R/" + std::to_string(index) + ".bmp", 0));
+                    imgs[0].emplace_back(pLeftCamera->popImg());
+                    imgs[1].emplace_back(pRightCamera->popImg());
+                    if(pColorCamera) {
+                        imgs[2].emplace_back(pColorCamera->popImg());
+                    }
                     ++index;
                 }
 
-                if(imgsCreated_.size() > 1) {
+                if(imgsCreated_.size() > 2) {
                     continue;
                 }
 
                 imgsCreated_.push(imgs);
-            //}
+            }
         }
     });
 
     frameDataCreateThread_ = std::thread([&]{
         while(!isCaptureStop_.load(std::memory_order_acquire)) {
             if(imgsCreated_.empty()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(5));
                 continue;
             }
 
             std::vector<std::vector<cv::Mat>> imgs;
-            imgsCreated_.pop(imgs);
+            imgsCreated_.move_pop(imgs);
+
+            if(stringProperties_["Color Camera Name"] != "") {
+                for (int i = 0; i < imgs.size(); ++i) {
+                    cv::cvtColor(imgs[i], imgs[i], cv::COLOR_BayerBG2BGR);
+                }
+            }
 
             FrameData curFrameData;
             decode(imgs, curFrameData);
@@ -372,6 +424,9 @@ bool BinocularCamera::stopContinuesCapture() {
         stringProperties_["Left Camera Name"], manufator)->clearImgs();
     cameraFactory_.getCamera(
         stringProperties_["Right Camera Name"], manufator)->clearImgs();
+    if(stringProperties_["Color Camera Name"] != "") {
+        cameraFactory_.getCamera(stringProperties_["Color Camera Name"], manufator)->clearImgs();
+    }
 
     return true;
 }
@@ -385,28 +440,42 @@ bool BinocularCamera::capture(FrameData &frameData) {
         stringProperties_["Left Camera Name"], manufator);
     auto pRightCamera = cameraFactory_.getCamera(
         stringProperties_["Right Camera Name"], manufator);
-    auto pProjector =
-        projectorFactory_.getProjector(stringProperties_["DLP Evm"]);
+
+    device::camera::Camera* pColorCamera = nullptr;
+    if(stringProperties_["Color Camera Name"] != "") {
+        pColorCamera = cameraFactory_.getCamera(
+            stringProperties_["Color Camera Name"], manufator);
+    }
+
+    auto pProjector = projectorFactory_.getProjector(stringProperties_["DLP Evm"]);
     const int imgSizeWaitFor = numbericalProperties_["Total Fringes"];
     const int totalExposureTime = (numbericalProperties_["Pre Exposure Time"] + numbericalProperties_["Exposure Time"] + numbericalProperties_["Aft Exposure Time"]) * imgSizeWaitFor;
 
     pProjector->project(false);
 
-    auto endTime = std::chrono::steady_clock::now() + std::chrono::duration<int, std::ratio<1, 1000000>>(totalExposureTime * 60);
+    auto endTime = std::chrono::steady_clock::now() + std::chrono::duration<int, std::ratio<1, 1000000>>(totalExposureTime + 1000000);
     //注意相机回调函数是主函数运行，因此尽量将该线程设置为多线程，从而不影响相机取图
     while (pLeftCamera->getImgs().size() < imgSizeWaitFor ||
-           pRightCamera->getImgs().size() < imgSizeWaitFor) {
+           pRightCamera->getImgs().size() < imgSizeWaitFor || (pColorCamera ? (pColorCamera->getImgs().size() < imgSizeWaitFor) : false)) {
         if (std::chrono::steady_clock::now() > endTime) {
             pLeftCamera->clearImgs();
             pRightCamera->clearImgs();
+
+            if(pColorCamera) {
+                pColorCamera->clearImgs();
+            }
+
             return false;
         }
     }
 
-    std::vector<std::vector<cv::Mat>> imgs(2);
+    std::vector<std::vector<cv::Mat>> imgs(pColorCamera ? 3 : 2);
     while(pLeftCamera->getImgs().size()) {
         imgs[0].emplace_back(pLeftCamera->popImg());
         imgs[1].emplace_back(pRightCamera->popImg());
+        if(pColorCamera) {
+            imgs[2].emplace_back(pColorCamera->popImg());
+        }
     }
 
     decode(imgs, frameData);
@@ -508,7 +577,6 @@ bool BinocularCamera::resetCameraConfig() {
 
     numbericalProperties_["Contrast Threshold"] = 5;
     numbericalProperties_["Cost Min Diff"] = 0.001;
-    numbericalProperties_["Cost Max Diff"] = 1.0;
     numbericalProperties_["Max Cost"] = 0.1;
     numbericalProperties_["Min Disparity"] = -300;
     numbericalProperties_["Max Disparity"] = 300;
@@ -585,6 +653,9 @@ void BinocularCamera::updateExposureTime() {
         .getCamera(stringProperties_["Right Camera Name"], manufator)
         ->setNumberAttribute("ExposureTime",
                              numbericalProperties_["Exposure Time"]);
+    if(stringProperties_["Color Camera Name"] != "") {
+        cameraFactory_.getCamera(stringProperties_["Color Camera Name"], manufator)->setNumberAttribute("ExposureTime", numbericalProperties_["Exposure Time"]);
+    }
 }
 
 void BinocularCamera::updateEnableDepthCamera() {
@@ -598,6 +669,11 @@ void BinocularCamera::updateEnableDepthCamera() {
     cameraFactory_
         .getCamera(stringProperties_["Right Camera Name"], manufator)
         ->setTrigMode(device::camera::trigLine);
+    if(stringProperties_["Color Camera Name"] != "") {
+        cameraFactory_
+            .getCamera(stringProperties_["Color Camera Name"], manufator)
+            ->setTrigMode(device::camera::trigLine);
+    }
 }
 
 void BinocularCamera::updateLightStrength() {

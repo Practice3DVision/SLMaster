@@ -10,10 +10,16 @@ bool CircleGridCalibrator::findFeaturePoints(
     CV_Assert(!img.empty());
     points.clear();
 
-    bool isFind = cv::findCirclesGrid(img, featureNums, points, cv::CALIB_CB_SYMMETRIC_GRID | cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_CLUSTERING);
+    cv::Mat operateImg;
+
+    if(img.type() == CV_8UC3) {
+        cv::cvtColor(img, operateImg, cv::COLOR_BGR2GRAY);
+    }
+
+    bool isFind = operateImg.empty() ? cv::findCirclesGrid(img, featureNums, points, cv::CALIB_CB_SYMMETRIC_GRID | cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_CLUSTERING) : cv::findCirclesGrid(operateImg, featureNums, points, cv::CALIB_CB_SYMMETRIC_GRID | cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_CLUSTERING);
     cv::Mat imgCounter;
     if(!isFind) {
-        imgCounter = 255 - img;
+        imgCounter = operateImg.empty() ? 255 - img : 255 - operateImg;
         isFind = cv::findCirclesGrid(imgCounter, featureNums, points, cv::CALIB_CB_SYMMETRIC_GRID | cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_CLUSTERING);
         if (!isFind) {
             return false;

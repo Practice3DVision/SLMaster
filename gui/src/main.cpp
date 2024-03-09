@@ -14,6 +14,12 @@
 #include "logger.h"
 #include "settingsHelper.h"
 
+#include "QuickQanava"
+#include "flowNode.h"
+#include "flowGraph.h"
+#include "cloudInputNode.h"
+#include "CloudOutputNode.h"
+
 #include <vtkOutputWindow.h>
 
 #ifdef FLUENTUI_BUILD_STATIC_LIB
@@ -34,6 +40,7 @@ int main(int argc, char *argv[])
 #endif
 #endif
     qputenv("QT_QUICK_CONTROLS_STYLE","Basic");
+    QGuiApplication::setWindowIcon(QIcon("qrc:/res/image/icons8-maple-leaf-48.ico"));
     QGuiApplication::setOrganizationName("YunhuangLiu");
     QGuiApplication::setOrganizationDomain("https://github.com/Yunhuang-Liu");
     QGuiApplication::setApplicationName("SLMasterGui");
@@ -49,19 +56,19 @@ int main(int argc, char *argv[])
     auto deviceNum = cv::cuda::getCudaEnabledDeviceCount();
     qDebug() << "CUDA Device nums: " << deviceNum;
     cv::cuda::setDevice(0);
-#endif
-
+#endif    
     QQuickVTKRenderWindow::setupGraphicsBackend();
     vtkOutputWindow::SetGlobalWarningDisplay(0);
 
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
 
+    QuickQanava::initialize(&engine);
     //TODO@LiuYunhuang: 转换为绝对路径或者拷贝临时文件
     //slmaster::BinocularCamera camera("../../gui/qml/res/config/binoocularCameraConfig.json");
     //camera.resetCameraConfig();
     //camera.updateCamera();
-    CameraEngine::instance()->setCameraJsonPath("../../gui/qml/res/config/binoocularCameraConfig.json");\
+    CameraEngine::instance()->setCameraJsonPath("../../gui/qml/res/config/binoocularCameraConfig.json");
     CameraEngine::instance()->startDetectCameraState();
 
     engine.rootContext()->setContextProperty("SettingsHelper", SettingsHelper::instance());
@@ -74,6 +81,10 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonInstance("SLMasterGui", 1, 0, "VTKProcessEngine", VTKProcessEngine::instance());
     qmlRegisterSingletonInstance("SLMasterGui", 1, 0, "CameraEngine", CameraEngine::instance());
     qmlRegisterSingletonInstance("SLMasterGui", 1, 0, "CalibrateEngine", CalibrateEngine::instance());
+    qmlRegisterType<FlowNode>("SLMasterGui", 1, 0, "FlowNode");
+    qmlRegisterType<FlowGraph>("SLMasterGui", 1, 0, "FlowGraph");
+    qmlRegisterType<CloudInputNode>("SLMasterGui", 1, 0, "CloudInputNode");
+    qmlRegisterType<CloudOutputNode>("SLMasterGui", 1, 0, "CloudOutputNode");
 
 #ifdef FLUENTUI_BUILD_STATIC_LIB
     FluentUI::getInstance()->registerTypes(&engine);

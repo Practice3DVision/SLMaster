@@ -1,0 +1,295 @@
+[2024/01/31 19:14:26.717] <INFO> "Ini settings file path is: C:/Users/Liuyunhuang/AppData/Local/YunhuangLiu/SLMasterGui/SLMasterGui.ini"
+[2024/01/31 19:14:26.718] <INFO> load settings file sucess.
+[2024/01/31 19:14:27.914] <DEBUG> CUDA Device nums:  1
+[2024/01/31 19:14:28.038] <INFO> "set camera config json path..."
+[2024/01/31 19:14:28.040] <DEBUG> ("C:/Users/Liuyunhuang/Desktop/code/Qt/SLMaster/build/gui", "qrc:/qt-project.org/imports", "C:/Qt/5.15.14/msvc2019_64/qml")
+[2024/01/31 19:14:28.098] <WARNING> Attribute Qt::AA_EnableHighDpiScaling must be set before QCoreApplication is created.
+[2024/01/31 19:14:28.100] <WARNING> "setting file dosn't contain this key: vsync, return default val: true"
+[2024/01/31 19:14:28.837] <WARNING> QWindowsWindow::setGeometry: Unable to set geometry 280x1190+1141+539 (frame: 304x1202+1129+539) on MainWindow_QMLTYPE_126/"" on "\\.\DISPLAY1". Resulting geometry: 910x1242+1141+487 (frame: 934x1254+1129+487) margins: 12, 0, 12, 12 minimum size: 520x200 MINMAXINFO maxSize=0,0 maxpos=0,0 mintrack=934,362 maxtrack=0,0)
+[2024/01/31 19:14:29.421] <WARNING> qrc:/ui/page/Page_Device.qml:236:37: QML FluSpinBox: Binding loop detected for property "value"
+[2024/01/31 19:14:29.452] <WARNING> Qt Quick Layouts: Detected recursive rearrange. Aborting after two iterations.
+[2024/01/31 19:14:29.464] <WARNING> Qt Quick Layouts: Detected recursive rearrange. Aborting after two iterations.
+[2024/01/31 19:14:29.474] <WARNING> Qt Quick Layouts: Detected recursive rearrange. Aborting after two iterations.
+[2024/01/31 19:14:29.484] <WARNING> Qt Quick Layouts: Detected recursive rearrange. Aborting after two iterations.
+[2024/01/31 19:14:29.494] <WARNING> Qt Quick Layouts: Detected recursive rearrange. Aborting after two iterations.
+[2024/01/31 19:14:29.495] <WARNING> Qt Quick Layouts: Detected recursive rearrange. Aborting after two iterations.
+[2024/01/31 19:14:29.495] <WARNING> Qt Quick Layouts: Detected recursive rearrange. Aborting after two iterations.
+[2024/01/31 19:14:29.496] <WARNING> Qt Quick Layouts: Detected recursive rearrange. Aborting after two iterations.
+[2024/01/31 19:14:29.510] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.512] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.515] <WARNING> qrc:/ui/page/Page_Device.qml:12:1: QML Page_Device: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.516] <WARNING> qrc:/ui/page/Page_Device.qml:12:1: QML Page_Device: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.573] <WARNING> qrc:/ui/page/Page_Scan.qml:317:33: QML FluSpinBox: Binding loop detected for property "value"
+[2024/01/31 19:14:29.625] <WARNING> Qt Quick Layouts: Detected recursive rearrange. Aborting after two iterations.
+[2024/01/31 19:14:29.630] <WARNING> Qt Quick Layouts: Detected recursive rearrange. Aborting after two iterations.
+[2024/01/31 19:14:29.637] <WARNING> Qt Quick Layouts: Detected recursive rearrange. Aborting after two iterations.
+[2024/01/31 19:14:29.641] <WARNING> Qt Quick Layouts: Detected recursive rearrange. Aborting after two iterations.
+[2024/01/31 19:14:29.642] <WARNING> Qt Quick Layouts: Detected recursive rearrange. Aborting after two iterations.
+[2024/01/31 19:14:29.642] <WARNING> Qt Quick Layouts: Detected recursive rearrange. Aborting after two iterations.
+[2024/01/31 19:14:29.667] <WARNING> qrc:/ui/page/Page_Device.qml:12:1: QML Page_Device: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.667] <WARNING> qrc:/ui/page/Page_Scan.qml:12:1: QML Page_Scan: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.668] <WARNING> qrc:/ui/page/Page_Device.qml:12:1: QML Page_Device: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.668] <WARNING> qrc:/ui/page/Page_Scan.qml:12:1: QML Page_Scan: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.716] <WARNING> qrc:/ui/page/Page_Device.qml:12:1: QML Page_Device: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.716] <WARNING> qrc:/ui/page/Page_Scan.qml:12:1: QML Page_Scan: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.716] <WARNING> qrc:/ui/page/Page_PostProcessOutput.qml:12:1: QML Page_PostProcessOutput: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.717] <WARNING> qrc:/ui/page/Page_Device.qml:12:1: QML Page_Device: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.717] <WARNING> qrc:/ui/page/Page_Scan.qml:12:1: QML Page_Scan: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.718] <WARNING> qrc:/ui/page/Page_PostProcessOutput.qml:12:1: QML Page_PostProcessOutput: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.721] <WARNING> qrc:/ui/page/Page_Scan.qml:321:37: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:14:29.721] <WARNING> qrc:/ui/page/Page_Scan.qml:322:37: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:14:29.721] <WARNING> qrc:/ui/page/Page_Scan.qml:373:37: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:14:29.722] <WARNING> qrc:/ui/page/Page_Scan.qml:374:37: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:14:29.722] <WARNING> qrc:/ui/page/Page_Scan.qml:413:37: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:14:29.722] <WARNING> qrc:/ui/page/Page_Scan.qml:414:37: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:14:29.722] <WARNING> qrc:/ui/page/Page_Device.qml:240:41: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:14:29.722] <WARNING> qrc:/ui/page/Page_Device.qml:241:41: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:14:29.722] <WARNING> qrc:/ui/page/Page_Device.qml:294:41: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:14:29.722] <WARNING> qrc:/ui/page/Page_Device.qml:295:41: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:14:29.723] <WARNING> qrc:/ui/page/Page_Device.qml:335:41: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:14:29.723] <WARNING> qrc:/ui/page/Page_Device.qml:336:41: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:14:29.723] <WARNING> qrc:/ui/page/Page_Device.qml:376:41: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:14:29.723] <WARNING> qrc:/ui/page/Page_Device.qml:377:41: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:14:29.807] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.810] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.888] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.891] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.892] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.895] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.897] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.898] <WARNING> Qt Quick Layouts: Polish loop detected. Aborting after two iterations.
+[2024/01/31 19:14:29.899] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:29.900] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:32.333] <WARNING> qrc:/ui/page/Page_Device.qml:12:1: QML Page_Device: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:32.333] <WARNING> qrc:/ui/page/Page_Scan.qml:12:1: QML Page_Scan: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:32.333] <WARNING> qrc:/ui/page/Page_PostProcessOutput.qml:12:1: QML Page_PostProcessOutput: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:32.334] <WARNING> qrc:/ui/page/Page_PostProcess.qml:14:1: QML Page_PostProcess: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:32.334] <WARNING> qrc:/ui/page/Page_Device.qml:12:1: QML Page_Device: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:32.334] <WARNING> qrc:/ui/page/Page_Scan.qml:12:1: QML Page_Scan: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:32.334] <WARNING> qrc:/ui/page/Page_PostProcessOutput.qml:12:1: QML Page_PostProcessOutput: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:32.335] <WARNING> qrc:/ui/page/Page_PostProcess.qml:14:1: QML Page_PostProcess: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:32.338] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:14:35.324] <WARNING> Qt Quick Layouts: Detected recursive rearrange. Aborting after two iterations.
+[2024/01/31 19:14:43.752] <INFO> [Cloud Input Node]: Completed!
+[2024/01/31 19:14:50.055] <WARNING> qrc:/ui/nodes/SACSegmentNode.qml:99:25: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:14:50.056] <WARNING> qrc:/ui/nodes/SACSegmentNode.qml:100:25: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:14:54.669] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:14:56.257] <WARNING> qrc:/ui/nodes/SplitOutputNode.qml:65:17: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:14:56.257] <WARNING> qrc:/ui/nodes/SplitOutputNode.qml:64:17: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:15:01.997] <WARNING> qrc:/ui/nodes/SplitOutputNode.qml:65:17: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:15:01.997] <WARNING> qrc:/ui/nodes/SplitOutputNode.qml:64:17: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:15:11.392] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:15:15.393] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:15:17.077] <WARNING> qrc:/ui/nodes/SACSegmentNode.qml:99:25: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:15:17.077] <WARNING> qrc:/ui/nodes/SACSegmentNode.qml:100:25: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:15:22.488] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:15:26.439] <WARNING> qrc:/ui/nodes/SplitOutputNode.qml:65:17: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:15:26.440] <WARNING> qrc:/ui/nodes/SplitOutputNode.qml:64:17: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:15:26.589] <WARNING> qrc:/ui/nodes/SplitOutputNode.qml:65:17: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:15:26.589] <WARNING> qrc:/ui/nodes/SplitOutputNode.qml:64:17: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:15:35.951] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:15:38.531] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:15:41.238] <WARNING> qrc:/ui/nodes/SACSegmentNode.qml:99:25: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:15:41.239] <WARNING> qrc:/ui/nodes/SACSegmentNode.qml:100:25: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:15:50.149] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:16:01.809] <WARNING> qrc:/ui/nodes/SACSegmentNode.qml:99:25: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:16:01.809] <WARNING> qrc:/ui/nodes/SACSegmentNode.qml:100:25: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:16:06.147] <WARNING> qrc:/ui/nodes/SplitOutputNode.qml:65:17: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:16:06.148] <WARNING> qrc:/ui/nodes/SplitOutputNode.qml:64:17: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:16:16.314] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:17:08.823] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:17:22.774] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:17:38.864] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:17:41.480] <WARNING> qrc:/ui/nodes/ThreeLineIntersectionNode.qml:62:17: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:17:41.481] <WARNING> qrc:/ui/nodes/ThreeLineIntersectionNode.qml:63:17: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:17:41.481] <WARNING> qrc:/ui/nodes/ThreeLineIntersectionNode.qml:80:17: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:17:41.481] <WARNING> qrc:/ui/nodes/ThreeLineIntersectionNode.qml:81:17: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:17:41.481] <WARNING> qrc:/ui/nodes/ThreeLineIntersectionNode.qml:98:17: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:17:41.481] <WARNING> qrc:/ui/nodes/ThreeLineIntersectionNode.qml:99:17: Unable to assign [undefined] to QQuickItem*
+[2024/01/31 19:18:00.504] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:18:56.592] <INFO> [Cloud Output Node]: Completed!
+[2024/01/31 19:19:03.442] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:17.327] <INFO> [Cloud Output Node]: Completed!
+[2024/01/31 19:19:17.795] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:19:17.796] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:19:17.797] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:19:17.884] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:17.885] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:17.886] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:17.890] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:17.891] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:17.892] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:18.072] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:19:18.073] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:19:18.073] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:19:18.152] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:19:18.181] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:18.182] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:19:18.184] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:18.185] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:18.187] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:18.188] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:18.190] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:18.268] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:18.270] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:18.271] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:18.281] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:18.282] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:18.283] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:27.784] <INFO> [Cloud Output Node]: Completed!
+[2024/01/31 19:19:28.252] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:19:28.254] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:19:28.255] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:19:28.342] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:28.343] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:28.344] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:28.349] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:28.351] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:28.352] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:28.528] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:19:28.529] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:19:28.530] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:19:28.599] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:19:28.627] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:28.632] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:28.632] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:19:28.634] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:28.636] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:28.637] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:28.638] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:28.718] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:28.720] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:28.720] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:28.733] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:28.735] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:28.736] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:54.383] <INFO> [Cloud Output Node]: Completed!
+[2024/01/31 19:19:54.848] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:19:54.849] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:19:54.850] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:19:54.944] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:54.945] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:54.946] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:54.948] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:54.948] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:54.949] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:55.130] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:19:55.131] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:19:55.132] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:19:55.202] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:19:55.229] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:55.234] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:55.235] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:19:55.237] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:55.239] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:55.239] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:55.240] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:55.322] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:55.324] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:55.324] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:19:55.333] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:19:55.335] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:19:55.336] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:20:34.691] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:20:34.695] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:20:34.701] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:20:34.704] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:20:34.707] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:20:34.709] <WARNING> Qt Quick Layouts: Polish loop detected. Aborting after two iterations.
+[2024/01/31 19:20:34.709] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:20:34.712] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:32:52.145] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:32:52.149] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:32:52.170] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:32:52.172] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:32:52.173] <WARNING> qrc:/ui/page/Page_Device.qml:134:29: QML ColumnLayout: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 19:33:49.370] <INFO> [Cloud Output Node]: Completed!
+[2024/01/31 19:33:49.966] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:33:49.968] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:33:49.970] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:33:50.066] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:33:50.068] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:33:50.068] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:33:50.099] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:33:50.102] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:33:50.103] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:33:50.283] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:33:50.285] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:33:50.286] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:33:50.360] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:33:50.417] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:33:50.417] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:33:50.418] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:33:50.420] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:33:50.422] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:33:50.422] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:33:50.423] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:33:50.513] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:33:50.515] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:33:50.516] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:33:50.540] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:33:50.541] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:33:50.542] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:37:34.138] <INFO> [Cloud Output Node]: Completed!
+[2024/01/31 19:37:34.650] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:37:34.652] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:37:34.653] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:37:34.745] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:37:34.747] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:37:34.748] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:37:34.757] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:37:34.759] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:37:34.759] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:37:34.948] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:37:34.949] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:37:34.950] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:37:35.035] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 19:37:35.047] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:37:35.066] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:37:35.066] <INFO> [Split Output Node]: Completed!
+[2024/01/31 19:37:35.068] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:37:35.070] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:37:35.070] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:37:35.072] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:37:35.166] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:37:35.172] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 19:37:35.177] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:37:35.179] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 19:37:35.179] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 19:37:35.180] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 20:18:47.597] <INFO> [Cloud Output Node]: Completed!
+[2024/01/31 20:18:48.070] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 20:18:48.071] <INFO> [Split Output Node]: Completed!
+[2024/01/31 20:18:48.072] <INFO> [Split Output Node]: Completed!
+[2024/01/31 20:18:48.159] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 20:18:48.161] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 20:18:48.161] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 20:18:48.166] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 20:18:48.168] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 20:18:48.168] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 20:18:48.344] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 20:18:48.346] <INFO> [Split Output Node]: Completed!
+[2024/01/31 20:18:48.346] <INFO> [Split Output Node]: Completed!
+[2024/01/31 20:18:48.423] <INFO> [SAC Segment Node]: Completed!
+[2024/01/31 20:18:48.444] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 20:18:48.444] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 20:18:48.444] <INFO> [Split Output Node]: Completed!
+[2024/01/31 20:18:48.447] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 20:18:48.448] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 20:18:48.449] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 20:18:48.449] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 20:18:48.531] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 20:18:48.533] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 20:18:48.534] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 20:18:48.543] <INFO> [Intersection Line Node]: Completed!
+[2024/01/31 20:18:48.544] <INFO> [Three Line Intersection Node]: Completed!
+[2024/01/31 20:18:48.544] <INFO> [Actor Output Node]: Completed!
+[2024/01/31 20:41:08.309] <WARNING> qrc:/ui/page/Page_Scan.qml:12:1: QML Page_Scan: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 20:41:08.309] <WARNING> qrc:/ui/page/Page_PostProcessOutput.qml:12:1: QML Page_PostProcessOutput: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 20:41:08.309] <WARNING> qrc:/ui/page/Page_PostProcess.qml:14:1: QML Page_PostProcess: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 20:41:08.317] <WARNING> qrc:/ui/page/Page_PostProcessOutput.qml:12:1: QML Page_PostProcessOutput: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 20:41:08.318] <WARNING> qrc:/ui/page/Page_PostProcess.qml:14:1: QML Page_PostProcess: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 20:41:08.318] <WARNING> qrc:/ui/page/Page_PostProcessOutput.qml:12:1: QML Page_PostProcessOutput: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 20:41:08.319] <WARNING> qrc:/ui/page/Page_PostProcess.qml:14:1: QML Page_PostProcess: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 20:41:08.330] <WARNING> qrc:/ui/page/Page_PostProcess.qml:14:1: QML Page_PostProcess: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[2024/01/31 20:41:08.330] <WARNING> qrc:/ui/page/Page_PostProcess.qml:14:1: QML Page_PostProcess: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.

@@ -122,12 +122,37 @@
         <file>ui/window/ProjectorCaliParamsSettinsWindow.qml</file>
         <file>ui/page/Page_ScanMode.qml</file>
         <file>ui/page/Page_Scan.qml</file>
-        <file>ui/page/Page_Measurement.qml</file>
+        <file>ui/page/Page_PostProcessOutput.qml</file>
         <file>ui/page/Page_PostProcess.qml</file>
         <file>ui/page/SubPage_OfflineScanMode.qml</file>
         <file>ui/global/GlobalSignals.qml</file>
         <file>ui/global/JSONListModel.qml</file>
         <file>ui/global/jsonpath.js</file>
         <file>ui/page/SubPage_StaticScanMode.qml</file>
+        <file>ui/nodes/FlowNode.qml</file>
+        <file>ui/nodes/CloudInputNode.qml</file>
+        <file>ui/nodes/PassThroughFilterNode.qml</file>
+        <file>ui/nodes/CloudOutputNode.qml</file>
+        <file>ui/nodes/StatisticalOutlierRemovalNode.qml</file>
+        <file>ui/nodes/MeshOutputNode.qml</file>
+        <file>ui/nodes/GreedyProjectionTriangulationNode.qml</file>
+        <file>ui/nodes/PoissonNode.qml</file>
+        <file>res/image/icons8-maple-leaf-48.ico</file>
+        <file>app.rc</file>
+        <file>res/image/icons8-offline-96.png</file>
+        <file>res/image/icons8-camera-online-96.png</file>
+        <file>res/image/icons8-projector-96.png</file>
+        <file>res/image/icons8-film-roll-96.png</file>
+        <file>res/image/icons8-photo-96.png</file>
+        <file>res/image/icons8-previous-96.png</file>
+        <file>res/image/icons8-clean-96.png</file>
+        <file>res/image/icons8-process-96.png</file>
+        <file>res/image/icons8-camera-94.png</file>
+        <file>res/config/trinocularCameraConfig.json</file>
+        <file>ui/nodes/SACSegmentNode.qml</file>
+        <file>ui/nodes/SplitOutputNode.qml</file>
+        <file>ui/nodes/IntersectionLineNode.qml</file>
+        <file>ui/nodes/ThreeLineIntersectionNode.qml</file>
+        <file>ui/nodes/ActorOutputNode.qml</file>
     </qresource>
 </RCC>

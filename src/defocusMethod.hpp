@@ -116,6 +116,10 @@ void opwm(cv::Mat& img, const int cycles, const float shiftVal, const bool isHon
             intensityMapPtr[k] = opwmGetBinaryVal(wrappedPhaseVal, isInverse);
         }
     }
+
+    if (isHonrizon) {
+        img = img.t();
+    }
 }
 
 }

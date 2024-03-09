@@ -10,31 +10,22 @@ static void frameCallback(IMV_Frame *pFrame, void *pUser) {
     HuarayCammera *pCamera = reinterpret_cast<HuarayCammera *>(pUser);
     if (pFrame->pData != NULL) {
         //TODO@LiuYunhuang:增加各种格式的pack支持
-        std::string pixelSize;
-        pCamera->getEnumAttribute("PixelSize", pixelSize);
 
         cv::Mat img;
-        if("Bpp8" == pixelSize) {
+        if(_IMV_EPixelType::gvspPixelMono8 == pFrame->frameInfo.pixelFormat) {
+            img = cv::Mat(pFrame->frameInfo.height, pFrame->frameInfo.width, CV_8U, pFrame->pData).clone();
+        }
+        else if(_IMV_EPixelType::gvspPixelBayRG8 == pFrame->frameInfo.pixelFormat) {
+            //TODO@LiuYunhuang:如果直接在这进行转码，将导致延迟
+            img = cv::Mat(pFrame->frameInfo.height, pFrame->frameInfo.width, CV_8U, pFrame->pData).clone();
+        }
+        else if(_IMV_EPixelType::gvspPixelMono16 == pFrame->frameInfo.pixelFormat) {
             img = cv::Mat(pFrame->frameInfo.height, pFrame->frameInfo.width,
-                                CV_8U, pFrame->pData)
-                            .clone();
+                CV_16U, pFrame->pData)
+                .clone();
         }
-        else if("Bpp16" == pixelSize) {
-            img = cv::Mat(pFrame->frameInfo.height, pFrame->frameInfo.width,
-                                CV_16U, pFrame->pData)
-                            .clone();
-        }
-        else if("Bpp24" == pixelSize) {
-            img = cv::Mat(pFrame->frameInfo.height, pFrame->frameInfo.width,
-                                CV_8UC3, pFrame->pData)
-                            .clone();
-        }
-        /*
-        if(pCamera->getImgs().size() >= 50) {
-            pCamera->popImg();    
-        }
-        */
-        pCamera->pushImg(img);
+
+        pCamera->getImgs().push(std::move(img));
     }
 }
 
@@ -107,25 +98,27 @@ bool HuarayCammera::disConnect() {
     return true;
 }
 
-std::queue<cv::Mat>& HuarayCammera::getImgs() {
+SafeQueue<cv::Mat>& HuarayCammera::getImgs() {
     return imgs_;
 }
 
 bool HuarayCammera::pushImg(const cv::Mat &img) {
-    imgs_.push(img);
+    imgs_.push(std::move(img));
 
     return true;
 }
 
 cv::Mat HuarayCammera::popImg() {
-    cv::Mat img = imgs_.front();
-    imgs_.pop();
+    cv::Mat img;
+    bool isSucess = imgs_.try_move_pop(img);
+
+    //std::cout << cameraUserId_ << " Size: " << imgs_.size() << " fps:  " << getFps() << " is sucess: " << isSucess << std::endl;
 
     return img;
 }
 
 bool HuarayCammera::clearImgs() {
-    std::queue<cv::Mat> emptyQueue;
+    SafeQueue<cv::Mat> emptyQueue;
     imgs_.swap(emptyQueue);
 
     return true;
@@ -161,6 +154,9 @@ cv::Mat HuarayCammera::capture() {
     };
 
     cv::Mat softWareCapturedImg = imgs_.back();
+
+    setTrigMode(TrigMode::trigLine);
+
     return softWareCapturedImg;
 }
 

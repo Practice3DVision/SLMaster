@@ -1,5 +1,8 @@
 #include "slCameraFactory.h"
 
+#include "binoocularCamera.h"
+#include "trinocularCamera.h"
+
 namespace slmaster {
     std::shared_ptr<SLCamera> SLCameraFactory::getCamera(const CameraType cameraType) {
         if(!camera_.get() || curCameraType_ != cameraType || needUpdate_) {
@@ -10,7 +13,7 @@ namespace slmaster {
                 camera_.reset(new BinocularCamera(jsonPath_));
             }
             else if(cameraType == CameraType::Triple) {
-                //camera_.reset();
+                camera_.reset(new TrinocularCamera(jsonPath_));
             }
         }
 

@@ -5,7 +5,7 @@ project(Camera)
 set(CAMERA_ROOT_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/common/camera.h
                        ${CMAKE_CURRENT_SOURCE_DIR}/common/cameraFactory.h
                        ${CMAKE_CURRENT_SOURCE_DIR}/common/typeDef.h)
-set(CAMERA_ROOT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/common/cameraFactory.cpp)
+set(CAMERA_ROOT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/common/cameraFactory.cpp ${CMAKE_CURRENT_SOURCE_DIR}/common/safeQueue.hpp)
 
 find_package(OpenCV REQUIRED)
 

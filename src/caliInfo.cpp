@@ -12,7 +12,6 @@ CaliInfo::CaliInfo(const std::string filePath) {
     readYml["M4"] >> info_.M4_;
     readYml["D4"] >> info_.D4_;
     readYml["K1"] >> info_.K1_;
-    readYml["K2"] >> info_.K2_;
     readYml["R1"] >> info_.R1_;
     readYml["P1"] >> info_.P1_;
     readYml["R2"] >> info_.R2_;
@@ -20,12 +19,10 @@ CaliInfo::CaliInfo(const std::string filePath) {
     readYml["Q"] >> info_.Q_;
     readYml["Rlr"] >> info_.Rlr_;
     readYml["Tlr"] >> info_.Tlr_;
-    readYml["Rlc"] >> info_.Rlc_;
-    readYml["Tlc"] >> info_.Tlc_;
     readYml["Rlp"] >> info_.Rlp_;
     readYml["Tlp"] >> info_.Tlp_;
-    readYml["Rrp"] >> info_.Rrp_;
-    readYml["Trp"] >> info_.Trp_;
+    readYml["Rlc"] >> info_.Rlc_;
+    readYml["Tlc"] >> info_.Tlc_;
     readYml["S"] >> info_.S_;
     readYml.release();
 }

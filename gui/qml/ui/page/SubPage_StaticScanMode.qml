@@ -133,14 +133,14 @@ FluContentPage{
         model.append({
             title: Lang.pure_scan_mode,
             desc: Lang.pure_scan_desc,
-            image: "qrc:/res/image/ic_home_github.png",
+            image: "qrc:/res/image/icons8-clean-96.png",
             emit_signal_index: 0,
         })
 
         model.append({
             title: Lang.turret_scan_mode,
             desc: Lang.turret_scan_desc,
-            image: "qrc:/res/image/ic_home_github.png",
+            image: "qrc:/res/image/icons8-process-96.png",
             emit_signal_index: 1,
         })
     }

@@ -7,6 +7,7 @@
 #include <opencv2/opencv.hpp>
 
 #include "typeDef.h"
+#include "safeQueue.hpp"
 
 /** @brief 结构光库 **/
 namespace device {
@@ -58,9 +59,9 @@ namespace device {
                 /**
                  * @brief 获取已捕获图片
                  * 
-                 * @return std::queue<cv::Mat>& 捕获的图片
+                 * @return SafeQueue<cv::Mat>& 捕获的图片
                  */
-                virtual std::queue<cv::Mat>& getImgs() = 0;
+                virtual SafeQueue<cv::Mat>& getImgs() = 0;
                 /**
                  * @brief 存入图片
                  * 

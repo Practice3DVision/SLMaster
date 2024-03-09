@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import Qt.labs.platform 1.1
 
 import FluentUI 1.0
 import SLMasterGui 1.0
@@ -342,6 +343,24 @@ FluWindow {
 
             RowLayout {
                 Layout.fillWidth: true
+
+                FluButton {
+                    Layout.preferredWidth: parent.width / 2
+                    Layout.preferredHeight: 50
+                    text: Lang.read_params
+
+                    onClicked: {
+                        fileDialog.open();
+                    }
+                }
+
+                FileDialog {
+                    id: fileDialog
+
+                    onAccepted: {
+                        CalibrateEngine.readLocalCaliFile(currentFile.toString());
+                    }
+                }
 
                 FluButton {
                     Layout.fillWidth: true

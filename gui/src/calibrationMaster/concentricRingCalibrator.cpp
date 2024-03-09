@@ -85,7 +85,7 @@ void ConcentricRingCalibrator::sortElipse(
             cv::Point2f dist = rects[j].center - sortedCenters[i];
             float distance = std::sqrt(dist.x * dist.x + dist.y * dist.y);
 
-            if (distance < 3.f) {
+            if (distance < 30.f) {
                 bool isNeedMerged = false;
                 for (size_t d = 0; d < rectCurCluster.size(); ++d) {
                     if (std::abs(rects[j].size.width - rectCurCluster[d].size.width) < 1.5f) {
@@ -107,13 +107,13 @@ void ConcentricRingCalibrator::sortElipse(
                 }
             }
         }
-        
+
         std::sort(rectCurCluster.begin(), rectCurCluster.end(),
                   [](cv::RotatedRect &lhs, cv::RotatedRect &rhs) -> bool {
                       return lhs.size.area() < rhs.size.area();
                   });
 
-        sortedRects.emplace_back(rectCurCluster); 
+        sortedRects.emplace_back(rectCurCluster);
     }
 }
 
@@ -123,31 +123,25 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
 
     std::vector<cv::Point2f> ellipseCenter;
     cv::Mat src_display = inputImg.clone();
-    cv::Mat threshod = inputImg.clone();
+    cv::Mat threshodFindCircle = inputImg.clone();
+    cv::adaptiveThreshold(threshodFindCircle, threshodFindCircle, 255, cv::ADAPTIVE_THRESH_MEAN_C,
+                          cv::THRESH_BINARY, 41, 0);
+    //cv::threshold(threshodFindCircle, threshodFindCircle, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
 
-    cv::adaptiveThreshold(threshod, threshod, 255, cv::ADAPTIVE_THRESH_MEAN_C,
-                          cv::THRESH_BINARY, 21, 0);
-
+    cv::SimpleBlobDetector::Params params;
+    params.blobColor = 255;
+    params.maxArea = FLT_MAX;
+    params.minArea = 50;
+    cv::Ptr<cv::SimpleBlobDetector> detector = cv::SimpleBlobDetector::create(params);
 
     std::vector<cv::Point2f> pointsOfCell;
-    bool isFind = cv::findCirclesGrid(inputImg, patternSize, pointsOfCell);
+    bool isFind = cv::findCirclesGrid(threshodFindCircle, patternSize, pointsOfCell, cv::CALIB_CB_SYMMETRIC_GRID, detector);
     if(!isFind) {
         pointsOfCell.clear();
-        isFind = cv::findCirclesGrid(inputImg, cv::Size(patternSize.height, patternSize.width), pointsOfCell);
+        isFind = cv::findCirclesGrid(threshodFindCircle, cv::Size(patternSize.height, patternSize.width), pointsOfCell, cv::CALIB_CB_SYMMETRIC_GRID, detector);
 
         if(!isFind) {
-            pointsOfCell.clear();
-
-            cv::SimpleBlobDetector::Params params;
-            params.blobColor = 0;
-            params.maxArea = FLT_MAX;
-            params.minArea = 50;
-            cv::Ptr<cv::SimpleBlobDetector> detector = cv::SimpleBlobDetector::create(params);
-            isFind = cv::findCirclesGrid(inputImg, patternSize, pointsOfCell, cv::CALIB_CB_SYMMETRIC_GRID | cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_CLUSTERING | cv::CALIB_CB_FILTER_QUADS | cv::CALIB_CB_FAST_CHECK, detector);
-
-            if(!isFind) {
-                return false;
-            }
+            return false;
         }
     }
 
@@ -156,9 +150,9 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
     std::vector<std::vector<cv::Point2f>> ellipsesPoints;
     std::vector<Contour> contours;
     std::vector<std::vector<cv::Point2i>> contours2Draw;
-    EdgesSubPix(threshod, 1.5, 100, 120, contours, hierarchy, cv::RETR_LIST);
+    EdgesSubPix(threshodFindCircle, 1.5, 100, 120, contours, hierarchy, cv::RETR_LIST);
     for (int i = 0; i < contours.size(); i++) {
-        if (contours[i].points.size() < 5 || contours[i].points.size() > 1000) {
+        if (contours[i].points.size() < 20 || contours[i].points.size() > 1000) {
             continue;
         }
 
@@ -177,7 +171,7 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
         for (size_t j = 0; j < pointsOfCell.size(); ++j) {
             cv::Point dist = pointsOfCell[j] - ellipseFited.center;
             float distance = std::sqrtf(dist.x * dist.x + dist.y * dist.y);
-            if (distance < 3) {
+            if (distance < 30) {
                 isEfficient = true;
                 break;
             }
@@ -193,7 +187,16 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
 
     std::vector<std::vector<cv::RotatedRect>> sortedRects;
     sortElipse(ellipses, ellipsesPoints, pointsOfCell, sortedRects);
-
+    /*
+    cv::Mat testMat = threshod.clone();
+    cv::cvtColor(testMat, testMat, cv::COLOR_GRAY2BGR);
+    for (int j = 0; j < sortedRects.size(); ++j) {
+        cv::ellipse(testMat, sortedRects[j][0], cv::Scalar(0, 255, 0));
+        cv::ellipse(testMat, sortedRects[j][1], cv::Scalar(0, 255, 0));
+        cv::ellipse(testMat, sortedRects[j][2], cv::Scalar(0, 255, 0));
+        cv::ellipse(testMat, sortedRects[j][3], cv::Scalar(0, 255, 0));
+    }
+    */
     if(sortedRects.size() != patternSize.width * patternSize.height) {
         return false;
     }
@@ -247,33 +250,31 @@ void ConcentricRingCalibrator::getRingCenters(
                     quationToSolve.at<float>(2, 2);
                 Eigen::EigenSolver<Eigen::Matrix3f> eignSolver(polarCircleMat);
                 Eigen::Matrix3f value = eignSolver.pseudoEigenvalueMatrix();
-                value = value * std::pow(radius[i] / radius[j], 2);
+                value = value * std::pow(radius[j] / radius[i], 2);
                 Eigen::Matrix3f vector = eignSolver.pseudoEigenvectors();
+                vector = vector * std::pow(radius[j] / radius[i], 2);
 
                 if (std::abs(value(0, 0) - value(1, 1)) < 0.2) {
-                    eignValueDistance =
-                        std::pow(value(0, 0), 2) + std::pow(value(1, 1), 2);
+                    eignValueDistance = std::abs(value(2, 2) - std::pow(radius[j] / radius[i], 2));
 
                     if (eignValueDistance < minimunEignValueDistance) {
-                        minimunEignValueDistance = eignValueDistance;
+                        minimunEignValueDistance = value(2, 2);
                         center.x = vector(0, 2) / vector(2, 2);
                         center.y = vector(1, 2) / vector(2, 2);
                     }
                 } else if (std::abs(value(0, 0) - value(2, 2)) < 0.2) {
-                    eignValueDistance =
-                        std::pow(value(0, 0), 2) + std::pow(value(2, 2), 2);
+                    eignValueDistance = std::abs(value(1, 1) - std::pow(radius[j] / radius[i], 2));
 
                     if (eignValueDistance < minimunEignValueDistance) {
-                        minimunEignValueDistance = eignValueDistance;
+                        minimunEignValueDistance = value(1, 1);
                         center.x = vector(0, 1) / vector(2, 1);
                         center.y = vector(1, 1) / vector(2, 1);
                     }
                 } else {
-                    eignValueDistance =
-                        std::pow(value(1, 1), 2) + std::pow(value(2, 2), 2);
+                    eignValueDistance = std::abs(value(0, 0) - std::pow(radius[j] / radius[i], 2));
 
                     if (eignValueDistance < minimunEignValueDistance) {
-                        minimunEignValueDistance = eignValueDistance;
+                        minimunEignValueDistance = value(0, 0);
                         center.x = vector(0, 0) / vector(2, 0);
                         center.y = vector(1, 0) / vector(2, 0);
                     }
@@ -428,7 +429,7 @@ bool ConcentricRingCalibrator::sortKeyPoints(
 float ConcentricRingCalibrator::getDist_P2L(cv::Point2f pointP,
                                             cv::Point2f pointA,
                                             cv::Point2f pointB) {
-    int A = 0, B = 0, C = 0;
+    float A = 0, B = 0, C = 0;
     A = pointA.y - pointB.y;
     B = pointB.x - pointA.x;
     C = pointA.x * pointB.y - pointA.y * pointB.x;

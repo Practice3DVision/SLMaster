@@ -17,10 +17,11 @@ QtObject {
     property string cancel
     property string device
     property string calibration
+    property string img_display
     property string scan_mode
     property string scan
     property string post_process
-    property string measurement
+    property string post_process_output
     property string v_sync
     property string use_system_bar
     property string fits_app_bar
@@ -168,6 +169,94 @@ QtObject {
     property string keep_add_stripes
     property string operation_dialog
     property string execute
+    property string nodes
+    property string inoutput
+    property string filters
+    property string registration
+    property string sample_consensus
+    property string segmentation
+    property string surface
+    property string features
+    property string cloudInputNode
+    property string cloudOutputNode
+    property string passThroughFilterNode
+    property string cloudInputMode
+    property string selectCloudFile
+    property string fromFile
+    property string fromCamera
+    property string enableX
+    property string minX
+    property string maxX
+    property string enableY
+    property string minY
+    property string maxY
+    property string enableZ
+    property string minZ
+    property string maxZ
+    property string staticRemovel
+    property string meanK
+    property string stdThresh
+    property string group
+    property string greedyProjectionTriangulation
+    property string kSearch
+    property string multiplier
+    property string maxNearestNumber
+    property string searchRadius
+    property string minimumAngle
+    property string maximumAngle
+    property string maximumSurfaceAngle
+    property string normalConsistency
+    property string meshOutputNode
+    property string poisson
+    property string minDepth
+    property string maxDepth
+    property string scale
+    property string solverDivide
+    property string isoDivide
+    property string minSamplePoints
+    property string degree
+    property string confidence
+    property string manifold
+    property string read_params
+    property string export_epiline
+    property string model_type
+    property string method_type
+    property string distance_threshold
+    property string sac_RANSAC
+    property string sac_LMEDS
+    property string sac_MSAC
+    property string sac_RRANSAC
+    property string sac_RMSAC
+    property string sac_MLESAC
+    property string sac_PROSAC
+    property string sacMODEL_PLANE
+    property string sacMODEL_LINE
+    property string sacMODEL_CIRCLE2D
+    property string sacMODEL_CIRCLE3D
+    property string sacMODEL_SPHERE
+    property string sacMODEL_CYLINDER
+    property string sacMODEL_CONE
+    property string sacMODEL_TORUS
+    property string sacMODEL_PARALLEL_LINE
+    property string sacMODEL_PERPENDICULAR_PLANE
+    property string sacMODEL_PARALLEL_LINES
+    property string sacMODEL_NORMAL_PLANE
+    property string sacMODEL_NORMAL_SPHERE
+    property string sacMODEL_REGISTRATION
+    property string sacMODEL_REGISTRATION_2D
+    property string sacMODEL_PARALLEL_PLANE
+    property string sacMODEL_NORMAL_PARALLEL_LINES
+    property string sacMODEL_STICK
+    property string sacMODEL_ELLIPSE3D
+    property string sac_segment
+    property string split_output_node
+    property string split_port_id
+    property string intersection_line_node
+    property string three_line_intersection_node
+    property string actor_output_node
+    property string width
+    property string height
+    property string length
 
     function zh() {
         settings = "设置";
@@ -188,7 +277,7 @@ QtObject {
         scan_mode = "扫描模式";
         scan = "扫描";
         post_process = "后处理";
-        measurement = "测量";
+        post_process_output = "后处理结果";
         use_system_bar = "使用系统窗口";
         fits_app_bar = "自动调整应用程序托盘";
         software_render = "软件渲染";
@@ -335,6 +424,95 @@ QtObject {
         keep_add_stripes = "保留前序编码条纹";
         operation_dialog = "操作对话框";
         execute = "执行";
+        nodes = "节点";
+        inoutput = "输入/输出";
+        filters = "过滤器";
+        registration = "注册对齐";
+        sample_consensus = "抽样拟合";
+        segmentation = "分割";
+        surface = "曲面化";
+        features = "特征";
+        cloudInputNode = "点云输入节点";
+        cloudOutputNode = "点云输出节点";
+        passThroughFilterNode = "直通滤波器";
+        cloudInputMode = "点云输入模式";
+        selectCloudFile = "选择点云文件";
+        fromFile = "离线点云文件";
+        fromCamera = "在线相机点云";
+        enableX = "X方向滤波";
+        minX = "X方向最小值";
+        maxX = "X方向最大值";
+        enableY = "Y方向滤波";
+        minY = "Y方向最小值";
+        maxY = "Y方向最大值";
+        enableZ = "Z方向滤波";
+        minZ = "Z方向最小值";
+        maxZ = "Z方向最大值";
+        staticRemovel = "统计学滤波器";
+        meanK = "最近邻近点数量"
+        stdThresh = "标准偏差系数";
+        group = "组";
+        greedyProjectionTriangulation = "贪婪三角化";
+        kSearch = "二叉树邻近点搜索数量";
+        multiplier = "加权因子";
+        maxNearestNumber = "最大邻域点个数";
+        searchRadius = "搜索半径";
+        minimumAngle = "三角形面体最小角";
+        maximumAngle = "三角形面体最大角";
+        maximumSurfaceAngle = "临近点与样本点法线最大偏离角度";
+        normalConsistency = "法线朝向一致";
+        meshOutputNode = "面元输出节点";
+        poisson = "泊松重建节点";
+        minDepth = "最小深度";
+        maxDepth = "最大深度";
+        scale = "重构与样本的立方体直径比率";
+        solverDivide = "线性迭代方法的深度";
+        isoDivide = "提取ISO等值面的深度";
+        minSamplePoints = "八叉树节点中的样本点数量";
+        degree = "精细度";
+        confidence = "是否使用法向量作为置信信息";
+        manifold = "是否添加多边形的重心";
+        img_display = "图片展示";
+        read_params = "读取参数";
+        export_epiline = "输出极线系数矩阵";
+        model_type = "模型类型";
+        method_type = "方法类型";
+        distance_threshold = "距离阈值";
+        sac_RANSAC = "SAC_RANSAC";
+        sac_LMEDS = "SAC_LMEDS";
+        sac_MSAC = "SAC_MSAC";
+        sac_RRANSAC = "SAC_RRANSAC";
+        sac_RMSAC = "SAC_RMSAC";
+        sac_MLESAC = "SAC_MLESAC";
+        sac_PROSAC = "SAC_PROSAC";
+        sacMODEL_PLANE = "SACMODEL_PLANE";
+        sacMODEL_LINE = "SACMODEL_LINE";
+        sacMODEL_CIRCLE2D = "SACMODEL_CIRCLE2D";
+        sacMODEL_CIRCLE3D = "SACMODEL_CIRCLE3D";
+        sacMODEL_SPHERE = "SACMODEL_SPHERE";
+        sacMODEL_CYLINDER = "SACMODEL_CYLINDER";
+        sacMODEL_CONE = "SACMODEL_CONE";
+        sacMODEL_TORUS = "SACMODEL_TORUS";
+        sacMODEL_PARALLEL_LINE = "SACMODEL_PARALLEL_LINE";
+        sacMODEL_PERPENDICULAR_PLANE = "SACMODEL_PERPENDICULAR_PLANE";
+        sacMODEL_PARALLEL_LINES = "SACMODEL_PARALLEL_LINES";
+        sacMODEL_NORMAL_PLANE = "SACMODEL_NORMAL_PLANE";
+        sacMODEL_NORMAL_SPHERE = "SACMODEL_NORMAL_SPHERE";
+        sacMODEL_REGISTRATION = "SACMODEL_REGISTRATION";
+        sacMODEL_REGISTRATION_2D = "SACMODEL_REGISTRATION_2D";
+        sacMODEL_PARALLEL_PLANE = "SACMODEL_PARALLEL_PLANE";
+        sacMODEL_NORMAL_PARALLEL_LINES = "SACMODEL_NORMAL_PARALLEL_LINES";
+        sacMODEL_STICK = "SACMODEL_STICK";
+        sacMODEL_ELLIPSE3D = "SACMODEL_ELLIPSE3D";
+        sac_segment = "采样一致性分割";
+        split_output_node = "输出分离节点";
+        split_port_id = "端口ID";
+        intersection_line_node = "面与面交线节点";
+        three_line_intersection_node = "三线相交节点";
+        actor_output_node = "渲染组件输出节点";
+        width = "宽度";
+        height = "高度";
+        length = "长度";
     }
 
     function en() {
@@ -355,7 +533,7 @@ QtObject {
         scan_mode = "Scan Mode";
         scan = "Scan";
         post_process = "Post Process";
-        measurement = "Measurement";
+        post_process_output = "Post Process Output";
         v_sync = "V-SYNC";
         use_system_bar = "Use System Bar";
         fits_app_bar = "Fits App Bar";
@@ -503,6 +681,95 @@ QtObject {
         keep_add_stripes = "Keep Add Stripes";
         operation_dialog = "Operation Dialog";
         execute = "execute";
+        nodes = "Nodes";
+        inoutput = "Input/Output";
+        filters = "Filters";
+        registration = "Registration";
+        sample_consensus = "Sample Consensus";
+        segmentation = "Segmentation";
+        surface = "Surface";
+        features = "Features";
+        cloudInputNode = "Cloud Input Node";
+        cloudOutputNode = "Cloud Output Node";
+        passThroughFilterNode = "Pass Through Filter Node";
+        cloudInputMode = "Cloud Input Mode";
+        selectCloudFile = "Select Cloud File";
+        fromFile = "From File";
+        fromCamera = "From Camera";
+        enableX = "Enable X";
+        minX = "Min X";
+        maxX = "Max X";
+        enableY = "Enable Y";
+        minY = "Min Y";
+        maxY = "Max Y";
+        enableZ = "Enable Z";
+        minZ = "Min Z";
+        maxZ = "Max Z";
+        staticRemovel = "Statistical Removal Node";
+        meanK = "Number of closest neighbors";
+        stdThresh = "Standard deviation coefficient";
+        group = "Group";
+        greedyProjectionTriangulation = "Greedy Projection Triangulation Node";
+        kSearch = "K";
+        multiplier = "Multiplier";
+        maxNearestNumber = "Max Nearest Number";
+        searchRadius = "Search Radius";
+        minimumAngle = "Min Triangle Angle";
+        maximumAngle = "Max Triangle Angle";
+        maximumSurfaceAngle = "Max Surface Angle";
+        normalConsistency = "Normal Consistency";
+        meshOutputNode = "Mesh Output Node";
+        poisson = "Poisson Node";
+        minDepth = "Min Depth";
+        maxDepth = "Max Depth";
+        scale = "Scale";
+        solverDivide = "Solver Divide";
+        isoDivide = "Iso Divide";
+        minSamplePoints = "Min Sample Points";
+        degree = "Degree";
+        confidence = "Confidence";
+        manifold = "Manifold";
+        img_display = "IMG Display";
+        read_params = "Read Params";
+        export_epiline = "Export Epilines";
+        model_type = "Model Type";
+        method_type = "Method Type";
+        distance_threshold = "Distance Threshold";
+        sac_RANSAC = "SAC_RANSAC";
+        sac_LMEDS = "SAC_LMEDS";
+        sac_MSAC = "SAC_MSAC";
+        sac_RRANSAC = "SAC_RRANSAC";
+        sac_RMSAC = "SAC_RMSAC";
+        sac_MLESAC = "SAC_MLESAC";
+        sac_PROSAC = "SAC_PROSAC";
+        sacMODEL_PLANE = "SACMODEL_PLANE";
+        sacMODEL_LINE = "SACMODEL_LINE";
+        sacMODEL_CIRCLE2D = "SACMODEL_CIRCLE2D";
+        sacMODEL_CIRCLE3D = "SACMODEL_CIRCLE3D";
+        sacMODEL_SPHERE = "SACMODEL_SPHERE";
+        sacMODEL_CYLINDER = "SACMODEL_CYLINDER";
+        sacMODEL_CONE = "SACMODEL_CONE";
+        sacMODEL_TORUS = "SACMODEL_TORUS";
+        sacMODEL_PARALLEL_LINE = "SACMODEL_PARALLEL_LINE";
+        sacMODEL_PERPENDICULAR_PLANE = "SACMODEL_PERPENDICULAR_PLANE";
+        sacMODEL_PARALLEL_LINES = "SACMODEL_PARALLEL_LINES";
+        sacMODEL_NORMAL_PLANE = "SACMODEL_NORMAL_PLANE";
+        sacMODEL_NORMAL_SPHERE = "SACMODEL_NORMAL_SPHERE";
+        sacMODEL_REGISTRATION = "SACMODEL_REGISTRATION";
+        sacMODEL_REGISTRATION_2D = "SACMODEL_REGISTRATION_2D";
+        sacMODEL_PARALLEL_PLANE = "SACMODEL_PARALLEL_PLANE";
+        sacMODEL_NORMAL_PARALLEL_LINES = "SACMODEL_NORMAL_PARALLEL_LINES";
+        sacMODEL_STICK = "SACMODEL_STICK";
+        sacMODEL_ELLIPSE3D = "SACMODEL_ELLIPSE3D";
+        sac_segment = "SAC Segment";
+        split_output_node = "Split Output Node";
+        split_port_id = "Split Port ID";
+        intersection_line_node = "Intersection Line Node";
+        three_line_intersection_node = "Three Line Intersection Node";
+        actor_output_node = "Actor Output Node";
+        width = "Width";
+        height = "Height";
+        length = "Length";
     }
 
     property string __locale
