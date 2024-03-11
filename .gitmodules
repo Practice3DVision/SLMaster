@@ -1,0 +1,3 @@
+[submodule "QuickQanava"]
+	path = QuickQanava
+	url = https://github.com/cneben/QuickQanava/tree/2.4.1
