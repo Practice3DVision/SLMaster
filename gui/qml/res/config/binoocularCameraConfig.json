@@ -1,0 +1,204 @@
+{
+   "camera" : {
+      "algorithm" : [
+         {
+            "data" : 10.0,
+            "title" : "Contrast Threshold",
+            "type" : "number"
+         },
+         {
+            "data" : 9.9999999747524271e-07,
+            "title" : "Cost Min Diff",
+            "type" : "number"
+         },
+         {
+            "data" : 1.0,
+            "title" : "Cost Max Diff",
+            "type" : "number"
+         },
+         {
+            "data" : 0.10000000149011612,
+            "title" : "Max Cost",
+            "type" : "number"
+         },
+         {
+            "data" : 0.0,
+            "title" : "Min Disparity",
+            "type" : "number"
+         },
+         {
+            "data" : 512.0,
+            "title" : "Max Disparity",
+            "type" : "number"
+         },
+         {
+            "data" : 1.0,
+            "title" : "Light Strength",
+            "type" : "number"
+         },
+         {
+            "data" : 3000.0,
+            "title" : "Exposure Time",
+            "type" : "number"
+         },
+         {
+            "data" : 1000.0,
+            "title" : "Pre Exposure Time",
+            "type" : "number"
+         },
+         {
+            "data" : 1000.0,
+            "editable" : 1,
+            "title" : "Aft Exposure Time",
+            "type" : "number"
+         },
+         {
+            "data" : 12.0,
+            "title" : "Phase Shift Times",
+            "type" : "number"
+         },
+         {
+            "data" : 32.0,
+            "title" : "Cycles",
+            "type" : "number"
+         },
+         {
+            "data" : 18.0,
+            "title" : "Total Fringes",
+            "type" : "number"
+         },
+         {
+            "data" : 0.0,
+            "enum" : [
+               {
+                  "name" : "SinusCompleGrayCode"
+               },
+               {
+                  "name" : "MutiplyFrequency"
+               },
+               {
+                  "name" : "MultiViewStereoGeometry"
+               }
+            ],
+            "title" : "Pattern",
+            "type" : "enum"
+         },
+         {
+            "data" : 0.0,
+            "editable" : 1,
+            "title" : "Minimum Depth",
+            "type" : "number"
+         },
+         {
+            "data" : 1500.0,
+            "editable" : 1,
+            "title" : "Maximum Depth",
+            "type" : "number"
+         },
+         {
+            "data" : 1,
+            "title" : "Is One Bit",
+            "type" : "bool"
+         },
+         {
+            "data" : 1,
+            "title" : "Enable Depth Camera",
+            "type" : "bool"
+         },
+         {
+            "data" : 0,
+            "title" : "Gpu Accelerate",
+            "type" : "bool"
+         },
+         {
+            "data" : 1,
+            "title" : "Is Vertical",
+            "type" : "bool"
+         },
+         {
+            "data" : 1,
+            "title" : "Noise Filter",
+            "type" : "bool"
+         }
+      ],
+      "device" : [
+         {
+            "data" : "Binocular Camera",
+            "title" : "Camera Name",
+            "type" : "string"
+         },
+         {
+            "data" : "@LiuYunhuang",
+            "title" : "Manufactor",
+            "type" : "string"
+         },
+         {
+            "data" : "@1369215984@qq.com",
+            "title" : "Email",
+            "type" : "string"
+         },
+         {
+            "data" : "0.2mm @1m",
+            "title" : "Accuracy",
+            "type" : "string"
+         },
+         {
+            "data" : "1024",
+            "title" : "DLP Height",
+            "type" : "string"
+         },
+         {
+            "data" : "1920",
+            "title" : "DLP Width",
+            "type" : "string"
+         },
+         {
+            "data" : "600mm",
+            "title" : "True Width",
+            "type" : "string"
+         },
+         {
+            "data" : "500mm",
+            "title" : "True Height",
+            "type" : "string"
+         },
+         {
+            "data" : "DLP4710",
+            "enum" : [
+               {
+                  "name" : "DLP3010"
+               },
+               {
+                  "name" : "DLP4710"
+               },
+               {
+                  "name" : "DLP6500"
+               }
+            ],
+            "title" : "DLP Evm",
+            "type" : "string"
+         },
+         {
+            "data" : "Left",
+            "title" : "Left Camera Name",
+            "type" : "string"
+         },
+         {
+            "data" : "Right",
+            "title" : "Right Camera Name",
+            "type" : "string"
+         },
+         {
+            "data" : "Huaray",
+            "title" : "2D Camera Manufactor",
+            "type" : "string"
+         },
+         {
+            "data" : "C:/Users/Liuyunhuang/Desktop/data/Img/l-r.yml",
+            "data1" : "../../data/caliInfo.yml",
+            "title" : "Calibration File Path",
+            "type" : "string"
+         }
+      ]
+   }
+}

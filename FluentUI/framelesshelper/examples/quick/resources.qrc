@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/microsoft.svg</file>
+        <file>qml/Window.qml</file>
+        <file>qml/ApplicationWindow.qml</file>
+        <file>qml/HomePage.qml</file>
+    </qresource>
+</RCC>
