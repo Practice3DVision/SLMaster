@@ -123,7 +123,11 @@ TEST(Project, setLEDCurrent) {
     ASSERT_EQ(isSucess, true);
     projectorDlpcApi->disConnect();
 }
+<<<<<<< HEAD
 
+=======
+/*
+>>>>>>> d933f58c66e8eb2a19730e58abbf384429c9c22b
 TEST(Projector, populatePatternTableData) {
     auto projectorFactory = sl::projector::ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector3010);
@@ -164,4 +168,9 @@ TEST(Projector, populatePatternTableData) {
     std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     projectorDlpcApi->stop();
     projectorDlpcApi->disConnect();
+<<<<<<< HEAD
 }
+=======
+}
+*/
+>>>>>>> d933f58c66e8eb2a19730e58abbf384429c9c22b

@@ -6,7 +6,11 @@ const std::string testProjector4710 = "DLP4710";
 const std::string testProjector3010 = "DLP3010";
 const std::string testData4710 = "../../test/data/4_4710";
 const std::string testData3010 = "../../test/data/4_3010";
+<<<<<<< HEAD
 
+=======
+/*
+>>>>>>> d933f58c66e8eb2a19730e58abbf384429c9c22b
 TEST(Projector, init) {
     auto projectorFactory = device::projector::ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
@@ -54,7 +58,11 @@ TEST(Project, onceProject) {
     projectorDlpcApi->stop();
     projectorDlpcApi->disConnect();
 }
+<<<<<<< HEAD
 
+=======
+*/
+>>>>>>> d933f58c66e8eb2a19730e58abbf384429c9c22b
 TEST(Project, continueProject) {
     auto projectorFactory = device::projector::ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
@@ -66,7 +74,11 @@ TEST(Project, continueProject) {
     isSucess = projectorDlpcApi->disConnect();
     ASSERT_EQ(isSucess, true);
 }
+<<<<<<< HEAD
 
+=======
+/*
+>>>>>>> d933f58c66e8eb2a19730e58abbf384429c9c22b
 TEST(Project, pause) {
     auto projectorFactory = device::projector::ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
@@ -105,7 +117,12 @@ TEST(Project, stop) {
     isSucess = projectorDlpcApi->disConnect();
     ASSERT_EQ(isSucess, true);
 }
+<<<<<<< HEAD
 
+=======
+*/
+/*
+>>>>>>> d933f58c66e8eb2a19730e58abbf384429c9c22b
 TEST(Projector, populatePatternTableData) {
     auto projectorFactory = device::projector::ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
@@ -189,3 +206,7 @@ TEST(Project, getSetLEDCurrent) {
     isSucess = projectorDlpcApi->disConnect();
     ASSERT_EQ(isSucess, true);
 }
+<<<<<<< HEAD
+=======
+*/
+>>>>>>> d933f58c66e8eb2a19730e58abbf384429c9c22b
