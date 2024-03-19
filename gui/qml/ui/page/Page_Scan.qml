@@ -580,7 +580,7 @@ FluContentPage {
     }
 
     /*
-    //TODO@LiuYunhuang: 当前只通过相机JSON进行更新
+    //TODO@Evans Liu: 当前只通过相机JSON进行更新
     Connections{
         target: JSONListModel
 

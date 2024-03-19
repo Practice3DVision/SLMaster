@@ -1,3 +1,14 @@
+/**
+ * @file trinocularMultiViewStereoGeometryPattern.h
+ * @author Evans Liu (1369215984@qq.com)
+ * @brief 
+ * @version 0.1
+ * @date 2024-03-19
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #ifndef __TRINOCULAR_MULTIVIEW_STEREO_GEOMETRY_PATTERN_H_
 #define __TRINOCULAR_MULTIVIEW_STEREO_GEOMETRY_PATTERN_H_
 
@@ -5,7 +16,7 @@
 #include "pattern.h"
 
 namespace slmaster {
-//TODO@LiuYunhuang:使用修饰器模式会更好，避免未来方法增多导致的子类爆炸，需要在OpenCV中重新更改接口
+//TODO@Evans Liu:使用修饰器模式会更好，避免未来方法增多导致的子类爆炸，需要在OpenCV中重新更改接口
 class SLMASTER_API TrinocularMultiViewStereoGeometryPattern : public Pattern {
   public:
     TrinocularMultiViewStereoGeometryPattern();

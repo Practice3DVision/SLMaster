@@ -1,3 +1,14 @@
+/**
+ * @file projectorFactory.h
+ * @author Evans Liu (1369215984@qq.com)
+ * @brief 
+ * @version 0.1
+ * @date 2024-03-19
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #ifndef __PROJECTORY_FACTORY_H_
 #define __PROJECTORY_FACTORY_H_
 
@@ -34,7 +45,7 @@ class DEVICE_API ProjectorFactory {
                 projector = new ProjectorDlpc34xx();
                 projectoies_[dlpEvm] = projector;
             }
-            //TODO@LiuYunhuang:增加DLP6500支持
+            //TODO@Evans Liu:增加DLP6500支持
         }
 
         return projector;

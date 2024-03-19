@@ -229,7 +229,7 @@ bool TrinocularCamera::connect() {
 }
 
 bool TrinocularCamera::disConnect() {
-    // TODO@LiuYunhuang:中途篡改不正确的2D相机制造商将导致漏洞，系统会重新查找该制造商同ID相机
+    // TODO@Evans Liu:中途篡改不正确的2D相机制造商将导致漏洞，系统会重新查找该制造商同ID相机
     const device::camera::CameraFactory::CameraManufactor manufator =
         stringProperties_["2D Camera Manufactor"] == "Huaray"
             ? device::camera::CameraFactory::Huaray
@@ -591,7 +591,7 @@ bool TrinocularCamera::resetCameraConfig() {
 }
 
 bool TrinocularCamera::burnPatterns(const std::vector<cv::Mat>& imgs) {
-    //TODO@LiuYunhuang: 目前只支持烧录单方向条纹，双方向需要使用更底层的投影仪SDK，示例CameraEngine.cpp中的burnStripe函数
+    //TODO@Evans Liu: 目前只支持烧录单方向条纹，双方向需要使用更底层的投影仪SDK，示例CameraEngine.cpp中的burnStripe函数
     auto pProjector =
         projectorFactory_.getProjector(stringProperties_["DLP Evm"]);
 

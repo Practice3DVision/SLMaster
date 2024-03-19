@@ -58,7 +58,7 @@
             "type" : "number"
          },
          {
-            "data" : 32.0,
+            "data" : 64.0,
             "title" : "Cycles",
             "type" : "number"
          },
@@ -128,7 +128,7 @@
             "type" : "string"
          },
          {
-            "data" : "@LiuYunhuang",
+            "data" : "@Evans Liu",
             "title" : "Manufactor",
             "type" : "string"
          },
@@ -194,8 +194,7 @@
             "type" : "string"
          },
          {
-            "data" : "C:/Users/Liuyunhuang/Desktop/data/Img/l-r.yml",
-            "data1" : "../../data/caliInfo.yml",
+            "data" : "../../data/caliInfo.yml",
             "title" : "Calibration File Path",
             "type" : "string"
          }

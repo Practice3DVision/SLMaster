@@ -1,3 +1,14 @@
+/**
+ * @file calibrator.h
+ * @author Evans Liu (1369215984@qq.com)
+ * @brief 
+ * @version 0.1
+ * @date 2024-03-19
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #ifndef CALIBRATOR_H
 #define CALIBRATOR_H
 
@@ -29,7 +40,7 @@ class Calibrator {
     findFeaturePoints(const cv::Mat &img, const cv::Size &featureNums,
                       std::vector<cv::Point2f> &points,
                       const ThreshodMethod threshodType = ADAPTED) = 0;
-    // TODO(@Liu Yunhuang):暂未用到blobBlack
+    // TODO(@Evans Liu):暂未用到blobBlack
     virtual double calibrate(const std::vector<cv::Mat> &imgs,
                              cv::Mat &intrinsic, cv::Mat &distort,
                              const cv::Size &featureNums, float &process,

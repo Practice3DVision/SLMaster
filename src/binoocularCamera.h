@@ -1,3 +1,14 @@
+/**
+ * @file binoocularCamera.h
+ * @author Evans Liu (1369215984@qq.com)
+ * @brief 
+ * @version 0.1
+ * @date 2024-03-19
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #ifndef __BINOCULAR_CAMERA_H_
 #define __BINOCULAR_CAMERA_H_
 

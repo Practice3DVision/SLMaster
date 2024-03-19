@@ -1,3 +1,14 @@
+/**
+ * @file cameraFactory.h
+ * @author Evans Liu (1369215984@qq.com)
+ * @brief 
+ * @version 0.1
+ * @date 2024-03-19
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #ifndef __CAMERA_FACTORY_H_
 #define __CAMERA_FACTORY_H_
 
@@ -31,7 +42,7 @@ class DEVICE_API CameraFactory {
                 camera = new HuarayCammera(cameraUserId);
                 cameras_[cameraUserId] = camera;
             }
-            // TODO@LiuYunhuang:增加海康相机支持
+            // TODO@Evans Liu:增加海康相机支持
             else if (Halcon == manufactor) {
                 camera = new HuarayCammera(cameraUserId);
                 cameras_[cameraUserId] = camera;

@@ -9,14 +9,14 @@ namespace camera {
 static void frameCallback(IMV_Frame *pFrame, void *pUser) {
     HuarayCammera *pCamera = reinterpret_cast<HuarayCammera *>(pUser);
     if (pFrame->pData != NULL) {
-        //TODO@LiuYunhuang:增加各种格式的pack支持
+        //TODO@Evans Liu:增加各种格式的pack支持
 
         cv::Mat img;
         if(_IMV_EPixelType::gvspPixelMono8 == pFrame->frameInfo.pixelFormat) {
             img = cv::Mat(pFrame->frameInfo.height, pFrame->frameInfo.width, CV_8U, pFrame->pData).clone();
         }
         else if(_IMV_EPixelType::gvspPixelBayRG8 == pFrame->frameInfo.pixelFormat) {
-            //TODO@LiuYunhuang:如果直接在这进行转码，将导致延迟
+            //TODO@Evans Liu:如果直接在这进行转码，将导致延迟
             img = cv::Mat(pFrame->frameInfo.height, pFrame->frameInfo.width, CV_8U, pFrame->pData).clone();
         }
         else if(_IMV_EPixelType::gvspPixelMono16 == pFrame->frameInfo.pixelFormat) {

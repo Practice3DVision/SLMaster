@@ -1,13 +1,14 @@
 /**
  * @file huarayCamera.h
- * @author Liu Yunhuang (1369215984@qq.com)
- * @brief  相机工具类：值得一提的是大华和海康相机皆可使用，采用同一标准。
+ * @author Evans Liu (1369215984@qq.com)
+ * @brief 
  * @version 0.1
- * @date 2021-12-10
- *
- * @copyright Copyright (c) 2021
- *
+ * @date 2024-03-19
+ * 
+ * @copyright Copyright (c) 2024
+ * 
  */
+
 #ifndef __HUARAY_CAMERA_H_
 #define __HUARAY_CAMERA_H_
 
