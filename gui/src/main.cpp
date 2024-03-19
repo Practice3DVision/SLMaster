@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
 
     QuickQanava::initialize(&engine);
-    //TODO@LiuYunhuang: 转换为绝对路径或者拷贝临时文件
+    //TODO@Evans Liu: 转换为绝对路径或者拷贝临时文件
     //slmaster::BinocularCamera camera("../../gui/qml/res/config/binoocularCameraConfig.json");
     //camera.resetCameraConfig();
     //camera.updateCamera();

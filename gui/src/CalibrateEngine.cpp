@@ -158,10 +158,10 @@ void CalibrateEngine::stereoCalibrate(const int targetType, const int rowNum, co
             qDebug() << QString("right camera calibrate sucess, error is %1").arg(rightError);
         }
 
-        //TODO@LiuYunhuang: 增加标定板无法检测到特征点情况（@Finish）
+        //TODO@Evans Liu: 增加标定板无法检测到特征点情况（@Finish）
         auto error = cv::stereoCalibrate(leftCalibrator_->worldPoints(), leftCalibrator_->imgPoints(), rightCalibrator_->imgPoints(), caliInfo_.info_.M1_, caliInfo_.info_.D1_, caliInfo_.info_.M2_, caliInfo_.info_.D2_, cv::Size(rowNum, colNum), caliInfo_.info_.Rlr_, caliInfo_.info_.Tlr_, caliInfo_.info_.E_, caliInfo_.info_.F_);
         qDebug() << QString("stereo camera calibrate sucess, error is %1").arg(error);
-        //TODO@LiuYunhuang: 增加零视差标志位以应对传统立体匹配算法
+        //TODO@Evans Liu: 增加零视差标志位以应对传统立体匹配算法
         cv::stereoRectify(caliInfo_.info_.M1_, caliInfo_.info_.D1_, caliInfo_.info_.M2_, caliInfo_.info_.D2_, cv::Size(rowNum, colNum), caliInfo_.info_.Rlr_, caliInfo_.info_.Tlr_, caliInfo_.info_.R1_, caliInfo_.info_.R2_, caliInfo_.info_.P1_, caliInfo_.info_.P2_, caliInfo_.info_.Q_, 0);
         rectify(leftCalibrator_->imgs()[0], rightCalibrator_->imgs()[0], caliInfo_, rectifiedImg_);
 

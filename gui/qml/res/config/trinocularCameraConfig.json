@@ -128,7 +128,7 @@
             "type" : "string"
          },
          {
-            "data" : "@LiuYunhuang",
+            "data" : "@Evans Liu",
             "title" : "Manufactor",
             "type" : "string"
          },
@@ -199,13 +199,12 @@
             "type" : "string"
          },
          {
-            "data" : "C:/Users/Liuyunhuang/Desktop/data/Img/camera.yml",
-            "data1" : "../../data/caliInfo.yml",
+            "data" : "../../data/caliInfo.yml",
             "title" : "Calibration File Path",
             "type" : "string"
          },
          {
-            "data" : "C:/Users/Liuyunhuang/Desktop/data/Img/refUnwrappedMap.tiff",
+            "data" : "refUnwrappedMap.tiff",
             "title" : "Ref UnwrapImg Path",
             "type" : "string"
          }

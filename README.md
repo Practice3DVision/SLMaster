@@ -35,8 +35,12 @@
 3. 下载[VTK](https://github.com/Kitware/VTK/tree/v9.2.0)并令`VTK_GROUP_ENABLE_Qt=YES`进行编译
 4. 下载[PCL-1.12.1-AllInOne](https://github.com/PointCloudLibrary/pcl/releases)进行安装，安装完成后删除`PCL`安装文件夹下的除`3rdParty`外的其它任何文件，并将`3rdParty`文件夹中的`VTK`文件夹删除
 5. 下载[PCL](https://github.com/PointCloudLibrary/pcl/tree/pcl-1.12.1)并选择好第三方库路径进行编译
-6. 打开命令行窗口，键入`git clone --recursive https://github.com/Practice3DVision/SLMaster.git`下载`SLMaster`
-7. 打开`VSCode`编译运行`SLMaster`即可
+6. 下载`MSVDK`软件并安装
+7. 打开命令行窗口，键入`git clone --recursive https://github.com/Practice3DVision/SLMaster.git`下载`SLMaster`
+8. 打开`VSCode`编译运行`SLMaster`即可
+
+> 注意！
+> 每当编译好一个库都应当在系统环境变量中加入。例如，编译完成OpenCV后，设置好系统环境变量OpenCV_DIR路径。
 
 
 你可以打开`SLMaster`中的`BUILD_TEST`选项，这将编译**google_test**中的测试用例，这些测试用例同样是一份非常不错的示例代码。

@@ -1,3 +1,14 @@
+/**
+ * @file slCamera.h
+ * @author Evans Liu (1369215984@qq.com)
+ * @brief 
+ * @version 0.1
+ * @date 2024-03-19
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #ifndef __SL_CAMERA_H_
 #define __SL_CAMERA_H_
 
@@ -47,7 +58,7 @@ struct SLMASTER_API SLCameraInfo {
     bool isFind_;            //是否查找到该相机
 };
 
-//TODO@LiuYunhuang:将设备也修改为修饰器模式，去除结构光相机工厂模式，直接利用修饰器进行算法、设备配置
+//TODO@Evans Liu:将设备也修改为修饰器模式，去除结构光相机工厂模式，直接利用修饰器进行算法、设备配置
 class SLMASTER_API SLCamera {
   public:
     /**

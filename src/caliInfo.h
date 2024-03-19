@@ -1,13 +1,14 @@
 /**
- * @file matrixsInfo.h
- * @author Liu Yunhuang (1369215984@qq.com)
- * @brief  标定信息工具类
+ * @file caliInfo.h
+ * @author Evans Liu (1369215984@qq.com)
+ * @brief 
  * @version 0.1
- * @date 2021-12-10
- *
- * @copyright Copyright (c) 2021
- *
+ * @date 2024-03-19
+ * 
+ * @copyright Copyright (c) 2024
+ * 
  */
+
 #ifndef __CALI_INFO_H_
 #define __CALI_INFO_H_
 

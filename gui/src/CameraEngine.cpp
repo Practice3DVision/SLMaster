@@ -32,7 +32,7 @@ CameraEngine::CameraEngine() : stripePaintItem_(nullptr), isOnLine_(false), isCo
 void CameraEngine::startDetectCameraState() {
     onlineDetectThread_ = std::thread([&] {
         while(!appExit_.load(std::memory_order_acquire)) {
-            //TODO@LiuYunhuang: 在相机捕图时，不能去检测相机在线状态等相机操作，否则，将导致丢帧现象（已解决）
+            //TODO@Evans Liu: 在相机捕图时，不能去检测相机在线状态等相机操作，否则，将导致丢帧现象（已解决）
             if(isContinusStop_.load(std::memory_order_acquire) && !isProject_.load(std::memory_order_acquire)) {
                 auto camera = slCameraFactory_.getCamera(slmaster::CameraType(cameraType_));
                 if (camera) {
@@ -115,7 +115,7 @@ int CameraEngine::createStripe(const int pixelDepth, const int direction, const 
 void CameraEngine::defocusStripeCreate(std::vector<cv::Mat>& imgs, const int direction, const int cycles, const int shiftTime, AppType::DefocusEncoding method) {
     Q_ASSERT(!imgs.empty());
 
-    //TODO@LiuYunhuang: 使用浮点数相移图案会更精确点
+    //TODO@Evans Liu: 使用浮点数相移图案会更精确点
     for (int i = 0; i < imgs.size(); ++i) {
         if(i < shiftTime) {
             if(method == AppType::DefocusEncoding::ErrorDiffusionMethod) {
