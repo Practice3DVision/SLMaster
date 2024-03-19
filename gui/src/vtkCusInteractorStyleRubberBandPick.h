@@ -12,6 +12,17 @@
 #include <vtkProperty.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
+/**
+ * @file vtkCusInteractorStyleRubberBandPick.h
+ * @author Evans Liu (1369215984@qq.com)
+ * @brief 
+ * @version 0.1
+ * @date 2024-03-19
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include <vtkPolyDataMapper.h>
 #include <vtkCellData.h>
 #include <vtkVertex.h>
