@@ -48,7 +48,7 @@ FluWindow {
                     text: Lang.author
                 }
                 FluText{
-                    text: Lang.yunhuangliu
+                    text: Lang.evansLiu
                     Layout.alignment: Qt.AlignBottom
                 }
             }
@@ -63,7 +63,7 @@ FluWindow {
                     id:text_hublink
                     topPadding:0
                     bottomPadding:0
-                    text: "https://github.com/Yunhuang-Liu"
+                    text: "https://github.com/Practice3DVision"
                     Layout.alignment: Qt.AlignBottom
                     onClicked: {
                         Qt.openUrlExternally(text_hublink.text)
