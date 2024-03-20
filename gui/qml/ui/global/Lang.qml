@@ -29,7 +29,7 @@ QtObject {
     property string check_restart
     property string confirm
     property string author
-    property string yunhuangliu
+    property string evansLiu
     property string about_info
     property string wechat
     property string online
@@ -284,8 +284,8 @@ QtObject {
         check_restart = "此操作需要重启应用程序，请确定重新打开应用程序?";
         confirm = "确认";
         author = "作者";
-        yunhuangliu = "刘允煌";
-        about_info = " 该软件为机构光相机配套软件，\n 需搭配个人OpenCV Structured Light/cudaStructuredLight模块一起使用。\n 非常感谢朱子楚提供的FlutUI开源QML框架，\n 本软件对该框架进行了适当修改！";
+        evansLiu = "Evans Liu";
+        about_info = " 该软件为机构光相机配套软件，\n \n 如需GPU加速请从源码编译! \n \n 请不要将本软件用于包括销售、推广等任何非经许可的商业用途! \n \n 关注公众号：实战3D视觉，更多技术内容与你分享。";
         wechat = " 微信";
         online = "在线";
         offline = "离线";
@@ -541,8 +541,8 @@ QtObject {
         check_restart = "This operation requires restarting the application. Please make sure to reopen the application?";
         confirm = "Confirm";
         author = "Author";
-        yunhuangliu = "Yunhuang Liu";
-        about_info = " This software is a supporting software for institutional light cameras \n and needs to be used in conjunction with the personal OpenCV \n Structured Light/cudaStructured Light module. \n Thank you very much to Zhu Zichu for providing the FlutUI open-source QML framework. \n This software has made appropriate modifications to the framework!";
+        evansLiu = "Evans Liu";
+        about_info = " This software is a supporting software for institutional optical cameras. \n \n If you need GPU acceleration, please compile it from the source code! \n \n Please do not use this software for any unauthorized commercial purposes, including sales, promotion, etc! \n \n Follow the official account: actual 3D vision. Share more technical content with you.";
         wechat = " wechat";
         online = "Online";
         offline = "Offline"
