@@ -1,47 +1,41 @@
 ## 1. SLMaster
-<img ref="https://github.com/Practice3DVision/SLMaster/releases/tag/v1.1.0" src="https://img.shields.io/badge/release-v1.0-blue" />
+<img ref="https://github.com/Practice3DVision/SLMaster/releases/tag/v1.2.0" src="https://img.shields.io/badge/release-v1.2.0-blue" />
 <img src="https://img.shields.io/badge/windows11-passing-rgb(0, 255, 0)" />
 <img src="https://img.shields.io/badge/ubuntu22.04-Prepare for testing-rgb(255, 165, 0)" />
 
 [SLMaster](https://github.com/Practice3DVision/SLMaster)是一个较为完整的结构光3D相机软件。您可以使用它对任意被测物体完成静态扫描或者实时动态扫描。
 
-该软件将由博主的系列文章[从0到1搭建一套属于你自己的高精度实时结构光3D相机](https://mp.weixin.qq.com/s/E8K3892eNVJfgpMUHtf9Lw)手把手教学完成。这不仅能够扩展你的知识，使你获得你人生中第一台系统化的结构光3D相机，更为重要的是对你的代码能力颇有提升。
+该软件将由博主的系列文章[从0到1搭建一套属于你自己的高精度实时结构光3D相机](https://mp.weixin.qq.com/s/E8K3892eNVJfgpMUHtf9Lw)手把手教学完成，可关注公众号进行学习。
 
-通过这个项目你能收获如下内容：
-- 对结构光三维重建知识体系的提升
-- 一套极具价值的软件
-- 极大程度锻炼你的代码能力
+请不要吝惜你的⭐，你的⭐和关注是博主源源不断的动力。有任何问题和**bug**反馈请提**Issue**。
 
-更为重要的是，**免费！免费！免费！** 请不要吝惜你的⭐，你的⭐和关注是博主源源不断的动力。有任何问题和**bug**反馈请提**Issue**。
+**想先体验该软件？**
+
+请在`Release`页面下载`exe`安装文件，但请注意`exe`安装方式不支持`GPU`加速。
 
 ## 2. 依赖
 **SLMaster**依赖的库包含如下几点：
+- [FluentUI](https://github.com/Practice3DVision/SLMaster/tree/master/FluentUI) <img src="https://img.shields.io/badge/项目内包含（部分代码进行了修改）-passing-rgb(0, 255, 0)" />
+- [QuickQanava](https://github.com/cneben/QuickQanava/tree/2.4.1) <img src="https://img.shields.io/badge/项目内包含v2.4.1-passing-rgb(0, 255, 0)" />
+- [MVSDK](https://www.irayple.com/cn/serviceSupport/downloadCenter/18?p=17) <img src="https://img.shields.io/badge/项目内包含v2.3.5-passing-rgb(0, 255, 0)" />
+- [opencv_contribute](https://github.com/opencv/opencv_contrib.git) <img src="https://img.shields.io/badge/如果需要CUDA加速v4.8.0-passing-rgb(0, 255, 0)" />
 - [OpenCV](https://github.com/opencv/opencv.git) <img src="https://img.shields.io/badge/v4.8.0-passing-rgb(0, 255, 0)" />
-- [opencv_contribute](https://github.com/Practice3DVision/opencv_contrib) <img src="https://img.shields.io/badge/博主仓库-passing-rgb(0, 255, 0)" />
-- [FluentUI](https://github.com/Practice3DVision/SLMaster/tree/master/FluentUI) <img src="https://img.shields.io/badge/项目内包含（博主对部分代码进行了修改）-passing-rgb(0, 255, 0)" />
-- [QuickQanava](https://github.com/cneben/QuickQanava/tree/2.4.1) <img src="https://img.shields.io/badge/v2.4.1-passing-rgb(0, 255, 0)" />
 - [VTK](https://github.com/Kitware/VTK/tree/v9.2.0) <img src="https://img.shields.io/badge/v9.2.0-passing-rgb(0, 255, 0)" />
 - [PCL](https://github.com/PointCloudLibrary/pcl/tree/pcl-1.12.1) <img src="https://img.shields.io/badge/v1.12.1-passing-rgb(0, 255, 0)" /> 
-- [MVSDK](https://www.irayple.com/cn/serviceSupport/downloadCenter/18?p=17) <img src="https://img.shields.io/badge/v2.3.5-passing-rgb(0, 255, 0)" />
 - [Qt5](https://doc.qt.io/qt-5/index.html) <img src="https://img.shields.io/badge/v5.15.14-passing-rgb(0, 255, 0)" />
 
-**注意点！！！**
+> 如果电脑没有`NVIDIA GPU`，软件仍然能够使用CPU加速有效运行，此时可无需`opencv_contribute`依赖。
 
-依赖库中的[opencv_contribute](https://github.com/Practice3DVision/opencv_contrib)为博主自己**fork**并修改的库，该库中的[structured_light](https://github.com/Practice3DVision/opencv_contrib/tree/liuyunhuang/modules/structured_light)模块和[cuda_structured_light](https://github.com/Practice3DVision/opencv_contrib/tree/liuyunhuang/modules/cudastructuredlight)模块有博主添加的算法，主要包括**CPU**加速的互补格雷码方法和**CUDA**加速的互补格雷码方法以及**CUDA**加速的多视几何约束方法，对于**opencv_contribute**中相应的测试用例数据在博主的私人[opencv_extra](https://github.com/Practice3DVision/opencv_extra)库中，如需要可自行下载。如果你想查看更多的结构光算法实现，可访问博主的另一个较早版本的结构光库[libStructedLightCamera](https://github.com/Practice3DVision/libStructedLightCamera)。
-
-> 如果电脑没有Nvidia GPU，可以关闭`WITH_CUDA`，仅编译`CPU`版本。软件仍然能够有效运行。
-
-## 3. 编译与使用
+## 3. 编译
 当你获取到本库代码之后，首先检查上述依赖，若不满足依赖条件，可通过点击上述依赖库跳转至对应的库，随后下载其代码并进行编译。以上面库皆没有编译安装的环境为例，它的编译顺序应该是这样的：
 
-1. 下载[OpenCV](https://github.com/opencv/opencv.git)和[opencv_contribute](https://github.com/Practice3DVision/opencv_contrib)并进行编译（若`WITH_CUDA`未勾选请勾选上）
+1. 下载[OpenCV](https://github.com/opencv/opencv.git)和[opencv_contribute](https://github.com/opencv/opencv_contrib.git)并进行编译（若`WITH_CUDA`未勾选请勾选上）
 2. 下载[Qt5.15](https://doc.qt.io/qt-5/index.html)并选择`MSVC`编译套件安装
 3. 下载[VTK](https://github.com/Kitware/VTK/tree/v9.2.0)并令`VTK_GROUP_ENABLE_Qt=YES`进行编译
 4. 下载[PCL-1.12.1-AllInOne](https://github.com/PointCloudLibrary/pcl/releases)进行安装，安装完成后删除`PCL`安装文件夹下的除`3rdParty`外的其它任何文件，并将`3rdParty`文件夹中的`VTK`文件夹删除
 5. 下载[PCL](https://github.com/PointCloudLibrary/pcl/tree/pcl-1.12.1)并选择好第三方库路径进行编译
-6. 下载`MSVDK`软件并安装
-7. 打开命令行窗口，键入`git clone --recursive https://github.com/Practice3DVision/SLMaster.git`下载`SLMaster`
-8. 打开`VSCode`编译运行`SLMaster`即可
+6. 打开命令行窗口，键入`git clone --recursive https://github.com/Practice3DVision/SLMaster.git`克隆`SLMaster`
+7. 打开`VSCode`编译运行`SLMaster`即可
 
 > 注意！
 > 每当编译好一个库都应当在系统环境变量中加入。例如，编译完成OpenCV后，设置好系统环境变量OpenCV_DIR路径。
@@ -50,7 +44,14 @@
 你可以打开`SLMaster`中的`BUILD_TEST`选项，这将编译**google_test**中的测试用例，这些测试用例同样是一份非常不错的示例代码。
 
 当你成功进行编译后，将得到可执行文件`SLMasterGui.exe`,它位于`build/gui/`目录之下。随后运行它尽情享受吧！
-## 4. 功能
+## 4. 使用
+
+离线使用情况下，可通过进入`扫描模式->离线扫描模式->选择左相机文件夹->选择右相机文件夹->开始扫描->单次扫描`测试离线重建效果，软件提供一组离线数据集位于`安装目录/data/`下。
+
+如您需要更改算法参数以测试自己的离线数据集，请通过更改`安装目录/gui/qml/res/config`下的相机配置文件，该文件记录了**3D**相机所有的状态，包括硬件组成、算法参数等。
+
+如您需要接入硬件并执行在线功能，请修改`安装目录/gui/qml/res/config`下的相机配置文件，确保硬件组成参数与您所用的硬件设备一致。
+## 5. 功能
 **SLMaster**具备完整的软件功能，关键功能可以总结为以下几点：
 - 单目/双目/三目结构光相机切换功能
 - 3D相机在线/离线实时检测功能
