@@ -7,16 +7,12 @@
 #include <Eigen/Eigen>
 #include <opencv2/core/eigen.hpp>
 
-#include <binosSinusCompleGrayCodePattern.h>
-#include <trinocularMultiViewStereoGeometryPattern.h>
-#include <defocusMethod.hpp>
-#ifdef WITH_CUDASTRUCTUREDLIGHT_MODULE
-#include <opencv2/cudastructuredlight.hpp>
-#endif
-
 #include <pcl/io/pcd_io.h>
 
 using namespace slmaster;
+using namespace slmaster::cameras;
+using namespace slmaster::algorithm;
+using namespace slmaster::device;
 using namespace std;
 
 CameraEngine* CameraEngine::engine_ = new CameraEngine();
@@ -34,7 +30,7 @@ void CameraEngine::startDetectCameraState() {
         while(!appExit_.load(std::memory_order_acquire)) {
             //TODO@Evans Liu: 在相机捕图时，不能去检测相机在线状态等相机操作，否则，将导致丢帧现象（已解决）
             if(isContinusStop_.load(std::memory_order_acquire) && !isProject_.load(std::memory_order_acquire)) {
-                auto camera = slCameraFactory_.getCamera(slmaster::CameraType(cameraType_));
+                auto camera = slCameraFactory_.getCamera(CameraType(cameraType_));
                 if (camera) {
                     if(isOnLine_ ^ camera->getCameraInfo().isFind_) {
                         isOnLine_ = camera->getCameraInfo().isFind_;
@@ -146,12 +142,12 @@ void CameraEngine::createTenLine() {
     verticalLine[0](cv::Rect(width / 2 - 1, 0, 2, height)) = 255 - cv::Mat::zeros(height, 2, CV_8UC1);
     honrizonLine[0](cv::Rect(0, height / 2 - 1, width, 2)) = 255 - cv::Mat::zeros(2, width, CV_8UC1);
 
-    std::vector<device::projector::PatternOrderSet> patternSets(2);
+    std::vector<PatternOrderSet> patternSets(2);
     for (size_t i = 0; i < patternSets.size(); ++i) {
         patternSets[i].exposureTime_ = getNumberAttribute("Exposure Time");
         patternSets[i].preExposureTime_ = getNumberAttribute("Pre Exposure Time");
         patternSets[i].postExposureTime_ = getNumberAttribute("Aft Exposure Time");
-        patternSets[i].illumination_ = device::projector::Blue;
+        patternSets[i].illumination_ = Blue;
         patternSets[i].isOneBit_ = getBooleanAttribute("Is One Bit");
         patternSets[i].isVertical_ = i == 0 ? true : false;
         patternSets[i].patternArrayCounts_ = i == 0 ? width : height;
@@ -170,16 +166,16 @@ void CameraEngine::createTenLine() {
 }
 
 void CameraEngine::switchTrigMode(const bool isTrigLine, const int exposureTime) {
-    const device::camera::CameraFactory::CameraManufactor manufator =
+    const CameraFactory::CameraManufactor manufator =
         getStringAttribute("2D Camera Manufactor") == "Huaray"
-            ? device::camera::CameraFactory::Huaray
-            : device::camera::CameraFactory::Halcon;
+            ? CameraFactory::Huaray
+            : CameraFactory::Halcon;
     auto leftCamera = getSLCamera()->getCameraFactory()->getCamera(getStringAttribute("Left Camera Name").toStdString(), manufator);
     std::string rightCameraName, colorCameraName;
     auto rightCamera = getSLCamera()->getStringAttribute("Right Camera Name", rightCameraName) ? getSLCamera()->getCameraFactory()->getCamera(rightCameraName, manufator) : nullptr;
     auto colorCamera = getSLCamera()->getStringAttribute("Color Camera Name", colorCameraName) ? getSLCamera()->getCameraFactory()->getCamera(colorCameraName, manufator) : nullptr;
 
-    auto trigMode = isTrigLine ? device::camera::trigLine : device::camera::trigSoftware;
+    auto trigMode = isTrigLine ? trigLine : trigSoftware;
 
     leftCamera->setTrigMode(trigMode);
     leftCamera->setNumberAttribute("ExposureTime", exposureTime);
@@ -236,7 +232,7 @@ void CameraEngine::selectCamera(const int cameraType) {
         qDebug() << "We don't support monocualr camera in current!";
     }
 
-    slCameraFactory_.getCamera(slmaster::CameraType(cameraType_));
+    slCameraFactory_.getCamera(CameraType(cameraType_));
 
     if(appExit_.load(std::memory_order_acquire)) {
         appExit_.store(false, std::memory_order_release);
@@ -253,7 +249,7 @@ void CameraEngine::setCameraJsonPath(const std::string jsonPath) {
 bool CameraEngine::connectCamera() {
     qInfo() << QString("connect camera...");
 
-    auto camera = slCameraFactory_.getCamera(slmaster::CameraType(cameraType_));
+    auto camera = slCameraFactory_.getCamera(CameraType(cameraType_));
     bool isSuccess = false;
     if (camera) {
         if(camera->getCameraInfo().isFind_) {
@@ -278,7 +274,7 @@ bool CameraEngine::connectCamera() {
 bool CameraEngine::disConnectCamera() {
     qInfo() << QString("disconnect camera...");
 
-    auto camera = slCameraFactory_.getCamera(slmaster::CameraType(cameraType_));
+    auto camera = slCameraFactory_.getCamera(CameraType(cameraType_));
     bool isSuccess = false;
     if (camera) {
         isSuccess = camera->disConnect();
@@ -329,16 +325,16 @@ void CameraEngine::burnStripe() {
             imgs.emplace_back(convertImg);
         }
 
-        std::vector<device::projector::PatternOrderSet> sumPatternSets;
+        std::vector<PatternOrderSet> sumPatternSets;
         int indexImg = 0;
         for (int i = 0; i < orderTableRecord_.size(); ++i) {
             const int numOfPatternOrderSets = std::ceil(orderTableRecord_[i].patternsNum_ / 6.f);
-            std::vector<device::projector::PatternOrderSet> patternSets(numOfPatternOrderSets);
+            std::vector<PatternOrderSet> patternSets(numOfPatternOrderSets);
             for (int j = 0; j < patternSets.size(); ++j) {
                 patternSets[j].exposureTime_ = getNumberAttribute("Exposure Time");
                 patternSets[j].preExposureTime_ = getNumberAttribute("Pre Exposure Time");
                 patternSets[j].postExposureTime_ = getNumberAttribute("Aft Exposure Time");
-                patternSets[j].illumination_ = device::projector::Blue;
+                patternSets[j].illumination_ = Blue;
                 patternSets[j].isOneBit_ = getBooleanAttribute("Is One Bit");
                 patternSets[j].isVertical_ = orderTableRecord_[i].isVertical_;
                 patternSets[j].patternArrayCounts_ = patternSets[j].isVertical_ ? imgs[0].cols : imgs[0].rows;
@@ -644,10 +640,10 @@ void CameraEngine::projectOnce() {
     }
 
     workThread_ = std::thread([&]{
-        const device::camera::CameraFactory::CameraManufactor manufator =
+        const CameraFactory::CameraManufactor manufator =
             getStringAttribute("2D Camera Manufactor") == "Huaray"
-                ? device::camera::CameraFactory::Huaray
-                : device::camera::CameraFactory::Halcon;
+                ? CameraFactory::Huaray
+                : CameraFactory::Halcon;
         auto leftCamera = getSLCamera()->getCameraFactory()->getCamera(getStringAttribute("Left Camera Name").toStdString(), manufator);
         auto projector = getSLCamera()->getProjectorFactory()->getProjector(getStringAttribute("DLP Evm").toStdString());
 
@@ -695,18 +691,18 @@ void CameraEngine::projectContinues() {
     }
 
     workThread_ = std::thread([&]{
-        const device::camera::CameraFactory::CameraManufactor manufator =
+        const CameraFactory::CameraManufactor manufator =
             getStringAttribute("2D Camera Manufactor") == "Huaray"
-                ? device::camera::CameraFactory::Huaray
-                : device::camera::CameraFactory::Halcon;
+                ? CameraFactory::Huaray
+                : CameraFactory::Halcon;
         auto leftCamera = getSLCamera()->getCameraFactory()->getCamera(getStringAttribute("Left Camera Name").toStdString(), manufator);
         auto projector = getSLCamera()->getProjectorFactory()->getProjector(getStringAttribute("DLP Evm").toStdString());
 
         std::string rightCameraName, colorCameraName;
         bool hasRightCamera = getSLCamera()->getStringAttribute("Right Camera Name", rightCameraName);
         bool hasColorCamera = getSLCamera()->getStringAttribute("Color Camera Name", rightCameraName);
-        device::camera::Camera* rightCamera = hasRightCamera ? getSLCamera()->getCameraFactory()->getCamera(getStringAttribute("Right Camera Name").toStdString(), manufator) : nullptr;
-        device::camera::Camera* colorCamera = hasRightCamera ? getSLCamera()->getCameraFactory()->getCamera(getStringAttribute("Color Camera Name").toStdString(), manufator) : nullptr;
+        Camera* rightCamera = hasRightCamera ? getSLCamera()->getCameraFactory()->getCamera(getStringAttribute("Right Camera Name").toStdString(), manufator) : nullptr;
+        Camera* colorCamera = hasRightCamera ? getSLCamera()->getCameraFactory()->getCamera(getStringAttribute("Color Camera Name").toStdString(), manufator) : nullptr;
 
         stripeImgs_.clear();
         emit stripeImgsChanged(stripeImgs_.size());

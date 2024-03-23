@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
 #endif
     qputenv("QT_QUICK_CONTROLS_STYLE","Basic");
     QGuiApplication::setWindowIcon(QIcon("qrc:/res/image/icons8-maple-leaf-48.ico"));
-    QGuiApplication::setOrganizationName("EvansLiu");
-    QGuiApplication::setOrganizationDomain("https://github.com/Practice3DVision");
+    QGuiApplication::setOrganizationName("YunhuangLiu");
+    QGuiApplication::setOrganizationDomain("https://github.com/Yunhuang-Liu");
     QGuiApplication::setApplicationName("SLMasterGui");
     SettingsHelper::instance()->init("SLMasterGui");
     if(SettingsHelper::instance()->getRender() == "SoftWare") {
@@ -52,7 +52,6 @@ int main(int argc, char *argv[])
         QQuickWindow::setSceneGraphBackend(QSGRendererInterface::OpenGL);
 #endif
     }
-
 #ifdef WITH_CUDASTRUCTUREDLIGHT_MODULE
     auto deviceNum = cv::cuda::getCudaEnabledDeviceCount();
     qDebug() << "CUDA Device nums: " << deviceNum;
@@ -64,7 +63,6 @@ int main(int argc, char *argv[])
         qDebug() << "CUDA diasble." << deviceNum;
     }
 #endif    
-
     QQuickVTKRenderWindow::setupGraphicsBackend();
     vtkOutputWindow::SetGlobalWarningDisplay(0);
 

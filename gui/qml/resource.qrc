@@ -1,9 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>ui/App.qml</file>
-        <file>ui/window/MainWindow.qml</file>
-        <file>ui/global/qmldir</file>
-        <file>ui/global/Lang.qml</file>
         <file>res/image/favicon.ico</file>
         <file>res/image/ic_home_github.png</file>
         <file>res/image/control/Acrylic.png</file>
@@ -104,15 +100,30 @@
         <file>res/image/control/Viewbox.png</file>
         <file>res/image/control/WebView.png</file>
         <file>res/image/control/XamlUICommand.png</file>
+        <file>res/image/wechat.jpg</file>
+        <file>res/image/baseline_image_white_36dp.png</file>
+        <file>res/image/icons8-online-48.png</file>
+        <file>res/image/icons8-maple-leaf-48.ico</file>
+        <file>res/image/icons8-offline-96.png</file>
+        <file>res/image/icons8-camera-online-96.png</file>
+        <file>res/image/icons8-projector-96.png</file>
+        <file>res/image/icons8-film-roll-96.png</file>
+        <file>res/image/icons8-photo-96.png</file>
+        <file>res/image/icons8-previous-96.png</file>
+        <file>res/image/icons8-clean-96.png</file>
+        <file>res/image/icons8-process-96.png</file>
+        <file>res/image/icons8-camera-94.png</file>
+        <file>app.rc</file>
+        <file>ui/App.qml</file>
+        <file>ui/window/MainWindow.qml</file>
+        <file>ui/global/qmldir</file>
+        <file>ui/global/Lang.qml</file>
         <file>ui/global/AppIcon.qml</file>
         <file>ui/window/AboutWindow.qml</file>
         <file>ui/component/TimeLineNavigator.qml</file>
         <file>ui/component/TimePoint.qml</file>
         <file>ui/component/SettingsPage.qml</file>
-        <file>res/image/wechat.jpg</file>
         <file>ui/page/Page_Device.qml</file>
-        <file>res/image/baseline_image_white_36dp.png</file>
-        <file>res/image/icons8-online-48.png</file>
         <file>ui/page/Page_Calibration.qml</file>
         <file>ui/global/ItemsOriginal.qml</file>
         <file>ui/page/SubPage_OfflineCameraCalibration.qml</file>
@@ -137,17 +148,6 @@
         <file>ui/nodes/MeshOutputNode.qml</file>
         <file>ui/nodes/GreedyProjectionTriangulationNode.qml</file>
         <file>ui/nodes/PoissonNode.qml</file>
-        <file>res/image/icons8-maple-leaf-48.ico</file>
-        <file>app.rc</file>
-        <file>res/image/icons8-offline-96.png</file>
-        <file>res/image/icons8-camera-online-96.png</file>
-        <file>res/image/icons8-projector-96.png</file>
-        <file>res/image/icons8-film-roll-96.png</file>
-        <file>res/image/icons8-photo-96.png</file>
-        <file>res/image/icons8-previous-96.png</file>
-        <file>res/image/icons8-clean-96.png</file>
-        <file>res/image/icons8-process-96.png</file>
-        <file>res/image/icons8-camera-94.png</file>
         <file>res/config/trinocularCameraConfig.json</file>
         <file>ui/nodes/SACSegmentNode.qml</file>
         <file>ui/nodes/SplitOutputNode.qml</file>
