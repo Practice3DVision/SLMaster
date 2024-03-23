@@ -24,12 +24,11 @@
 #include <QFileInfo>
 #include <QVector4D>
 
-#include "caliPacker.h"
-#include "chessBoardCalibrator.h"
-#include "circleGridCalibrator.h"
-#include "concentricRingCalibrator.h"
 #include "ImagePaintItem.h"
 #include "CameraModel.h"
+#include "AppType.h"
+
+#include "slmaster.h"
 
 class CalibrateEngine : public QObject {
     Q_OBJECT
@@ -105,11 +104,11 @@ class CalibrateEngine : public QObject {
     ~CalibrateEngine() = default;
     CalibrateEngine(const CalibrateEngine&) = default;
     CalibrateEngine& operator=(const CalibrateEngine&) = default;
-    Calibrator* getCalibrator(const AppType::TargetType targetType);
+    slmaster::calibration::Calibrator* getCalibrator(const AppType::TargetType targetType);
     void findEpilines(const int rows, const int cols,
                       const cv::Mat &fundermental, cv::Mat &epilines);
     void rectify(const cv::Mat &leftImg, const cv::Mat &rightImg,
-                 const slmaster::CaliInfo &info, cv::Mat &rectifyImg);
+                 const slmaster::cameras::CaliInfo &info, cv::Mat &rectifyImg);
     const cv::Point2f remapProjectorPoint(const cv::Mat& honrizonPhaseMap, const cv::Mat& verticalPhaseMap, const cv::Point2f& camPoint);
     static CalibrateEngine* calibrateEngine_;
     ImagePaintItem* offlineCamPaintItem_;
@@ -119,8 +118,8 @@ class CalibrateEngine : public QObject {
     ImagePaintItem* onlineProjPaintItem_;
     float progress_;
     int imgProcessIndex_;
-    std::unique_ptr<Calibrator> leftCalibrator_;
-    std::unique_ptr<Calibrator> rightCalibrator_;
+    std::unique_ptr<slmaster::calibration::Calibrator> leftCalibrator_;
+    std::unique_ptr<slmaster::calibration::Calibrator> rightCalibrator_;
     std::atomic_bool isFinish_;
     std::thread updateThread_;
     std::thread calibrationThread_;
@@ -128,7 +127,7 @@ class CalibrateEngine : public QObject {
     CameraModel* leftCameraModel_;
     CameraModel* rightCameraModel_;
     CameraModel* projectorModel_;
-    slmaster::CaliInfo caliInfo_;
+    slmaster::cameras::CaliInfo caliInfo_;
     cv::Mat rectifiedImg_;
     std::vector<std::vector<cv::Mat>> projectorCaliImgs_;
     std::vector<std::vector<cv::Point2f>> projCameraPoints_;

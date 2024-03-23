@@ -2,9 +2,13 @@
 
 #include "CameraEngine.h"
 
-#include <opencv2/structured_light.hpp>
-
 #include <chrono>
+
+using namespace slmaster;
+using namespace slmaster::algorithm;
+using namespace slmaster::device;
+using namespace slmaster::calibration;
+using namespace slmaster::cameras;
 
 CalibrateEngine* CalibrateEngine::calibrateEngine_ = new CalibrateEngine();
 
@@ -208,7 +212,7 @@ void CalibrateEngine::findEpilines(const int rows, const int cols,
 }
 
 void CalibrateEngine::rectify(const cv::Mat &leftImg, const cv::Mat &rightImg,
-                               const slmaster::CaliInfo &info, cv::Mat &rectifyImg) {
+                               const CaliInfo &info, cv::Mat &rectifyImg) {
     rectifyImg = cv::Mat(leftImg.rows, leftImg.cols * 2, CV_8UC1);
     cv::Mat img_rect_Left =
         rectifyImg(cv::Rect(0, 0, rectifyImg.cols / 2, rectifyImg.rows));
@@ -429,13 +433,13 @@ bool CalibrateEngine::captureOnce() {
 
     std::string camManufactor, leftCameraName, rightCameraName, colorCameraName, dlpEvmName;
     slCamera->getStringAttribute("2D Camera Manufactor", camManufactor);
-    const device::camera::CameraFactory::CameraManufactor manufator = camManufactor == "Huaray" ? device::camera::CameraFactory::Huaray : device::camera::CameraFactory::Halcon;
+    const CameraFactory::CameraManufactor manufator = camManufactor == "Huaray" ? CameraFactory::Huaray : CameraFactory::Halcon;
     slCamera->getStringAttribute("Left Camera Name", leftCameraName);
     slCamera->getStringAttribute("DLP Evm", dlpEvmName);
 
-    device::projector::Projector* projector = slCamera->getProjectorFactory()->getProjector(dlpEvmName);
+    Projector* projector = slCamera->getProjectorFactory()->getProjector(dlpEvmName);
 
-    device::camera::Camera* leftCamera = nullptr, *rightCamera = nullptr, *colorCamera = nullptr;
+    Camera* leftCamera = nullptr, *rightCamera = nullptr, *colorCamera = nullptr;
     leftCamera = slCamera->getCameraFactory()->getCamera(leftCameraName, manufator);
     if(slCamera->getStringAttribute("Right Camera Name", rightCameraName)) {
         rightCamera = slCamera->getCameraFactory()->getCamera(rightCameraName, manufator);
@@ -462,7 +466,7 @@ bool CalibrateEngine::captureOnce() {
         }
     }
 
-    leftCamera->setTrigMode(device::camera::trigSoftware);
+    leftCamera->setTrigMode(trigSoftware);
     leftCamera->setNumberAttribute("ExposureTime", 100000);
     cv::Mat texture = leftCamera->capture();
     if(texture.type() == CV_8UC3) {
@@ -488,14 +492,14 @@ bool CalibrateEngine::captureOnce() {
             imgs.push_back(img);
         }
 
-        cv::structured_light::SinusCompleGrayCodePattern::Params params;
+        SinusCompleGrayCodePattern::Params params;
         params.confidenceThreshold = CameraEngine::instance()->getNumberAttribute("Contrast Threshold");
         params.height = dlpHeight;
         params.width = dlpWidth;
         params.horizontal = !orderTablesRecord[i].isVertical_;
         params.shiftTime = orderTablesRecord[i].shiftTime_;
         params.nbrOfPeriods = std::pow(2, orderTablesRecord[i].patternsNum_ - orderTablesRecord[i].shiftTime_ - 1);
-        auto pattern = cv::structured_light::SinusCompleGrayCodePattern::create(params);
+        auto pattern = SinusCompleGrayCodePattern::create(params);
 
         cv::Mat confidenceMap, wrappedPhaseMap, floorMap, unwrapMap, normalizeUnwrapMap;
 

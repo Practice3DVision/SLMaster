@@ -1,9 +1,11 @@
 ## 1. SLMaster
-<img ref="https://github.com/Practice3DVision/SLMaster/releases/tag/v1.2.0" src="https://img.shields.io/badge/release-v1.2.0-blue" /> <img src="https://img.shields.io/badge/windows11-passing-rgb(0, 255, 0)" />  <img src="https://img.shields.io/badge/ubuntu22.04-Prepare for testing-rgb(255, 165, 0)" />
+<img ref="https://github.com/Practice3DVision/SLMaster/releases/tag/v1.1.0" src="https://img.shields.io/badge/release-v1.0-blue" />
+<img src="https://img.shields.io/badge/windows11-passing-rgb(0, 255, 0)" />
+<img src="https://img.shields.io/badge/ubuntu22.04-Prepare for testing-rgb(255, 165, 0)" />
 
-[SLMaster](https://github.com/Practice3DVision/SLMaster)是一个较为完整的结构光3D相机软件。你可以使用它对任意被测物体完成静态扫描或者实时动态扫描。
+[SLMaster](https://github.com/Practice3DVision/SLMaster)是一个较为完整的结构光3D相机软件。您可以使用它对任意被测物体完成静态扫描或者实时动态扫描。
 
-该软件将由***公众号***系列文章[从0到1搭建一套属于你自己的高精度实时结构光3D相机](https://mp.weixin.qq.com/s/E8K3892eNVJfgpMUHtf9Lw)手把手教学完成。这不仅能够扩展你的知识，使你获得你人生中第一台系统化的结构光3D相机，更为重要的是对你的代码能力颇有提升。
+该软件将由博主的系列文章[从0到1搭建一套属于你自己的高精度实时结构光3D相机](https://mp.weixin.qq.com/s/E8K3892eNVJfgpMUHtf9Lw)手把手教学完成。这不仅能够扩展你的知识，使你获得你人生中第一台系统化的结构光3D相机，更为重要的是对你的代码能力颇有提升。
 
 通过这个项目你能收获如下内容：
 - 对结构光三维重建知识体系的提升
@@ -48,19 +50,6 @@
 你可以打开`SLMaster`中的`BUILD_TEST`选项，这将编译**google_test**中的测试用例，这些测试用例同样是一份非常不错的示例代码。
 
 当你成功进行编译后，将得到可执行文件`SLMasterGui.exe`,它位于`build/gui/`目录之下。随后运行它尽情享受吧！
-
-**觉得编译过于麻烦？**
-
-在`Release`页面有提供相应的`exe`安装文件以供下载。
-
-## 5. 示例与使用
-
-通过安装可执行文件或编译成功后，可通过如下方式使用软件测试离线数据:
-
-扫描模式->离线扫描模式->选择左图像（安装路径data/L）->选择右图像（安装路径data/R）->开始扫描->单次扫描。
-
-如需在线连接3D相机使用，请注意！相机配置文件位于`安装目录/gui/qml/res/config`中，确定好你所使用相机为双目或三目，并相应修改配置文件中的`2D Camera Manufactor`与`DLP Evm`参数。
-
 ## 4. 功能
 **SLMaster**具备完整的软件功能，关键功能可以总结为以下几点：
 - 单目/双目/三目结构光相机切换功能

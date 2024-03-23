@@ -25,8 +25,7 @@
 #include "typeDef.h"
 #include "CameraModel.h"
 
-#include "slCameraFactory.h"
-#include "safeQueue.hpp"
+#include <slmaster.h>
 
 class CameraEngine : public QObject {
     Q_OBJECT
@@ -78,8 +77,8 @@ class CameraEngine : public QObject {
     Q_INVOKABLE double getNumberAttribute(const QString& attributeName);
     Q_INVOKABLE bool getBooleanAttribute(const QString& attributeName);
     Q_INVOKABLE QString getStringAttribute(const QString& attributeName);
-    Q_INVOKABLE const slmaster::FrameData& getCurFrame() { return frame_; }
-    std::shared_ptr<slmaster::SLCamera> getSLCamera() { return slCameraFactory_.getCamera(slmaster::CameraType(cameraType_)); }
+    Q_INVOKABLE const slmaster::cameras::FrameData& getCurFrame() { return frame_; }
+    std::shared_ptr<slmaster::cameras::SLCamera> getSLCamera() { return slCameraFactory_.getCamera(slmaster::cameras::CameraType(cameraType_)); }
     std::vector<OrderTableRecord> getOrderTableRecord() { return orderTableRecord_; }
   signals:
     void stripeImgsChanged(const int num);
@@ -104,16 +103,16 @@ class CameraEngine : public QObject {
     ImagePaintItem* scanTexturePaintItem_ = nullptr;
     std::thread onlineDetectThread_;
     std::thread workThread_;
-    slmaster::SLCameraFactory slCameraFactory_;
-    slmaster::Pattern* pattern_ = nullptr;
+    slmaster::cameras::SLCameraFactory slCameraFactory_;
+    slmaster::cameras::Pattern* pattern_ = nullptr;
     CameraModel* leftCamModel_ = nullptr;
     CameraModel* rightCamModel_ = nullptr;
     CameraModel* colorCamModel_ = nullptr;
-    slmaster::FrameData frame_;
+    slmaster::cameras::FrameData frame_;
     std::thread test_thread_;
     std::atomic_bool appExit_;
     std::atomic_bool isProject_;
-    SafeQueue<slmaster::FrameData> frameDatasQueue_;
+    SafeQueue<slmaster::cameras::FrameData> frameDatasQueue_;
     std::atomic_bool isContinusStop_;
 };
 
