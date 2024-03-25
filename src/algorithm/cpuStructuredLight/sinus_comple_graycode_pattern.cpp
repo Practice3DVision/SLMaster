@@ -345,7 +345,7 @@ void SinusCompleGrayCodePattern_Impl::computeDisparity(
                     const float nextCost =
                         std::abs(leftVal - rightUnwrapPtr[j - (bestDisp + 1)]);
                     const float denom =
-                        std::max(1.f, preCost + nextCost - 2 * minCost);
+                        std::max(0.0001f, preCost + nextCost - 2 * minCost);
 
                     disparityPtr[j] =
                         bestDisp + (preCost - nextCost) / (denom * 2.f);
