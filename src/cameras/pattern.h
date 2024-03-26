@@ -68,7 +68,7 @@ struct SLMASTER_API TrinoPatternParams : public PatternParams {
     Eigen::Matrix4f PL1_;
     Eigen::Matrix4f PR2_;
     Eigen::Matrix4f PR4_;
-    // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 class SLMASTER_API Pattern {
