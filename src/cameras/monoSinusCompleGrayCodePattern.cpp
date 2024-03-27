@@ -3,51 +3,57 @@
 #include "../algorithm/algorithm.h"
 
 using namespace cv;
+using namespace cv::cuda;
+using namespace std;
 
 namespace slmaster {
+
+using namespace algorithm;
+
 namespace cameras {
 
-MonoSinusCompleGrayCodePattern::MonoSinusCompleGrayCodePattern() {
-    params_.reset(new BinoPatternParams());
+static MonoSinusCompleGrayCodePattern::Params params__;
+
+MonoSinusCompleGrayCodePattern::MonoSinusCompleGrayCodePattern() {}
+
+std::shared_ptr<Pattern>
+MonoSinusCompleGrayCodePattern::create(const Params &params) {
+    params__ = params;
+
+    return std::make_shared<MonoSinusCompleGrayCodePattern>();
 }
 
-bool MonoSinusCompleGrayCodePattern::generate(
-    std::vector<cv::Mat> &imgs) const {
-    auto monoPatternParams = static_cast<MonoPatternParams *>(params_.get());
+bool MonoSinusCompleGrayCodePattern::generate(vector<Mat> &imgs) const {
 
-    algorithm::SinusCompleGrayCodePattern::Params params;
-    params.width = monoPatternParams->width_;
-    params.height = monoPatternParams->height_;
-    params.nbrOfPeriods = monoPatternParams->cycles_;
-    params.horizontal = monoPatternParams->horizontal_;
-    params.confidenceThreshold = monoPatternParams->confidenceThreshold_;
-    params.shiftTime = monoPatternParams->shiftTime_;
+    SinusCompleGrayCodePattern::Params params;
+    params.width = params__.width_;
+    params.height = params__.height_;
+    params.nbrOfPeriods = params__.cycles_;
+    params.horizontal = params__.horizontal_;
+    params.confidenceThreshold = params__.confidenceThreshold_;
+    params.shiftTime = params__.shiftTime_;
 
-    return algorithm::SinusCompleGrayCodePattern::create(params)
-        ->generate(imgs);
+    return SinusCompleGrayCodePattern::create(params)->generate(imgs);
 }
 
 bool MonoSinusCompleGrayCodePattern::decode(
-    const std::vector<std::vector<cv::Mat>> &patternImages, cv::Mat &depthMap,
+    const vector<vector<Mat>> &patternImages, Mat &depthMap,
     const bool isGpu) const {
     CV_Assert(patternImages.size() >= 1);
 
-    auto monoPatternParams = static_cast<MonoPatternParams *>(params_.get());
-
 #ifdef OPENCV_WITH_CUDA_MODULE
     if (isGpu) {
-        algorithm::SinusCompleGrayCodePatternGPU::Params params;
-        params.shiftTime = monoPatternParams->shiftTime_;
-        params.confidenceThreshold = monoPatternParams->confidenceThreshold_;
-        params.height = monoPatternParams->height_;
-        params.width = monoPatternParams->width_;
-        params.nbrOfPeriods = monoPatternParams->cycles_;
-        params.horizontal = monoPatternParams->horizontal_;
+        SinusCompleGrayCodePatternGPU::Params params;
+        params.shiftTime = params__.shiftTime_;
+        params.confidenceThreshold = params__.confidenceThreshold_;
+        params.height = params__.height_;
+        params.width = params__.width_;
+        params.nbrOfPeriods = params__.cycles_;
+        params.horizontal = params__.horizontal_;
 
-        auto pattern = algorithm::SinusCompleGrayCodePatternGPU::create(params);
+        auto pattern = SinusCompleGrayCodePatternGPU::create(params);
 
-        std::vector<std::vector<Mat>> imgsDivided(
-            2); // leftPhaseImgs, leftGrayImgs
+        vector<vector<Mat>> imgsDivided(2); // leftPhaseImgs, leftGrayImgs
         for (int i = 0; i < patternImages[0].size(); ++i) {
             if (i < params.shiftTime) {
                 imgsDivided[0].push_back(patternImages[0][i]);
@@ -56,15 +62,15 @@ bool MonoSinusCompleGrayCodePattern::decode(
             }
         }
 
-        std::vector<Mat> imgsDividedMerged(2);
+        vector<Mat> imgsDividedMerged(2);
         parallel_for_(Range(0, 2), [&](const Range &range) {
             for (int i = range.start; i < range.end; ++i) {
                 merge(imgsDivided[i], imgsDividedMerged[i]);
             }
         });
 
-        std::vector<cv::cuda::GpuMat> imgsDividedMergedDev(2);
-        cv::cuda::GpuMat wrappedMapDev, confidenceMapDev, unwrappedMapDev;
+        vector<GpuMat> imgsDividedMergedDev(2);
+        GpuMat wrappedMapDev, confidenceMapDev, unwrappedMapDev;
         imgsDividedMergedDev[0].upload(imgsDividedMerged[0]);
         imgsDividedMergedDev[1].upload(imgsDividedMerged[1]);
         pattern->computeWrappedAndConfidenceMap(
@@ -73,16 +79,45 @@ bool MonoSinusCompleGrayCodePattern::decode(
                                 confidenceMapDev, unwrappedMapDev,
                                 params.confidenceThreshold);
 
-        return pattern->decode(patternImages, depthMap,
-                               algorithm::SINUSOIDAL_COMPLEMENTARY_GRAY_CODE_GPU);
+        GpuMat depthMapDev;
+        cuda::reverseCamera(unwrappedMapDev, params__.PL1_, params__.PR4_,
+                            params__.minDepth_, params__.maxDepth_,
+                            static_cast<float>(params__.horizontal_
+                                                   ? params__.height_
+                                                   : params__.width_) /
+                                params__.cycles_,
+                            depthMapDev, params__.horizontal_);
+
+        depthMapDev.download(depthMap);
+
+        return true;
     }
 #endif
 
-    algorithm::SinusCompleGrayCodePattern::Params params;
+    SinusCompleGrayCodePattern::Params params;
+    params.shiftTime = params__.shiftTime_;
+    params.confidenceThreshold = params__.confidenceThreshold_;
+    params.height = params__.height_;
+    params.width = params__.width_;
+    params.nbrOfPeriods = params__.cycles_;
+    params.horizontal = params__.horizontal_;
 
-    auto pattern = algorithm::SinusCompleGrayCodePattern::create(params);
-    // return pattern->decode(patternImages, disparityMap, cv::noArray(),
-    // cv::noArray(), cv::structured_light::SINUSOIDAL_COMPLEMENTARY_GRAY_CODE);
+    auto pattern = SinusCompleGrayCodePattern::create(params);
+    Mat wrappedMap, confidenceMap, floorMap, unwrappedMap;
+
+    pattern->computePhaseMap(patternImages[0], wrappedMap);
+    pattern->computeConfidenceMap(patternImages[0], confidenceMap);
+    pattern->computeFloorMap(patternImages[0], confidenceMap, wrappedMap,
+                             floorMap);
+    pattern->unwrapPhaseMap(wrappedMap, floorMap, unwrappedMap,
+                            confidenceMap > params__.confidenceThreshold_);
+
+    reverseCamera(unwrappedMap, params__.PL1_, params__.PR4_,
+                  params__.minDepth_, params__.maxDepth_,
+                  static_cast<float>(params__.horizontal_ ? params__.height_
+                                                          : params__.width_) /
+                      params__.cycles_,
+                  depthMap, params__.horizontal_);
 
     return true;
 }

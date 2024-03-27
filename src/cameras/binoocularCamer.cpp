@@ -34,12 +34,7 @@ bool BinocularCamera::loadParams(const std::string jsonPath,
     parseArray(jsonVal["camera"]["device"], false);
     parseArray(jsonVal["camera"]["algorithm"], false);
 
-    if (caliInfo_) {
-        delete caliInfo_;
-        caliInfo_ = nullptr;
-    }
-
-    caliInfo_ = new CaliInfo(stringProperties_["Calibration File Path"]);
+    caliInfo_.reset(new CaliInfo(stringProperties_["Calibration File Path"]));
 
     cv::Size imgSize(caliInfo_->info_.S_.at<double>(0, 0),
                      caliInfo_->info_.S_.at<double>(1, 0));
@@ -297,9 +292,12 @@ void BinocularCamera::decode(const std::vector<std::vector<cv::Mat>> &imgs,
     const int index = imgs.size() == 3 ? 2 : 0;
     frameData.textureMap_ =
         cv::Mat::zeros(imgs[index][0].size(), imgs[index][0].type());
-    for (int i = 0; i < pattern_->params_->shiftTime_; ++i) {
+
+    const int shiftTime = static_cast<int>(numbericalProperties_["Phase Shift Times"]);
+
+    for (int i = 0; i < shiftTime; ++i) {
         frameData.textureMap_ +=
-            (imgs[index][i] / pattern_->params_->shiftTime_);
+            (imgs[index][i] / shiftTime);
     }
     if (frameData.textureMap_.type() == CV_8UC1) {
         cv::cvtColor(frameData.textureMap_, frameData.textureMap_,

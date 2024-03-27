@@ -138,11 +138,6 @@
             "type" : "string"
          },
          {
-            "data" : "0.2mm @1m",
-            "title" : "Accuracy",
-            "type" : "string"
-         },
-         {
             "data" : "1024",
             "title" : "DLP Height",
             "type" : "string"
@@ -150,16 +145,6 @@
          {
             "data" : "1920",
             "title" : "DLP Width",
-            "type" : "string"
-         },
-         {
-            "data" : "600mm",
-            "title" : "True Width",
-            "type" : "string"
-         },
-         {
-            "data" : "500mm",
-            "title" : "True Height",
             "type" : "string"
          },
          {

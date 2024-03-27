@@ -15,6 +15,7 @@
 #include "cpuStructuredLight/defocusMethod.h"
 #include "cpuStructuredLight/sinus_comple_graycode_pattern.hpp"
 #include "cpuStructuredLight/structured_light.hpp"
+#include "cpuStructuredLight/recoverDepth.h"
 
 #ifdef OPENCV_WITH_CUDA_MODULE
 #include "gpuStructuredLight/cuda_multi_view_stereo_geometry_pattern.hpp"

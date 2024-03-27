@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     //slmaster::BinocularCamera camera("../../gui/qml/res/config/binoocularCameraConfig.json");
     //camera.resetCameraConfig();
     //camera.updateCamera();
-    CameraEngine::instance()->setCameraJsonPath("../../gui/qml/res/config/binoocularCameraConfig.json");
+    CameraEngine::instance()->setCameraJsonPath("../../gui/qml/res/config/binocularCameraConfig.json");
     CameraEngine::instance()->startDetectCameraState();
 
     engine.rootContext()->setContextProperty("SettingsHelper", SettingsHelper::instance());

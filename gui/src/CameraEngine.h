@@ -98,13 +98,13 @@ class CameraEngine : public QObject {
     AppType::CameraType cameraType_;
     AppType::PatternMethod patternType_;
     static CameraEngine* engine_;
-    ImagePaintItem* stripePaintItem_;
+    ImagePaintItem* stripePaintItem_ = nullptr;
     ImagePaintItem* offlineCamPaintItem_ = nullptr;
     ImagePaintItem* scanTexturePaintItem_ = nullptr;
     std::thread onlineDetectThread_;
     std::thread workThread_;
     slmaster::cameras::SLCameraFactory slCameraFactory_;
-    slmaster::cameras::Pattern* pattern_ = nullptr;
+    std::shared_ptr<slmaster::cameras::Pattern> pattern_ = nullptr;
     CameraModel* leftCamModel_ = nullptr;
     CameraModel* rightCamModel_ = nullptr;
     CameraModel* colorCamModel_ = nullptr;

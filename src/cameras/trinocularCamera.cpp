@@ -33,12 +33,7 @@ bool TrinocularCamera::loadParams(const std::string jsonPath,
     parseArray(jsonVal["camera"]["device"], false);
     parseArray(jsonVal["camera"]["algorithm"], false);
 
-    if (caliInfo_) {
-        delete caliInfo_;
-        caliInfo_ = nullptr;
-    }
-
-    caliInfo_ = new CaliInfo(stringProperties_["Calibration File Path"]);
+    caliInfo_.reset(new CaliInfo(stringProperties_["Calibration File Path"]));
 
     return true;
 }
@@ -289,8 +284,11 @@ void TrinocularCamera::decode(const std::vector<std::vector<cv::Mat>> &imgs,
     // 顺序依次为左相机、右相机、彩色相机(Camera 1、Camera 2、Camera 3)
     frameData.textureMap_ =
         cv::Mat::zeros(imgs[2][0].size(), imgs[2][0].type());
-    for (int i = 0; i < pattern_->params_->shiftTime_; ++i) {
-        frameData.textureMap_ += (imgs[2][i] / pattern_->params_->shiftTime_);
+    
+    const int shiftTime = static_cast<int>(numbericalProperties_["Phase Shift Times"]);
+
+    for (int i = 0; i < shiftTime; ++i) {
+        frameData.textureMap_ += (imgs[2][i] / shiftTime);
     }
 
     std::vector<std::vector<cv::Mat>> imgsOperat(imgs.begin(), imgs.cend());

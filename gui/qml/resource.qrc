@@ -128,7 +128,8 @@
         <file>ui/global/ItemsOriginal.qml</file>
         <file>ui/page/SubPage_OfflineCameraCalibration.qml</file>
         <file>ui/window/CalibrationSettingsWindow.qml</file>
-        <file>res/config/binoocularCameraConfig.json</file>
+        <file>res/config/monocularCameraConfig.json</file>
+        <file>res/config/binocularCameraConfig.json</file>
         <file>ui/page/SubPage_OnlineProjectorCalibration.qml</file>
         <file>ui/window/ProjectorCaliParamsSettinsWindow.qml</file>
         <file>ui/page/Page_ScanMode.qml</file>

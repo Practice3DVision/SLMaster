@@ -31,7 +31,7 @@ else()
     list(APPEND SLMasterGuiDEPLIBS fluentuiplugin)
 endif()
 
-add_executable(SLMasterGui WIN32)
+add_executable(SLMasterGui)
 target_sources(SLMasterGui PRIVATE ${SOURCES} ${QML} ${QRC})
 target_include_directories(SLMasterGui PRIVATE QuickQanava ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src/calibrationMaster ${CMAKE_CURRENT_SOURCE_DIR}/src/nodes Qt${QT_VERSION_MAJOR}::QuickControls2)
 target_link_libraries(SLMasterGui PRIVATE ${SLMasterGuiDEPLIBS} ${VTK_LIBRARIES} ${PCL_LIBRARIES})
