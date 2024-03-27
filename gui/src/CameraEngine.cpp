@@ -466,17 +466,20 @@ void CameraEngine::startScan() {
             imgs.emplace_back(leftImgs);
         }
 
-        auto rightImgPaths = rightCamModel_->imgPaths();
-        if (!rightImgPaths.empty()) {
-            std::vector<cv::Mat> rightImgs;
-            for (auto path : rightImgPaths) {
-                auto imgPath = (rightCamModel_->curFolderPath() + "/" + path)
-                                   .toLocal8Bit()
-                                   .toStdString();
-                cv::Mat img = cv::imread(imgPath, 0);
-                rightImgs.emplace_back(img);
+        if (cameraType_ != AppType::MonocularSLCamera) {
+            auto rightImgPaths = rightCamModel_->imgPaths();
+            if (!rightImgPaths.empty()) {
+                std::vector<cv::Mat> rightImgs;
+                for (auto path : rightImgPaths) {
+                    auto imgPath =
+                        (rightCamModel_->curFolderPath() + "/" + path)
+                            .toLocal8Bit()
+                            .toStdString();
+                    cv::Mat img = cv::imread(imgPath, 0);
+                    rightImgs.emplace_back(img);
+                }
+                imgs.emplace_back(rightImgs);
             }
-            imgs.emplace_back(rightImgs);
         }
 
         auto colorImgPaths = colorCamModel_->imgPaths();
