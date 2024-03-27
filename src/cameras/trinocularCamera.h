@@ -80,13 +80,13 @@ class SLMASTER_API TrinocularCamera : public SLCamera {
      * @param imgs 待烧录的条纹
      * @return
      */
-    bool burnPatterns(const std::vector<cv::Mat> &imgs) override;
+    bool burnPatterns(IN const std::vector<cv::Mat> &imgs) override;
     /**
      * @brief 连续捕获
      * @param frameData 获取到的数据
      * @return
      */
-    bool continuesCapture(SafeQueue<FrameData> &frameDataQueue) override;
+    bool continuesCapture(IN SafeQueue<FrameData> &frameDataQueue) override;
     /**
      * @brief 停止连续捕获
      * @return
@@ -243,8 +243,8 @@ class SLMASTER_API TrinocularCamera : public SLCamera {
     /**
      * @brief 解码并重建
      */
-    void decode(const std::vector<std::vector<cv::Mat>> &imgs,
-                FrameData &frameData);
+    void decode(IN const std::vector<std::vector<cv::Mat>> &imgs,
+                OUT FrameData &frameData);
     /**
      * @brief 处理信号
      */

@@ -1,5 +1,7 @@
 #include "sinus_comple_graycode_pattern.hpp"
 
+#include "recoverDepth.h"
+
 using namespace cv;
 
 namespace slmaster {
@@ -288,7 +290,7 @@ bool SinusCompleGrayCodePattern_Impl::generate(OutputArrayOfArrays pattern) {
     return true;
 }
 
-// TODO@LiuYunhuang: 增加水平条纹y轴方向支持
+// TODO@Evans Liu: 增加水平条纹y轴方向支持
 void SinusCompleGrayCodePattern_Impl::computeDisparity(
     InputArray leftUnwrapMap, InputArray rightUnwrapMap,
     OutputArray disparityMap) const {
@@ -296,63 +298,7 @@ void SinusCompleGrayCodePattern_Impl::computeDisparity(
     const Mat &rightUnwrap = *static_cast<const Mat *>(rightUnwrapMap.getObj());
     Mat &disparity = *static_cast<Mat *>(disparityMap.getObj());
 
-    CV_Assert(!leftUnwrap.empty() && !rightUnwrap.empty());
-
-    const int height = leftUnwrap.rows;
-    const int width = leftUnwrap.cols;
-    disparity = cv::Mat::zeros(height, width, CV_32FC1);
-
-    parallel_for_(Range(0, height), [&](const Range &range) {
-        for (int i = range.start; i < range.end; ++i) {
-            auto leftUnwrapPtr = leftUnwrap.ptr<float>(i);
-            auto rightUnwrapPtr = rightUnwrap.ptr<float>(i);
-            auto disparityPtr = disparity.ptr<float>(i);
-
-            for (int j = 0; j < width; ++j) {
-                auto leftVal = leftUnwrapPtr[j];
-
-                if (std::abs(leftVal) < 0.001f) {
-                    continue;
-                }
-
-                float minCost = FLT_MAX;
-                int bestDisp = 0;
-
-                for (int d = params.minDisparity; d < params.maxDisparity;
-                     ++d) {
-                    if (j - d < 0 || j - d > width - 1) {
-                        continue;
-                    }
-
-                    const float curCost =
-                        std::abs(leftVal - rightUnwrapPtr[j - d]);
-
-                    if (curCost < minCost) {
-                        minCost = curCost;
-                        bestDisp = d;
-                    }
-                }
-
-                if (minCost < params.maxCost) {
-                    if (bestDisp == params.minDisparity ||
-                        bestDisp == params.maxDisparity) {
-                        disparityPtr[j] = bestDisp;
-                        continue;
-                    }
-
-                    const float preCost =
-                        std::abs(leftVal - rightUnwrapPtr[j - (bestDisp - 1)]);
-                    const float nextCost =
-                        std::abs(leftVal - rightUnwrapPtr[j - (bestDisp + 1)]);
-                    const float denom =
-                        std::max(0.0001f, preCost + nextCost - 2 * minCost);
-
-                    disparityPtr[j] =
-                        bestDisp + (preCost - nextCost) / (denom * 2.f);
-                }
-            }
-        }
-    });
+    matchWithAbsphase(leftUnwrap, rightUnwrap, disparity, params.minDisparity, params.maxDisparity, params.confidenceThreshold, params.maxCost);
 }
 
 bool SinusCompleGrayCodePattern_Impl::decode(

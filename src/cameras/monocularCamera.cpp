@@ -35,12 +35,7 @@ bool MonocularCamera::loadParams(const std::string jsonPath,
     parseArray(jsonVal["camera"]["device"], false);
     parseArray(jsonVal["camera"]["algorithm"], false);
 
-    if (caliInfo_) {
-        delete caliInfo_;
-        caliInfo_ = nullptr;
-    }
-
-    caliInfo_ = new CaliInfo(stringProperties_["Calibration File Path"]);
+    caliInfo_.reset(new CaliInfo(stringProperties_["Calibration File Path"]));
 
     return true;
 }
@@ -258,9 +253,12 @@ void MonocularCamera::decode(const std::vector<std::vector<cv::Mat>> &imgs,
     const int index = imgs.size() == 2 ? 1 : 0;
     frameData.textureMap_ =
         cv::Mat::zeros(imgs[index][0].size(), imgs[index][0].type());
-    for (int i = 0; i < pattern_->params_->shiftTime_; ++i) {
+
+    const int shiftTime = static_cast<int>(numbericalProperties_["Phase Shift Times"]);
+    
+    for (int i = 0; i < shiftTime; ++i) {
         frameData.textureMap_ +=
-            (imgs[index][i] / pattern_->params_->shiftTime_);
+            (imgs[index][i] / shiftTime);
     }
 
     if (frameData.textureMap_.type() == CV_8UC1) {
@@ -557,9 +555,6 @@ bool MonocularCamera::resetCameraConfig() {
 
     numbericalProperties_["Contrast Threshold"] = 5;
     numbericalProperties_["Cost Min Diff"] = 0.001;
-    numbericalProperties_["Max Cost"] = 0.1;
-    numbericalProperties_["Min Disparity"] = -300;
-    numbericalProperties_["Max Disparity"] = 300;
     numbericalProperties_["Light Strength"] = 0.9;
     numbericalProperties_["Exposure Time"] = 20000;
     numbericalProperties_["Pre Exposure Time"] = 5000;

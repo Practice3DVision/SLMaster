@@ -16,18 +16,20 @@ unique_ptr<QTextStream> textStream = nullptr;
 static inline void myMessageHandler(const QtMsgType type,
                                     const QMessageLogContext &context,
                                     const QString &message) {
-    if (message.isEmpty())
+    if (message.isEmpty() || type == QtWarningMsg)
         return;
 
     const QString formatMessage =
         qFormatLogMessage(type, context, message).trimmed();
 
-    if (type == QtWarningMsg || type == QtInfoMsg) {
+    if (type == QtInfoMsg || type == QtDebugMsg) {
         std::cout << qUtf8Printable(message) << std::endl;
-    } else {
+    } 
+    /*
+    else {
         std::cerr << qUtf8Printable(message) << std::endl;
     }
-
+    */
     if (textStream && fileHandle) {
         *textStream << formatMessage << Qt::endl;
     }

@@ -119,7 +119,7 @@ class SLMASTER_API SLCamera {
      * @param pattern_ 条纹编解码方法
      * @return
      */
-    void setPattern(Pattern *pattern) { pattern_ = pattern; }
+    void setPattern(std::shared_ptr<Pattern> pattern) { pattern_ = pattern; }
     /**
      * @brief 烧录条纹
      * @param imgs 待烧录的条纹
@@ -243,7 +243,7 @@ class SLMASTER_API SLCamera {
      * @brief 获取标定信息
      * @return
      */
-    CaliInfo *getCaliInfo() { return caliInfo_; }
+    std::shared_ptr<CaliInfo> getCaliInfo() { return caliInfo_; }
 
   protected:
     inline bool readJsonFile(const std::string jsonPath, Json::Value &jsonVal) {
@@ -274,8 +274,8 @@ class SLMASTER_API SLCamera {
         return true;
     }
 
-    Pattern *pattern_ = nullptr;
-    CaliInfo *caliInfo_ = nullptr;
+    std::shared_ptr<Pattern> pattern_ = nullptr;
+    std::shared_ptr<CaliInfo> caliInfo_ = nullptr;
 
   private:
 };
