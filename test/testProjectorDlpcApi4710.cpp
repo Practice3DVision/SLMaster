@@ -3,25 +3,25 @@
 #include <projectorFactory.h>
 
 const std::string testProjector4710 = "DLP4710";
-const std::string testProjector3010 = "DLP3010";
 const std::string testData4710 = "../../test/data/4_4710";
-const std::string testData3010 = "../../test/data/4_3010";
+
+using namespace slmaster::device;
 
 TEST(Projector, init) {
-    auto projectorFactory = device::projector::ProjectorFactory();
+    auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
     ASSERT_NE(projectorDlpcApi, nullptr);
 }
 
 TEST(Projector, getInfo) {
-    auto projectorFactory = device::projector::ProjectorFactory();
+    auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
     auto info = projectorDlpcApi->getInfo();
     ASSERT_EQ(info.isFind_, true);
 }
 
 TEST(Project, connect) {
-    auto projectorFactory = device::projector::ProjectorFactory();
+    auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
     bool isSucess = projectorDlpcApi->connect();
     ASSERT_EQ(isSucess, true);
@@ -29,7 +29,7 @@ TEST(Project, connect) {
 }
 
 TEST(Project, isConnect) {
-    auto projectorFactory = device::projector::ProjectorFactory();
+    auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
     bool isSucess = projectorDlpcApi->connect();
     isSucess = projectorDlpcApi->isConnect();
@@ -38,14 +38,14 @@ TEST(Project, isConnect) {
 }
 
 TEST(Project, disconnect) {
-    auto projectorFactory = device::projector::ProjectorFactory();
+    auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
     bool isSucess = projectorDlpcApi->connect();
     ASSERT_EQ(projectorDlpcApi->disConnect(), true);
 }
 
 TEST(Project, onceProject) {
-    auto projectorFactory = device::projector::ProjectorFactory();
+    auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
     bool isSucess = projectorDlpcApi->connect();
     isSucess = projectorDlpcApi->project(false);
@@ -56,7 +56,7 @@ TEST(Project, onceProject) {
 }
 
 TEST(Project, continueProject) {
-    auto projectorFactory = device::projector::ProjectorFactory();
+    auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
     bool isSucess = projectorDlpcApi->connect();
     isSucess = projectorDlpcApi->project(true);
@@ -68,7 +68,7 @@ TEST(Project, continueProject) {
 }
 
 TEST(Project, pause) {
-    auto projectorFactory = device::projector::ProjectorFactory();
+    auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
     bool isSucess = projectorDlpcApi->connect();
     isSucess = projectorDlpcApi->project(true);
@@ -81,7 +81,7 @@ TEST(Project, pause) {
 }
 
 TEST(Project, resume) {
-    auto projectorFactory = device::projector::ProjectorFactory();
+    auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
     bool isSucess = projectorDlpcApi->connect();
     isSucess = projectorDlpcApi->project(true);
@@ -95,7 +95,7 @@ TEST(Project, resume) {
 }
 
 TEST(Project, stop) {
-    auto projectorFactory = device::projector::ProjectorFactory();
+    auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
     bool isSucess = projectorDlpcApi->connect();
     isSucess = projectorDlpcApi->project(true);
@@ -107,17 +107,17 @@ TEST(Project, stop) {
 }
 
 TEST(Projector, populatePatternTableData) {
-    auto projectorFactory = device::projector::ProjectorFactory();
+    auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
     bool isSucess = projectorDlpcApi->connect();
 
     ASSERT_EQ(isSucess, true);
 
-    std::vector<device::projector::PatternOrderSet> patternSets(2);
+    std::vector<PatternOrderSet> patternSets(2);
     patternSets[0].exposureTime_ = 4000;
     patternSets[0].preExposureTime_ = 3000;
     patternSets[0].postExposureTime_ = 3000;
-    patternSets[0].illumination_ = device::projector::Blue;
+    patternSets[0].illumination_ = Blue;
     patternSets[0].invertPatterns_ = false;
     patternSets[0].isVertical_ = true;
     patternSets[0].isOneBit_ = false;
@@ -125,7 +125,7 @@ TEST(Projector, populatePatternTableData) {
     patternSets[1].exposureTime_ = 4000;
     patternSets[1].preExposureTime_ = 3000;
     patternSets[1].postExposureTime_ = 3000;
-    patternSets[1].illumination_ = device::projector::Blue;
+    patternSets[1].illumination_ = Blue;
     patternSets[1].invertPatterns_ = false;
     patternSets[1].isVertical_ = true;
     patternSets[1].isOneBit_ = false;
@@ -136,8 +136,8 @@ TEST(Projector, populatePatternTableData) {
     std::vector<cv::Mat> imgFirstSet;
     std::vector<cv::Mat> imgSecondSet;
     for (size_t i = 0; i < imgsPaths.size() / 2; ++i) {
-        imgFirstSet.push_back(cv::imread(testData4710 + "/" + std::to_string(i) + ".bmp", 0));
-        imgSecondSet.push_back(cv::imread(testData4710 + "/" + std::to_string(i + 5) + ".bmp", 0));
+        imgFirstSet.push_back(cv::imread(testData4710 + "/IMG_" + std::to_string(i) + ".bmp", 0));
+        imgSecondSet.push_back(cv::imread(testData4710 + "/IMG_" + std::to_string(i + 5) + ".bmp", 0));
     }
     patternSets[0].imgs_ = imgFirstSet;
     patternSets[1].imgs_ = imgSecondSet;
@@ -154,7 +154,7 @@ TEST(Projector, populatePatternTableData) {
 }
 
 TEST(Project, step) {
-    auto projectorFactory = device::projector::ProjectorFactory();
+    auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
     bool isSucess = projectorDlpcApi->connect();
     isSucess = projectorDlpcApi->project(true);
@@ -175,7 +175,7 @@ TEST(Project, step) {
 }
 
 TEST(Project, getSetLEDCurrent) {
-    auto projectorFactory = device::projector::ProjectorFactory();
+    auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
     bool isSucess = projectorDlpcApi->connect();
     double red, green, blue;

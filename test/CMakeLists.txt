@@ -21,7 +21,7 @@ add_executable(
 target_link_libraries(
     TestHuarayCamera
     PUBLIC
-    Camera
+    camera
     GTest::gtest_main
 )
 
@@ -33,22 +33,23 @@ add_executable(
 target_link_libraries(
     TestProjectorDlpcApi4710
     PUBLIC
-    Projector
+    projector
     GTest::gtest_main
 )
 
 add_executable(
-    testBinocularCamera
-    ${CMAKE_CURRENT_SOURCE_DIR}/testBinocularCamera.cpp
+    TestProjectorDlpcApi3010
+    ${CMAKE_CURRENT_SOURCE_DIR}/testProjectorDlpcApi3010.cpp
 )
 
 target_link_libraries(
-    testBinocularCamera
+    TestProjectorDlpcApi3010
     PUBLIC
-    slmaster
+    projector
     GTest::gtest_main
 )
 
 include(GoogleTest)
 gtest_discover_tests(TestHuarayCamera)
 gtest_discover_tests(TestProjectorDlpcApi4710)
+gtest_discover_tests(TestProjectorDlpcApi3010)

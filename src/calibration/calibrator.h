@@ -25,20 +25,20 @@ class Calibrator {
     virtual ~Calibrator();
     inline void emplace(const cv::Mat &img) { imgs_.emplace_back(img); }
     inline void erase(const int index) { imgs_.erase(imgs_.begin() + index); }
-    inline const std::vector<std::vector<cv::Point2f>> &imgPoints() {
+    inline std::vector<std::vector<cv::Point2f>> &imgPoints() {
         return imgPoints_;
     }
-    inline const std::vector<std::vector<cv::Point3f>> &worldPoints() {
+    inline std::vector<std::vector<cv::Point3f>> &worldPoints() {
         return worldPoints_;
     }
-    inline const std::vector<cv::Mat> &imgs() { return imgs_; }
+    inline std::vector<cv::Mat> &imgs() { return imgs_; }
     inline cv::Size imgSize() {
         return imgs_.empty() ? cv::Size(0, 0) : imgs_[0].size();
     }
-    inline const std::vector<cv::Mat> &drawedFeaturesImgs() {
+    inline std::vector<cv::Mat> &drawedFeaturesImgs() {
         return drawedFeaturesImgs_;
     }
-    inline const std::vector<std::vector<cv::Point2f>> &errors() {
+    inline std::vector<std::vector<cv::Point2f>> &errors() {
         return errors_;
     }
     virtual void setDistance(const float trueDistance) = 0;
@@ -53,7 +53,6 @@ class Calibrator {
                              const cv::Size &featureNums, float &process,
                              const ThreshodMethod threshodType = ADAPTED,
                              const bool blobBlack = true) = 0;
-
   protected:
     std::vector<cv::Mat> imgs_;
     std::vector<cv::Mat> drawedFeaturesImgs_;

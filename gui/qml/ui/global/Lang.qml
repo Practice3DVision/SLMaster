@@ -257,6 +257,7 @@ QtObject {
     property string width
     property string height
     property string length
+    property string inverse
 
     function zh() {
         settings = "设置";
@@ -513,6 +514,7 @@ QtObject {
         width = "宽度";
         height = "高度";
         length = "长度";
+        inverse = "翻转特征方向";
     }
 
     function en() {
@@ -770,6 +772,7 @@ QtObject {
         width = "Width";
         height = "Height";
         length = "Length";
+        inverse = "Inverse"
     }
 
     property string __locale
