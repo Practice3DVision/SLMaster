@@ -165,13 +165,22 @@ FluContentPage{
                                     text: Lang.remove
                                     onTriggered: {
                                         if(tree_view.currentNode.parent.title === "Left Camera") {
+                                            CalibrateEngine.removeCameraImg(tree_view.currentNode.title, true);
                                             left_camera_model.erase(tree_view.currentNode.title);
                                             updateImgPaths(left_camera_model.imgPaths(), 0);
                                         }
                                         else {
+                                            CalibrateEngine.removeCameraImg(tree_view.currentNode.title, false);
                                             right_camera_model.erase(tree_view.currentNode.title);
                                             updateImgPaths(right_camera_model.imgPaths(), 1);
                                         }
+                                    }
+                                }
+
+                                Action {
+                                    text: Lang.inverse
+                                    onTriggered: {
+                                        CalibrateEngine.invFeattureDirection(tree_view.currentNode.title, tree_view.currentNode.parent.title === "Left Camera");
                                     }
                                 }
                             }

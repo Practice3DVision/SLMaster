@@ -73,9 +73,11 @@ class CalibrateEngine : public QObject {
         projectorCaliParams_.verticalPitch_ = verticalPitch;
     }
     Q_INVOKABLE void removeProjectImg(const QString& path);
+    Q_INVOKABLE void removeCameraImg(const QString& path, const bool isLeft);
     Q_INVOKABLE bool captureOnce();
     Q_INVOKABLE double calibrateProjector();
     Q_INVOKABLE void readLocalCaliFile(const QString& path);
+    Q_INVOKABLE void invFeattureDirection(const QString& path, const bool isLeft);
     float progress() { return progress_; }
   signals:
     void progressChanged(float progress);
@@ -133,6 +135,8 @@ class CalibrateEngine : public QObject {
     std::vector<std::vector<cv::Point2f>> projCameraPoints_;
     std::vector<std::vector<cv::Point2f>> projectorPoints_;
     std::vector<std::vector<cv::Point2f>> projectorErrorDistributes_;
+    int cameraTragetRowNum_;
+    int cameraTragetColNum_;
   public slots:
     void timer_timeout_slot();
 };

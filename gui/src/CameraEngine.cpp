@@ -78,7 +78,7 @@ int CameraEngine::createStripe(const int pixelDepth, const int direction,
         params.horizontal_ = direction == AppType::Direction::Horizion;
         params.shiftTime_ = shiftTime;
 
-        pattern = make_unique<BinoSinusCompleGrayCodePattern>();
+        pattern = BinoSinusCompleGrayCodePattern::create(params);
     } else if (stripeType == AppType::PatternMethod::MultiViewStereoGeometry) {
         TrinocularMultiViewStereoGeometryPattern::Params params;
 
@@ -88,7 +88,7 @@ int CameraEngine::createStripe(const int pixelDepth, const int direction,
         params.horizontal_ = direction == AppType::Direction::Horizion;
         params.shiftTime_ = shiftTime;
 
-        pattern = make_unique<TrinocularMultiViewStereoGeometryPattern>();
+        pattern = TrinocularMultiViewStereoGeometryPattern::create(params);
     }
 
     std::vector<cv::Mat> imgs;
