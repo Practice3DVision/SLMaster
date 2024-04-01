@@ -545,6 +545,7 @@ FluContentPage {
 
         onAccepted: {
             VTKProcessEngine.saveCloud(currentFile.toString());
+            CameraEngine.saveFrame(currentFile.toString());
         }
     }
 

@@ -64,6 +64,7 @@ CameraEngine::~CameraEngine() {
 int CameraEngine::createStripe(const int pixelDepth, const int direction,
                                const int stripeType, const int defocusMethod,
                                const int imgWidth, const int imgHeight,
+                               const int clipWidth, const int clipHeight,
                                const int cycles, const int shiftTime,
                                const bool isKeepAdd) {
     qInfo() << "start create stripe...";
@@ -99,18 +100,24 @@ int CameraEngine::createStripe(const int pixelDepth, const int direction,
                             AppType::DefocusEncoding(defocusMethod));
     }
 
+    if(clipWidth < imgWidth || clipHeight < imgHeight) {
+        for (auto& img : imgs) {
+            img(cv::Rect(0, 0, clipWidth, clipHeight)).copyTo(img);
+        }
+    }
+
     auto formatType =
         AppType::PixelDepth(pixelDepth) == AppType::PixelDepth::OneBit
             ? QImage::Format_Mono
             : QImage::Format_Grayscale8;
 
     std::vector<QImage> tempStripes(imgs.size(),
-                                    QImage(imgWidth, imgHeight, formatType));
+                                    QImage(clipWidth, clipHeight, formatType));
     cv::parallel_for_(cv::Range(0, imgs.size()), [&](const cv::Range &range) {
         for (int i = range.start; i < range.end; ++i) {
-            for (int j = 0; j < imgHeight; ++j) {
+            for (int j = 0; j < clipHeight; ++j) {
                 auto imgPtr = imgs[i].ptr(j);
-                for (int k = 0; k < imgWidth; ++k) {
+                for (int k = 0; k < clipWidth; ++k) {
                     formatType == QImage::Format_Mono
                         ? tempStripes[i].setPixel(k, j, imgPtr[k])
                         : tempStripes[i].setPixel(
@@ -965,4 +972,15 @@ void CameraEngine::tenLine() {
     isBurnWorkFinish_ = false;
 
     workThread_ = std::thread(&CameraEngine::createTenLine, this);
+}
+
+bool CameraEngine::saveFrame(const QString& path) {
+    auto fileName = path.mid(8, path.size() - 12);
+
+    qDebug() << QString("save frame, frame path is : %s").arg(fileName);
+    
+    cv::imwrite(fileName.toStdString() + ".bmp", frame_.textureMap_);
+    cv::imwrite(fileName.toStdString() + ".tiff", frame_.depthMap_);
+
+    return true;
 }

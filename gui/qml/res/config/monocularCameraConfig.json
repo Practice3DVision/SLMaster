@@ -81,7 +81,7 @@
             "type" : "bool"
          },
          {
-            "data" : 1,
+            "data" : 0,
             "title" : "Gpu Accelerate",
             "type" : "bool"
          },
