@@ -293,18 +293,18 @@ void BinocularCamera::decode(const std::vector<std::vector<cv::Mat>> &imgs,
     frameData.textureMap_ =
         cv::Mat::zeros(imgs[index][0].size(), imgs[index][0].type());
 
-    const int shiftTime = static_cast<int>(numbericalProperties_["Phase Shift Times"]);
+    const int shiftTime =
+        static_cast<int>(numbericalProperties_["Phase Shift Times"]);
 
     for (int i = 0; i < shiftTime; ++i) {
-        frameData.textureMap_ +=
-            (imgs[index][i] / shiftTime);
+        frameData.textureMap_ += (imgs[index][i] / shiftTime);
     }
     if (frameData.textureMap_.type() == CV_8UC1) {
         cv::cvtColor(frameData.textureMap_, frameData.textureMap_,
                      cv::COLOR_GRAY2BGR);
     }
 
-    cv::Mat disparityMap, textureMapped;
+    cv::Mat disparityMap;
 
     std::vector<std::vector<cv::Mat>> remapedImgs(
         2, std::vector<cv::Mat>(imgs[0].size()));
@@ -316,10 +316,6 @@ void BinocularCamera::decode(const std::vector<std::vector<cv::Mat>> &imgs,
                               cv::remap(imgs[1][i], remapedImgs[1][i], mapRX_,
                                         mapRY_, cv::INTER_LINEAR);
                           }
-                          if (range.start == 0 && index == 0) {
-                              cv::remap(frameData.textureMap_, textureMapped,
-                                        mapLX_, mapLY_, cv::INTER_LINEAR);
-                          }
                       });
 
     pattern_->decode(remapedImgs, disparityMap,
@@ -330,7 +326,7 @@ void BinocularCamera::decode(const std::vector<std::vector<cv::Mat>> &imgs,
         cv::bilateralFilter(operateMap, disparityMap, 15, 20, 50);
     }
 
-    fromDispairtyMapToCloud(disparityMap, textureMapped, *caliInfo_,
+    fromDispairtyMapToCloud(disparityMap, frameData.textureMap_, *caliInfo_,
                             *frameData.pointCloud_, frameData.depthMap_,
                             index == 2);
 }
@@ -659,8 +655,7 @@ bool BinocularCamera::burnPatterns(const std::vector<cv::Mat> &imgs) {
     cv::Size imgSize = cv::Size(projectorInfo.width_, projectorInfo.height_);
 
     const int numOfPatternOrderSets = std::ceil(imgs.size() / 6.f);
-    std::vector<device::PatternOrderSet> patternSets(
-        numOfPatternOrderSets);
+    std::vector<device::PatternOrderSet> patternSets(numOfPatternOrderSets);
     for (size_t i = 0; i < patternSets.size(); ++i) {
         patternSets[i].exposureTime_ = numbericalProperties_["Exposure Time"];
         patternSets[i].preExposureTime_ =

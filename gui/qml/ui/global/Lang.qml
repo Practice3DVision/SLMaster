@@ -258,6 +258,8 @@ QtObject {
     property string height
     property string length
     property string inverse
+    property string clip_width
+    property string clip_height
 
     function zh() {
         settings = "设置";
@@ -515,6 +517,8 @@ QtObject {
         height = "高度";
         length = "长度";
         inverse = "翻转特征方向";
+        clip_width = "裁剪宽度";
+        clip_height = "裁剪高度";
     }
 
     function en() {
@@ -566,6 +570,8 @@ QtObject {
         error_diffusion_method = "Error Diffusion Method";
         img_width = "IMG Width";
         img_height = "IMG Height";
+        clip_width = "Clip Width";
+        clip_height = "Clip Height";
         cycles = "Cycles";
         shift_time = "Shift Time";
         stripe_img = "Stripe IMG";

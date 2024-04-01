@@ -28,6 +28,8 @@ FluContentPage{
     property int defocus_encoding: pixel_depth ? AppType.Disable : AppType.OptimalPlusWithModulation
     property int img_width: Number(CameraEngine.getStringAttribute("DLP Width"))
     property int img_height: Number(CameraEngine.getStringAttribute("DLP Height"))
+    property int clip_width: img_width
+    property int clip_height: img_height
     property int cycles: CameraEngine.getNumberAttribute("Cycles")
     property int shiftTime: CameraEngine.getNumberAttribute("Phase Shift Times")
     property int connect_state : AppType.Disconnect
@@ -690,6 +692,42 @@ FluContentPage{
 
                                             FluText {
                                                 Layout.fillWidth: true
+                                                text: Lang.clip_width
+                                                font: FluTextStyle.BodyStrong
+                                            }
+
+                                            FluText {
+                                                Layout.fillWidth: true
+                                                text: Lang.clip_height
+                                                font: FluTextStyle.BodyStrong
+                                            }
+
+                                            FluSpinBox {
+                                                id: clip_width_spbox
+                                                editable: true
+                                                value: root.clip_width
+                                                from: 0
+                                                to: 9999999
+
+                                                onValueChanged: {
+                                                    root.clip_width = value;
+                                                }
+                                            }
+
+                                            FluSpinBox {
+                                                id: clip_height_spbox
+                                                editable: true
+                                                value: root.clip_height
+                                                from: 0
+                                                to: 9999999
+
+                                                onValueChanged: {
+                                                    root.clip_height = value;
+                                                }
+                                            }
+
+                                            FluText {
+                                                Layout.fillWidth: true
                                                 text: Lang.cycles
                                                 font: FluTextStyle.BodyStrong
                                             }
@@ -763,7 +801,7 @@ FluContentPage{
                                         text: Lang.encode
 
                                         onClicked: {
-                                            var num_of_stripes = CameraEngine.createStripe(root.pixel_depth, root.stripe_direction, root.stripe_type, root.defocus_encoding, root.img_width, root.img_height, root.cycles, root.shiftTime, root.isKeepAdd);
+                                            var num_of_stripes = CameraEngine.createStripe(root.pixel_depth, root.stripe_direction, root.stripe_type, root.defocus_encoding, root.img_width, root.img_height, root.clip_width, root.clip_height, root.cycles, root.shiftTime, root.isKeepAdd);
                                             stripe_index_indicator.pageCurrent = 1;
                                             CameraEngine.displayStripe(1);
                                             root.enableBurningStripe = true;

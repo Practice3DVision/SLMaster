@@ -74,8 +74,6 @@ bool BinoSinusCompleGrayCodePattern::decode(
     return pattern->decode(
         patternImages, disparityMap, cv::noArray(), cv::noArray(),
         algorithm::SINUSOIDAL_COMPLEMENTARY_GRAY_CODE);
-
-    return true;
 }
 } // namespace cameras
 } // namespace slmaster

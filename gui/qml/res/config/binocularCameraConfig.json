@@ -58,12 +58,12 @@
             "type" : "number"
          },
          {
-            "data" : 32.0,
+            "data" : 64.0,
             "title" : "Cycles",
             "type" : "number"
          },
          {
-            "data" : 18.0,
+            "data" : 19.0,
             "title" : "Total Fringes",
             "type" : "number"
          },
@@ -106,7 +106,7 @@
             "type" : "bool"
          },
          {
-            "data" : 1,
+            "data" : 0,
             "title" : "Gpu Accelerate",
             "type" : "bool"
          },
