@@ -1,5 +1,5 @@
 ## 1. SLMaster
-<img ref="https://github.com/Practice3DVision/SLMaster/releases/tag/v1.2.0" src="https://img.shields.io/badge/release-v1.2.0-blue" />
+<img ref="https://github.com/Practice3DVision/SLMaster/releases/tag/v1.2.3" src="https://img.shields.io/badge/release-v1.2.3-blue" />
 <img src="https://img.shields.io/badge/windows11-passing-rgb(0, 255, 0)" />
 <img src="https://img.shields.io/badge/ubuntu22.04-Prepare for testing-rgb(255, 165, 0)" />
 
