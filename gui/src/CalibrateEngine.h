@@ -38,9 +38,9 @@ class CalibrateEngine : public QObject {
     static CalibrateEngine* instance();
     Q_INVOKABLE void setCurCaliType(const int caliType) { curCaliType_ = AppType::CaliType(caliType); }
     Q_INVOKABLE void singleCalibrate(const int targetType, const int rowNum, const int colNum,
-                                 const float trueDistance);
+                                 const float trueDistance, const bool useCurrentFeaturePoints);
     Q_INVOKABLE void stereoCalibrate(const int targetType, const int rowNum, const int colNum,
-                                       const float trueDistance, const bool exportEpilorLine);
+                                       const float trueDistance, const bool exportEpilorLine, const bool useCurrentFeaturePoints);
     Q_INVOKABLE void setConcentricCirclesRadius(const float innerCircleInnerRadius_, const float innerCircleExterRadius_, const float exterCircleInnerRadius_, const float exterCircleExterRadius_) {
         concentricRingParams_.innerCircleInnerRadius_ = innerCircleInnerRadius_;
         concentricRingParams_.innerCircleExterRadius_ = innerCircleExterRadius_;
@@ -77,7 +77,8 @@ class CalibrateEngine : public QObject {
     Q_INVOKABLE bool captureOnce();
     Q_INVOKABLE double calibrateProjector();
     Q_INVOKABLE void readLocalCaliFile(const QString& path);
-    Q_INVOKABLE void invFeattureDirection(const QString& path, const bool isLeft);
+    Q_INVOKABLE void invFeatureSequence(const QString& path, const bool isLeft);
+    Q_INVOKABLE void invFeatureHVSequence(const QString& path, const bool isLeft);
     float progress() { return progress_; }
   signals:
     void progressChanged(float progress);

@@ -977,7 +977,7 @@ void CameraEngine::tenLine() {
 bool CameraEngine::saveFrame(const QString& path) {
     auto fileName = path.mid(8, path.size() - 12);
 
-    qDebug() << QString("save frame, frame path is : %s").arg(fileName);
+    qDebug() << QString("save frame, frame path is : %1").arg(fileName);
     
     cv::imwrite(fileName.toStdString() + ".bmp", frame_.textureMap_);
     cv::imwrite(fileName.toStdString() + ".tiff", frame_.depthMap_);

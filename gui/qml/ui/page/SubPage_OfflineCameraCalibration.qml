@@ -178,9 +178,16 @@ FluContentPage{
                                 }
 
                                 Action {
-                                    text: Lang.inverse
+                                    text: Lang.sequenceInverse
                                     onTriggered: {
-                                        CalibrateEngine.invFeattureDirection(tree_view.currentNode.title, tree_view.currentNode.parent.title === "Left Camera");
+                                        CalibrateEngine.invFeatureSequence(tree_view.currentNode.title, tree_view.currentNode.parent.title === "Left Camera");
+                                    }
+                                }
+
+                                Action {
+                                    text: Lang.horizonVerticalInv
+                                    onTriggered: {
+                                        CalibrateEngine.invFeatureHVSequence(tree_view.currentNode.title, tree_view.currentNode.parent.title === "Left Camera");
                                     }
                                 }
                             }
