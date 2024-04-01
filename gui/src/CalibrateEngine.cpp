@@ -41,7 +41,8 @@ CalibrateEngine::getCalibrator(const AppType::TargetType targetType) {
 
 void CalibrateEngine::singleCalibrate(const int targetType, const int rowNum,
                                       const int colNum,
-                                      const float trueDistance) {
+                                      const float trueDistance,
+                                      const bool useCurrentFeaturePoints) {
     qInfo() << "start calibrate single camera...";
 
     curCaliType_ = AppType::CaliType::Single;
@@ -50,52 +51,66 @@ void CalibrateEngine::singleCalibrate(const int targetType, const int rowNum,
         calibrationThread_.join();
     }
 
-    leftCalibrator_.reset(getCalibrator(AppType::TargetType(targetType)));
-    leftCalibrator_->setDistance(trueDistance);
+    if (useCurrentFeaturePoints) {
+        qDebug() << QString("use current feature points to calibration.");
 
-    auto imgPaths = leftCameraModel_->imgPaths();
-    if (imgPaths.empty()) {
-        return;
-    }
+        std::vector<cv::Mat> r, t;
+        auto error = cv::calibrateCamera(
+            leftCalibrator_->worldPoints(), leftCalibrator_->imgPoints(),
+            cv::Size(rowNum, colNum), caliInfo_.info_.M1_, caliInfo_.info_.D1_,
+            r, t);
 
-    for (size_t i = 0; i < imgPaths.size(); ++i) {
-        auto imgPath = (leftCameraModel_->curFolderPath() + "/" + imgPaths[i])
-                           .toLocal8Bit()
-                           .toStdString();
-        cv::Mat img = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
-        leftCalibrator_->emplace(img);
-    }
+        emit errorReturn(error);
+        qDebug() << QString("calibrate sucess, error is %1").arg(error);
+    } else {
+        leftCalibrator_.reset(getCalibrator(AppType::TargetType(targetType)));
+        leftCalibrator_->setDistance(trueDistance);
 
-    caliInfo_.info_.S_ =
-        (cv::Mat_<double>(2, 1) << leftCalibrator_->imgs()[0].cols,
-         leftCalibrator_->imgs()[0].rows);
-
-    isFinish_.store(false, std::memory_order_release);
-    updateThread_ = std::thread(&CalibrateEngine::timer_timeout_slot, this);
-
-    calibrationThread_ = std::thread([&, colNum, rowNum] {
-        double error = leftCalibrator_->calibrate(
-            leftCalibrator_->imgs(), caliInfo_.info_.M1_, caliInfo_.info_.D1_,
-            cv::Size(rowNum, colNum), progress_);
-
-        if (error > 0.99 || error < 0.001) {
-            emit findFeaturePointsError(
-                leftCameraModel_->curFolderPath() + "/" +
-                leftCameraModel_->imgPaths()[(int)error]);
-            qDebug() << QString(
-                            "Img cann't find feature points, img path is %1")
-                            .arg(leftCameraModel_->curFolderPath() + "/" +
-                                 leftCameraModel_->imgPaths()[(int)error]);
-        } else {
-            emit errorReturn(error);
-            qDebug() << QString("calibrate sucess, error is %1").arg(error);
+        auto imgPaths = leftCameraModel_->imgPaths();
+        if (imgPaths.empty()) {
+            return;
         }
 
-        isFinish_.store(true, std::memory_order_release);
-        if (updateThread_.joinable()) {
-            updateThread_.join();
+        for (size_t i = 0; i < imgPaths.size(); ++i) {
+            auto imgPath =
+                (leftCameraModel_->curFolderPath() + "/" + imgPaths[i])
+                    .toLocal8Bit()
+                    .toStdString();
+            cv::Mat img = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
+            leftCalibrator_->emplace(img);
         }
-    });
+
+        caliInfo_.info_.S_ =
+            (cv::Mat_<double>(2, 1) << leftCalibrator_->imgs()[0].cols,
+             leftCalibrator_->imgs()[0].rows);
+
+        isFinish_.store(false, std::memory_order_release);
+        updateThread_ = std::thread(&CalibrateEngine::timer_timeout_slot, this);
+
+        calibrationThread_ = std::thread([&, colNum, rowNum] {
+            double error = leftCalibrator_->calibrate(
+                leftCalibrator_->imgs(), caliInfo_.info_.M1_,
+                caliInfo_.info_.D1_, cv::Size(rowNum, colNum), progress_);
+
+            if (error > 0.99 || error < 0.001) {
+                emit findFeaturePointsError(
+                    leftCameraModel_->curFolderPath() + "/" +
+                    leftCameraModel_->imgPaths()[(int)error]);
+                qDebug()
+                    << QString("Img cann't find feature points, img path is %1")
+                           .arg(leftCameraModel_->curFolderPath() + "/" +
+                                leftCameraModel_->imgPaths()[(int)error]);
+            } else {
+                emit errorReturn(error);
+                qDebug() << QString("calibrate sucess, error is %1").arg(error);
+            }
+
+            isFinish_.store(true, std::memory_order_release);
+            if (updateThread_.joinable()) {
+                updateThread_.join();
+            }
+        });
+    }
 
     qInfo() << "wating calibrate result...";
 
@@ -108,7 +123,8 @@ void CalibrateEngine::singleCalibrate(const int targetType, const int rowNum,
 void CalibrateEngine::stereoCalibrate(const int targetType, const int rowNum,
                                       const int colNum,
                                       const float trueDistance,
-                                      const bool exportEpilorLine) {
+                                      const bool exportEpilorLine,
+                                      const bool useCurrentFeaturePoints) {
     qInfo() << "start calibrate stereo camera...";
 
     curCaliType_ = AppType::CaliType::Stereo;
@@ -121,92 +137,9 @@ void CalibrateEngine::stereoCalibrate(const int targetType, const int rowNum,
         updateThread_.join();
     }
 
-    leftCalibrator_.reset(getCalibrator(AppType::TargetType(targetType)));
-    leftCalibrator_->setDistance(trueDistance);
-    rightCalibrator_.reset(getCalibrator(AppType::TargetType(targetType)));
-    rightCalibrator_->setDistance(trueDistance);
+    if (useCurrentFeaturePoints) {
+        qDebug() << QString("use current feature points to calibration.");
 
-    auto leftImgPaths = leftCameraModel_->imgPaths();
-    auto rightImgPaths = rightCameraModel_->imgPaths();
-    if (leftImgPaths.empty() || rightImgPaths.empty() ||
-        leftImgPaths.size() != rightImgPaths.size()) {
-        return;
-    }
-
-    for (size_t i = 0; i < leftImgPaths.size(); ++i) {
-        cv::Mat img = cv::imread(
-            (leftCameraModel_->curFolderPath() + "/" + leftImgPaths[i])
-                .toLocal8Bit()
-                .toStdString(),
-            cv::IMREAD_UNCHANGED);
-        leftCalibrator_->emplace(img);
-        img = cv::imread(
-            (rightCameraModel_->curFolderPath() + "/" + rightImgPaths[i])
-                .toLocal8Bit()
-                .toStdString(),
-            cv::IMREAD_UNCHANGED);
-        rightCalibrator_->emplace(img);
-    }
-
-    caliInfo_.info_.S_ =
-        (cv::Mat_<double>(2, 1) << leftCalibrator_->imgs()[0].cols,
-         leftCalibrator_->imgs()[0].rows);
-
-    isFinish_.store(false, std::memory_order_release);
-    updateThread_ = std::thread(&CalibrateEngine::timer_timeout_slot, this);
-
-    calibrationThread_ = std::thread([&, colNum, rowNum] {
-        double leftError = leftCalibrator_->calibrate(
-            leftCalibrator_->imgs(), caliInfo_.info_.M1_, caliInfo_.info_.D1_,
-            cv::Size(rowNum, colNum), progress_);
-
-        if (leftError > 0.99 || leftError < 0.001) {
-            emit findFeaturePointsError(
-                leftCameraModel_->curFolderPath() + "/" +
-                leftCameraModel_->imgPaths()[(int)leftError]);
-            qDebug()
-                << QString(
-                       "left imgs cann't find feature points, img path is %1")
-                       .arg(leftCameraModel_->curFolderPath() + "/" +
-                            leftCameraModel_->imgPaths()[(int)leftError]);
-
-            isFinish_.store(true, std::memory_order_release);
-            if (updateThread_.joinable()) {
-                updateThread_.join();
-            }
-
-            return;
-        } else {
-            qDebug() << QString("left camera calibrate sucess, error is %1")
-                            .arg(leftError);
-        }
-
-        double rightError = rightCalibrator_->calibrate(
-            rightCalibrator_->imgs(), caliInfo_.info_.M2_, caliInfo_.info_.D2_,
-            cv::Size(rowNum, colNum), progress_);
-
-        if (rightError > 0.99 || rightError < 0.001) {
-            emit findFeaturePointsError(
-                rightCameraModel_->curFolderPath() + "/" +
-                rightCameraModel_->imgPaths()[(int)rightError]);
-            qDebug()
-                << QString(
-                       "right imgs cann't find feature points, img path is %1")
-                       .arg(rightCameraModel_->curFolderPath() + "/" +
-                            rightCameraModel_->imgPaths()[(int)rightError]);
-
-            isFinish_.store(true, std::memory_order_release);
-            if (updateThread_.joinable()) {
-                updateThread_.join();
-            }
-
-            return;
-        } else {
-            qDebug() << QString("right camera calibrate sucess, error is %1")
-                            .arg(rightError);
-        }
-
-        // TODO@Evans Liu: 增加标定板无法检测到特征点情况（@Finish）
         auto error = cv::stereoCalibrate(
             leftCalibrator_->worldPoints(), leftCalibrator_->imgPoints(),
             rightCalibrator_->imgPoints(), caliInfo_.info_.M1_,
@@ -231,12 +164,127 @@ void CalibrateEngine::stereoCalibrate(const int targetType, const int rowNum,
         }
 
         emit errorReturn(error);
+        qDebug() << QString("calibrate sucess, error is %1").arg(error);
+    } else {
+        leftCalibrator_.reset(getCalibrator(AppType::TargetType(targetType)));
+        leftCalibrator_->setDistance(trueDistance);
+        rightCalibrator_.reset(getCalibrator(AppType::TargetType(targetType)));
+        rightCalibrator_->setDistance(trueDistance);
 
-        isFinish_.store(true, std::memory_order_release);
-        if (updateThread_.joinable()) {
-            updateThread_.join();
+        auto leftImgPaths = leftCameraModel_->imgPaths();
+        auto rightImgPaths = rightCameraModel_->imgPaths();
+        if (leftImgPaths.empty() || rightImgPaths.empty() ||
+            leftImgPaths.size() != rightImgPaths.size()) {
+            return;
         }
-    });
+
+        for (size_t i = 0; i < leftImgPaths.size(); ++i) {
+            cv::Mat img = cv::imread(
+                (leftCameraModel_->curFolderPath() + "/" + leftImgPaths[i])
+                    .toLocal8Bit()
+                    .toStdString(),
+                cv::IMREAD_UNCHANGED);
+            leftCalibrator_->emplace(img);
+            img = cv::imread(
+                (rightCameraModel_->curFolderPath() + "/" + rightImgPaths[i])
+                    .toLocal8Bit()
+                    .toStdString(),
+                cv::IMREAD_UNCHANGED);
+            rightCalibrator_->emplace(img);
+        }
+
+        caliInfo_.info_.S_ =
+            (cv::Mat_<double>(2, 1) << leftCalibrator_->imgs()[0].cols,
+             leftCalibrator_->imgs()[0].rows);
+
+        isFinish_.store(false, std::memory_order_release);
+        updateThread_ = std::thread(&CalibrateEngine::timer_timeout_slot, this);
+
+        calibrationThread_ = std::thread([&, colNum, rowNum, exportEpilorLine] {
+            double leftError = leftCalibrator_->calibrate(
+                leftCalibrator_->imgs(), caliInfo_.info_.M1_,
+                caliInfo_.info_.D1_, cv::Size(rowNum, colNum), progress_);
+
+            if (leftError > 0.99 || leftError < 0.001) {
+                emit findFeaturePointsError(
+                    leftCameraModel_->curFolderPath() + "/" +
+                    leftCameraModel_->imgPaths()[(int)leftError]);
+                qDebug()
+                    << QString("left imgs cann't find feature points, img path "
+                               "is %1")
+                           .arg(leftCameraModel_->curFolderPath() + "/" +
+                                leftCameraModel_->imgPaths()[(int)leftError]);
+
+                isFinish_.store(true, std::memory_order_release);
+                if (updateThread_.joinable()) {
+                    updateThread_.join();
+                }
+
+                return;
+            } else {
+                qDebug() << QString("left camera calibrate sucess, error is %1")
+                                .arg(leftError);
+            }
+
+            double rightError = rightCalibrator_->calibrate(
+                rightCalibrator_->imgs(), caliInfo_.info_.M2_,
+                caliInfo_.info_.D2_, cv::Size(rowNum, colNum), progress_);
+
+            if (rightError > 0.99 || rightError < 0.001) {
+                emit findFeaturePointsError(
+                    rightCameraModel_->curFolderPath() + "/" +
+                    rightCameraModel_->imgPaths()[(int)rightError]);
+                qDebug()
+                    << QString("right imgs cann't find feature points, img "
+                               "path is %1")
+                           .arg(rightCameraModel_->curFolderPath() + "/" +
+                                rightCameraModel_->imgPaths()[(int)rightError]);
+
+                isFinish_.store(true, std::memory_order_release);
+                if (updateThread_.joinable()) {
+                    updateThread_.join();
+                }
+
+                return;
+            } else {
+                qDebug() << QString(
+                                "right camera calibrate sucess, error is %1")
+                                .arg(rightError);
+            }
+
+            // TODO@Evans Liu: 增加标定板无法检测到特征点情况（@Finish）
+            auto error = cv::stereoCalibrate(
+                leftCalibrator_->worldPoints(), leftCalibrator_->imgPoints(),
+                rightCalibrator_->imgPoints(), caliInfo_.info_.M1_,
+                caliInfo_.info_.D1_, caliInfo_.info_.M2_, caliInfo_.info_.D2_,
+                cv::Size(rowNum, colNum), caliInfo_.info_.Rlr_,
+                caliInfo_.info_.Tlr_, caliInfo_.info_.E_, caliInfo_.info_.F_);
+            qDebug() << QString("stereo camera calibrate sucess, error is %1")
+                            .arg(error);
+            // TODO@Evans Liu: 增加零视差标志位以应对传统立体匹配算法
+            cv::stereoRectify(caliInfo_.info_.M1_, caliInfo_.info_.D1_,
+                              caliInfo_.info_.M2_, caliInfo_.info_.D2_,
+                              cv::Size(rowNum, colNum), caliInfo_.info_.Rlr_,
+                              caliInfo_.info_.Tlr_, caliInfo_.info_.R1_,
+                              caliInfo_.info_.R2_, caliInfo_.info_.P1_,
+                              caliInfo_.info_.P2_, caliInfo_.info_.Q_, 0);
+            rectify(leftCalibrator_->imgs()[0], rightCalibrator_->imgs()[0],
+                    caliInfo_, rectifiedImg_);
+
+            if (exportEpilorLine) {
+                findEpilines(leftCalibrator_->imgs()[0].rows,
+                             leftCalibrator_->imgs()[0].cols,
+                             caliInfo_.info_.F_, caliInfo_.info_.epilines12_);
+            }
+
+            emit errorReturn(error);
+
+            isFinish_.store(true, std::memory_order_release);
+            if (updateThread_.joinable()) {
+                updateThread_.join();
+            }
+        });
+    }
 
     qInfo() << "wating calibrate result...";
 
@@ -359,7 +407,7 @@ void CalibrateEngine::removeProjectImg(const QString &path) {
     }
 }
 
-void CalibrateEngine::removeCameraImg(const QString& path, const bool isLeft) {
+void CalibrateEngine::removeCameraImg(const QString &path, const bool isLeft) {
     auto model = isLeft ? leftCameraModel_ : rightCameraModel_;
 
     int index = 0;
@@ -369,14 +417,15 @@ void CalibrateEngine::removeCameraImg(const QString& path, const bool isLeft) {
         }
     }
 
-    if(isLeft) {
-        if(leftCalibrator_->drawedFeaturesImgs().size()) {
-            leftCalibrator_->drawedFeaturesImgs().erase(leftCalibrator_->drawedFeaturesImgs().begin() + index);
+    if (isLeft && leftCalibrator_) {
+        if (leftCalibrator_->drawedFeaturesImgs().size() > index) {
+            leftCalibrator_->drawedFeaturesImgs().erase(
+                leftCalibrator_->drawedFeaturesImgs().begin() + index);
         }
-    }
-    else {
-        if(rightCalibrator_->drawedFeaturesImgs().size()) {
-            rightCalibrator_->drawedFeaturesImgs().erase(rightCalibrator_->drawedFeaturesImgs().begin() + index);
+    } else if (rightCalibrator_) {
+        if (rightCalibrator_->drawedFeaturesImgs().size() > index) {
+            rightCalibrator_->drawedFeaturesImgs().erase(
+                rightCalibrator_->drawedFeaturesImgs().begin() + index);
         }
     }
 }
@@ -953,25 +1002,69 @@ void CalibrateEngine::readLocalCaliFile(const QString &path) {
     }
 }
 
-void CalibrateEngine::invFeattureDirection(const QString &path,
+void CalibrateEngine::invFeatureSequence(const QString &path,
+                                         const bool isLeft) {
+    auto model = isLeft ? leftCameraModel_ : rightCameraModel_;
+
+    int index = 0;
+    for (int i = 0; i < model->imgPaths().size(); ++i) {
+        if (model->imgPaths()[i] == path) {
+            index = i;
+        }
+    }
+
+    auto &points = isLeft ? leftCalibrator_->imgPoints()[index]
+                          : rightCalibrator_->imgPoints()[index];
+    std::reverse(points.begin(), points.end());
+
+    cv::Mat newDrawedImg = isLeft ? leftCalibrator_->imgs()[index].clone()
+                                  : rightCalibrator_->imgs()[index].clone();
+    if (newDrawedImg.type() == CV_8UC1) {
+        cv::cvtColor(newDrawedImg, newDrawedImg, cv::COLOR_GRAY2BGR);
+    }
+    cv::drawChessboardCorners(
+        newDrawedImg, cv::Size(cameraTragetRowNum_, cameraTragetColNum_),
+        points, true);
+
+    if (isLeft) {
+        newDrawedImg.copyTo(leftCalibrator_->drawedFeaturesImgs()[index]);
+    } else {
+        newDrawedImg.copyTo(rightCalibrator_->drawedFeaturesImgs()[index]);
+    }
+
+    updateDisplayImg(path);
+}
+
+void CalibrateEngine::invFeatureHVSequence(const QString &path,
                                            const bool isLeft) {
     auto model = isLeft ? leftCameraModel_ : rightCameraModel_;
 
     int index = 0;
     for (int i = 0; i < model->imgPaths().size(); ++i) {
-        if (model->imgPaths()[i] ==
-            path) {
+        if (model->imgPaths()[i] == path) {
             index = i;
         }
     }
 
-    auto points = isLeft ? leftCalibrator_->imgPoints()[index]
-                         : rightCalibrator_->imgPoints()[index];
-    std::reverse(points.begin(), points.end());
+    auto &points = isLeft ? leftCalibrator_->imgPoints()[index]
+                          : rightCalibrator_->imgPoints()[index];
+
+    std::vector<cv::Point2f> newPoints;
+    for (int i = 0; i < cameraTragetColNum_; ++i) {
+        for (int j = 0; j < cameraTragetRowNum_; ++j) {
+            auto tempPoint =
+                points[cameraTragetColNum_ * j + (cameraTragetColNum_ - 1 - i)];
+            newPoints.emplace_back(tempPoint);
+        }
+    }
+
+    points = newPoints;
 
     cv::Mat newDrawedImg = isLeft ? leftCalibrator_->imgs()[index].clone()
                                   : rightCalibrator_->imgs()[index].clone();
-    if(newDrawedImg.type() == CV_8UC1) { cv::cvtColor(newDrawedImg, newDrawedImg, cv::COLOR_GRAY2BGR); }
+    if (newDrawedImg.type() == CV_8UC1) {
+        cv::cvtColor(newDrawedImg, newDrawedImg, cv::COLOR_GRAY2BGR);
+    }
     cv::drawChessboardCorners(
         newDrawedImg, cv::Size(cameraTragetRowNum_, cameraTragetColNum_),
         points, true);

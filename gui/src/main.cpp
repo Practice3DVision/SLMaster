@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
 #endif
     qputenv("QT_QUICK_CONTROLS_STYLE","Basic");
     QGuiApplication::setWindowIcon(QIcon("qrc:/res/image/icons8-maple-leaf-48.ico"));
-    QGuiApplication::setOrganizationName("YunhuangLiu");
-    QGuiApplication::setOrganizationDomain("https://github.com/Yunhuang-Liu");
+    QGuiApplication::setOrganizationName("Evans Liu");
+    QGuiApplication::setOrganizationDomain("https://github.com/Practice3DVision");
     QGuiApplication::setApplicationName("SLMasterGui");
     SettingsHelper::instance()->init("SLMasterGui");
     if(SettingsHelper::instance()->getRender() == "SoftWare") {

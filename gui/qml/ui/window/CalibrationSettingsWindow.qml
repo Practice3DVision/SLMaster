@@ -23,7 +23,8 @@ FluWindow {
     property real inner_circle_externer_radius: 5
     property real externer_circle_inner_radius: 7.5
     property real externer_circle_externer_radius: 10
-    property bool export_epiline: true
+    property bool export_epiline: false
+    property bool useCurrentFeaturePoints: false
 
     FluArea {
         anchors.fill: parent
@@ -48,13 +49,28 @@ FluWindow {
                 }
             }
 
-            FluRadioButton {
-                Layout.preferredWidth: parent.width / 3
-                checked: window.export_epiline
-                text: Lang.export_epiline
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 80
 
-                onCheckedChanged:  {
-                    window.export_epiline = checked;
+                FluRadioButton {
+                    Layout.preferredWidth: parent.width / 3
+                    checked: window.export_epiline
+                    text: Lang.export_epiline
+
+                    onCheckedChanged:  {
+                        window.export_epiline = checked;
+                    }
+                }
+                
+                FluRadioButton {
+                    Layout.preferredWidth: parent.width / 3
+                    checked: window.useCurrentFeaturePoints
+                    text: Lang.useCurrentFeaturePoints
+
+                    onCheckedChanged:  {
+                        window.useCurrentFeaturePoints = checked;
+                    }
                 }
             }
 
@@ -261,7 +277,7 @@ FluWindow {
                             CalibrateEngine.setConcentricCirclesRadius(window.inner_circle_inner_radius, window.inner_circle_externer_radius, window.externer_circle_inner_radius, window.externer_circle_externer_radius);
                         }
 
-                        CalibrateEngine.singleCalibrate(window.target_type, window.row_feature_num, window.col_feature_num, window.feature_distance);
+                        CalibrateEngine.singleCalibrate(window.target_type, window.row_feature_num, window.col_feature_num, window.feature_distance, window.useCurrentFeaturePoints);
                         window.close();
                     }
                 }
@@ -276,7 +292,7 @@ FluWindow {
                             CalibrateEngine.setConcentricCirclesRadius(window.inner_circle_inner_radius, window.inner_circle_externer_radius, window.externer_circle_inner_radius, window.externer_circle_externer_radius);
                         }
 
-                        CalibrateEngine.stereoCalibrate(window.target_type, window.row_feature_num, window.col_feature_num, window.feature_distance, window.export_epiline);
+                        CalibrateEngine.stereoCalibrate(window.target_type, window.row_feature_num, window.col_feature_num, window.feature_distance, window.export_epiline, window.useCurrentFeaturePoints);
                         window.close();
                     }
                 }

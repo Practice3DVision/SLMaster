@@ -257,9 +257,11 @@ QtObject {
     property string width
     property string height
     property string length
-    property string inverse
+    property string sequenceInverse
     property string clip_width
     property string clip_height
+    property string horizonVerticalInv
+    property string useCurrentFeaturePoints
 
     function zh() {
         settings = "设置";
@@ -516,9 +518,11 @@ QtObject {
         width = "宽度";
         height = "高度";
         length = "长度";
-        inverse = "翻转特征方向";
+        sequenceInverse = "特征点顺序翻转";
+        horizonVerticalInv = "水平/垂直特征点顺序翻转";
         clip_width = "裁剪宽度";
         clip_height = "裁剪高度";
+        useCurrentFeaturePoints = "使用当前的特征点";
     }
 
     function en() {
@@ -778,7 +782,9 @@ QtObject {
         width = "Width";
         height = "Height";
         length = "Length";
-        inverse = "Inverse"
+        sequenceInverse = "Feature Point Sequence Inverse";
+        horizonVerticalInv = "Horizon/Vertical Feature Point Sequence Inverse";
+        useCurrentFeaturePoints = "Use Current Feature Points";
     }
 
     property string __locale
