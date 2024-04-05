@@ -49,7 +49,16 @@ target_link_libraries(
     GTest::gtest_main
 )
 
+add_executable(
+    TestLasterLine
+    ${CMAKE_CURRENT_SOURCE_DIR}/testLaserLine.cpp
+)
+
+target_link_libraries(
+    TestLasterLine
+    PUBLIC
+    slmaster
+    GTest::gtest_main
+)
+
 include(GoogleTest)
-gtest_discover_tests(TestHuarayCamera)
-gtest_discover_tests(TestProjectorDlpcApi4710)
-gtest_discover_tests(TestProjectorDlpcApi3010)
