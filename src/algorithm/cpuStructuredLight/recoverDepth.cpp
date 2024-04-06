@@ -110,5 +110,29 @@ void matchWithAbsphase(const cv::Mat &leftUnwrap, const cv::Mat &rightUnwrap,
         }
     });
 }
+
+void recoverDepthFromLightPlane(const std::vector<cv::Point2f> &points,
+                                const cv::Mat &lightPlaneEq,
+                                const cv::Mat &intrinsic,
+                                std::vector<cv::Point3f> &points3D) {
+    const float cx = intrinsic.ptr<double>(0)[2];
+    const float cy = intrinsic.ptr<double>(1)[2];
+    const float fx = intrinsic.ptr<double>(0)[0];
+    const float fy = intrinsic.ptr<double>(1)[1];
+    const float A = lightPlaneEq.ptr<double>(0)[0];
+    const float B = lightPlaneEq.ptr<double>(1)[0];
+    const float C = lightPlaneEq.ptr<double>(2)[0];
+    const float D = lightPlaneEq.ptr<double>(3)[0];
+
+    points3D.resize(points.size());
+
+    parallel_for_(Range(0, points.size()), [&](const Range& range) {
+        for (int i = range.start; i < range.end; ++i) {
+            points3D[i].z = -D / ((A * (points[i].x - cx)) / fx + (B * (points[i].y - cy)) / fy + C);
+            points3D[i].x = (points[i].x - cx) / fx * points3D[i].z;
+            points3D[i].y = (points[i].y - cy) / fy * points3D[i].z;
+        }
+    });
+}
 } // namespace algorithm
 } // namespace slmaster

@@ -12,13 +12,15 @@
 #ifndef CALIBRATOR_H
 #define CALIBRATOR_H
 
+#include "../common.h"
+
 #include <opencv2/opencv.hpp>
 #include <vector>
 
 namespace slmaster {
 namespace calibration {
 
-class Calibrator {
+class SLMASTER_API Calibrator {
   public:
     enum ThreshodMethod { OTSU = 0, ADAPTED };
     Calibrator();

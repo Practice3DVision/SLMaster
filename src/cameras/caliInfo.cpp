@@ -24,6 +24,10 @@ CaliInfo::CaliInfo(const std::string filePath) {
     readYml["Tlp"] >> info_.Tlp_;
     readYml["Rlc"] >> info_.Rlc_;
     readYml["Tlc"] >> info_.Tlc_;
+    readYml["epilines12"] >> info_.epilines12_;
+    readYml["epilines31"] >> info_.epilines31_;
+    readYml["epilines32"] >> info_.epilines32_;
+    readYml["lightPlaneEq"] >> info_.lightPlaneEq_;
     readYml["S"] >> info_.S_;
     readYml.release();
 }

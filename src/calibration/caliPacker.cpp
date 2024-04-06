@@ -21,10 +21,11 @@ void CaliPacker::readIntrinsic(const std::string& filePath) {
 
 void CaliPacker::writeCaliInfo(const int caliType, const std::string& filePath) {
     cv::FileStorage caliInfoOutPut(filePath, cv::FileStorage::WRITE | cv::FileStorage::APPEND);
+    //单目
     caliInfoOutPut << "M1" << bundleInfo_->info_.M1_;
     caliInfoOutPut << "D1" << bundleInfo_->info_.D1_;
     caliInfoOutPut << "S" << bundleInfo_->info_.S_;
-
+    //双目
     if (caliType == 1) {
         caliInfoOutPut << "M2" << bundleInfo_->info_.M2_;
         caliInfoOutPut << "D2" << bundleInfo_->info_.D2_;
@@ -41,13 +42,17 @@ void CaliPacker::writeCaliInfo(const int caliType, const std::string& filePath) 
         caliInfoOutPut << "epilines32" << bundleInfo_->info_.epilines32_;
         caliInfoOutPut << "epilines12" << bundleInfo_->info_.epilines12_;
     }
-
+    //三目
     if(caliType == 2) {
         caliInfoOutPut << "M4" << bundleInfo_->info_.M4_;
         caliInfoOutPut << "D4" << bundleInfo_->info_.D4_;
         caliInfoOutPut << "Rlp" << bundleInfo_->info_.Rlp_;
         caliInfoOutPut << "Tlp" << bundleInfo_->info_.Tlp_;
         caliInfoOutPut << "K1" << bundleInfo_->info_.K1_;
+    }
+    //单线
+    if(caliType == 3) {
+        caliInfoOutPut << "lightPlaneEq" << bundleInfo_->info_.lightPlaneEq_;
     }
 
     caliInfoOutPut.release();

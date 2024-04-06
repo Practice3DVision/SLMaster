@@ -20,7 +20,7 @@
 namespace slmaster {
 namespace calibration {
 
-class ConcentricRingCalibrator : public Calibrator {
+class SLMASTER_API ConcentricRingCalibrator : public Calibrator {
   public:
     ConcentricRingCalibrator();
     ~ConcentricRingCalibrator();
@@ -40,11 +40,16 @@ class ConcentricRingCalibrator : public Calibrator {
     inline void setRadius(const std::vector<float> &radius) override {
         radius_ = radius;
     };
-
-  private:
+    /**
+     * @brief 设置同心圆环距离
+     * 
+     * @param trueDistance 距离
+     */
     inline void setDistance(const float trueDistance) override {
         distance_ = trueDistance;
     };
+
+  private:
     bool findConcentricRingGrid(const cv::Mat &inputImg,
                                 const cv::Size patternSize,
                                 const std::vector<float> radius,

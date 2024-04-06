@@ -18,4 +18,4 @@ endif()
 
 target_sources(calibration PRIVATE ${SOURCES})
 target_include_directories(calibration PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${EIGEN3_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(calibration PUBLIC ${OpenCV_LIBRARIES})
+target_link_libraries(calibration PUBLIC ${OpenCV_LIBRARIES} algorithm)

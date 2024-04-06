@@ -37,7 +37,6 @@ class SLMASTER_API StructuredLightPattern : public virtual cv::Algorithm {
      @param patternImages The generated pattern: a vector<Mat>, in which each
      image is a CV_8U Mat at projector's resolution.
      */
-    CV_WRAP
     virtual bool generate(cv::OutputArrayOfArrays patternImages) = 0;
 
     /** @brief Decodes the structured light pattern, generating a disparity map
@@ -52,7 +51,6 @@ class SLMASTER_API StructuredLightPattern : public virtual cv::Algorithm {
      DECODE_3D_UNDERWORLD.
      @note All the images must be at the same resolution.
      */
-    CV_WRAP
     virtual bool
     decode(const std::vector<std::vector<cv::Mat>> &patternImages,
            cv::OutputArray disparityMap,

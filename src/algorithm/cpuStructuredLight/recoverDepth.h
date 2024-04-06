@@ -40,6 +40,17 @@ void SLMASTER_API matchWithAbsphase(
     const cv::Mat &leftUnwrapMap, const cv::Mat &rightUnwrapMap,
     cv::Mat &disparityMap, const int minDisparity, const int maxDisparity,
     const float confidenceThreshold, const float maxCost);
+/**
+ * @brief 从光平面恢复3D点
+ *
+ * @param points        光条点集
+ * @param lightPlaneEq  光平面方程
+ * @param intrinsic     内参
+ * @param points3D      3D点集
+ */
+void SLMASTER_API recoverDepthFromLightPlane(
+    const std::vector<cv::Point2f> &points, const cv::Mat &lightPlaneEq,
+    const cv::Mat &intrinsic, std::vector<cv::Point3f> &points3D);
 } // namespace algorithm
 } // namespace slmaster
 

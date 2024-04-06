@@ -16,7 +16,7 @@
 
 namespace slmaster {
 namespace calibration {
-class CaliPacker {
+class SLMASTER_API CaliPacker {
   public:
     CaliPacker();
     CaliPacker(slmaster::cameras::CaliInfo *bundleInfo) { bundleInfo_ = bundleInfo; }

@@ -18,5 +18,7 @@
 #include "circleGridCalibrator.h"
 #include "concentricRingCalibrator.h"
 #include "edgesSubPix.h"
+#include "hiddenMethodCalibrator.h"
+#include "rotationAxisCalibration.h"
 
 #endif // !__SLMASTER_CALIBRATION_H_

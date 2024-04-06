@@ -17,7 +17,7 @@
 namespace slmaster {
 namespace calibration {
 
-class CircleGridCalibrator : public Calibrator {
+class SLMASTER_API CircleGridCalibrator : public Calibrator {
   public:
     CircleGridCalibrator();
     ~CircleGridCalibrator();

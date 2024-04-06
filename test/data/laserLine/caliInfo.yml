@@ -18,3 +18,9 @@ S: !!opencv-matrix
    cols: 1
    dt: d
    data: [ 2048., 1080. ]
+lightPlaneEq: !!opencv-matrix
+   rows: 4
+   cols: 1
+   dt: d
+   data: [ -3.2302659004926682e-02, 7.3255318403244019e-01,
+       -6.7994290590286255e-01, 6.2947170257568359e+01 ]
