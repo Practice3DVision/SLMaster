@@ -17,7 +17,7 @@
 namespace slmaster {
 namespace calibration {
 
-class ChessBoardCalibrator : public Calibrator {
+class SLMASTER_API ChessBoardCalibrator : public Calibrator {
   public:
     ChessBoardCalibrator();
     ~ChessBoardCalibrator();

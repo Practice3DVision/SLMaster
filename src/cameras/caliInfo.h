@@ -64,6 +64,10 @@ struct SLMASTER_API Info {
     cv::Mat E_;
     /** \左相机至右相机本质矩阵(CV_64FC1) **/
     cv::Mat F_;
+    /** \光平面方程 */
+    cv::Mat lightPlaneEq_;
+    /** \转轴参数 */
+    cv::Mat rotatorAxis_;
     /** \相机幅面(CV_64FC1) **/
     cv::Mat S_;
     /** \极线矩阵 彩色相机至左相机**/

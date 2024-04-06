@@ -18,11 +18,11 @@
 
 namespace slmaster {
 namespace algorithm {
-void twoDimensionErrorExpand(cv::Mat &img);
+void SLMASTER_API twoDimensionErrorExpand(cv::Mat &img);
 
-void binary(cv::Mat &img);
+void SLMASTER_API binary(cv::Mat &img);
 
-void opwm(cv::Mat &img, const int cycles, const float shiftVal,
+void SLMASTER_API opwm(cv::Mat &img, const int cycles, const float shiftVal,
           const bool isHonrizon);
 
 } // namespace algorithm

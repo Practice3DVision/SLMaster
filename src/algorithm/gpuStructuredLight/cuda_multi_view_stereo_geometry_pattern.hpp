@@ -16,7 +16,6 @@
 #include "cudastructuredlight.hpp"
 #include "opencv2/core/cuda.hpp"
 
-
 #include <Eigen/Eigen>
 
 namespace slmaster {

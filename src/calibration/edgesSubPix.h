@@ -33,23 +33,25 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __EDGES_SUBPIX_H__
 #define __EDGES_SUBPIX_H__
 
+#include "../common.h"
+
 #include <opencv2/opencv.hpp>
 #include <vector>
 
 namespace slmaster {
 namespace calibration {
 
-struct Contour {
+struct SLMASTER_API Contour {
     std::vector<cv::Point2f> points;
     std::vector<float> direction;
     std::vector<float> response;
 };
 // only 8-bit
-CV_EXPORTS void EdgesSubPix(cv::Mat &gray, double alpha, int low, int high,
+void SLMASTER_API EdgesSubPix(cv::Mat &gray, double alpha, int low, int high,
                             std::vector<Contour> &contours,
                             cv::OutputArray hierarchy, int mode);
 
-CV_EXPORTS void EdgesSubPix(cv::Mat &gray, double alpha, int low, int high,
+void SLMASTER_API EdgesSubPix(cv::Mat &gray, double alpha, int low, int high,
                             std::vector<Contour> &contours);
 } // namespace calibration
 } // namespace slmaster
