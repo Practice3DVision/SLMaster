@@ -54,7 +54,7 @@
 
 |功能|示例|功能|示例|
 |:-|-|:-|-|
-|单目/双目/三目重建|![在线扫描功能](doc/online_scan.png)|实时重建|![实时扫描功能](doc/04.gif)|
-|设备在线调试|![十字线校准功能](doc/tenline.png)|条纹生成|![条纹生成功能](doc/stripe_create.png)|
+|单双三目重建|![在线扫描功能](doc/online_scan.png)|实时重建|![实时扫描功能](doc/04.gif)|
+|硬件在线调试|![十字线校准功能](doc/tenline.png)|条纹生成|![条纹生成功能](doc/stripe_create.png)|
 |相机标定|![离线相机标定功能](doc/calibration.png)|误差分布显示|![标定误差分布图显示功能](doc/error_distribute.png)|
 |投影仪标定|![在线投影仪标定功能](doc/online_calinbration.png)|点云后处理|![后处理功能](doc/post_process.png)|
