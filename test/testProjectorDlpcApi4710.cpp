@@ -3,7 +3,7 @@
 #include <projectorFactory.h>
 
 const std::string testProjector4710 = "DLP4710";
-const std::string testData4710 = "../../test/data/4_4710";
+const std::string testData4710 = "../../data/4_4710";
 
 using namespace slmaster::device;
 
@@ -23,6 +23,7 @@ TEST(Projector, getInfo) {
 TEST(Project, connect) {
     auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
+    auto info = projectorDlpcApi->getInfo();
     bool isSucess = projectorDlpcApi->connect();
     ASSERT_EQ(isSucess, true);
     isSucess = projectorDlpcApi->disConnect();
@@ -31,6 +32,7 @@ TEST(Project, connect) {
 TEST(Project, isConnect) {
     auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
+    auto info = projectorDlpcApi->getInfo();
     bool isSucess = projectorDlpcApi->connect();
     isSucess = projectorDlpcApi->isConnect();
     ASSERT_EQ(isSucess, true);
@@ -40,6 +42,7 @@ TEST(Project, isConnect) {
 TEST(Project, disconnect) {
     auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
+    auto info = projectorDlpcApi->getInfo();
     bool isSucess = projectorDlpcApi->connect();
     ASSERT_EQ(projectorDlpcApi->disConnect(), true);
 }
@@ -47,6 +50,7 @@ TEST(Project, disconnect) {
 TEST(Project, onceProject) {
     auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
+    auto info = projectorDlpcApi->getInfo();
     bool isSucess = projectorDlpcApi->connect();
     isSucess = projectorDlpcApi->project(false);
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -58,6 +62,7 @@ TEST(Project, onceProject) {
 TEST(Project, continueProject) {
     auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
+    auto info = projectorDlpcApi->getInfo();
     bool isSucess = projectorDlpcApi->connect();
     isSucess = projectorDlpcApi->project(true);
     std::this_thread::sleep_for(std::chrono::milliseconds(3000));
@@ -70,6 +75,7 @@ TEST(Project, continueProject) {
 TEST(Project, pause) {
     auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
+    auto info = projectorDlpcApi->getInfo();
     bool isSucess = projectorDlpcApi->connect();
     isSucess = projectorDlpcApi->project(true);
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -83,6 +89,7 @@ TEST(Project, pause) {
 TEST(Project, resume) {
     auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
+    auto info = projectorDlpcApi->getInfo();
     bool isSucess = projectorDlpcApi->connect();
     isSucess = projectorDlpcApi->project(true);
     isSucess = projectorDlpcApi->pause();
@@ -97,6 +104,7 @@ TEST(Project, resume) {
 TEST(Project, stop) {
     auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
+    auto info = projectorDlpcApi->getInfo();
     bool isSucess = projectorDlpcApi->connect();
     isSucess = projectorDlpcApi->project(true);
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -109,6 +117,7 @@ TEST(Project, stop) {
 TEST(Projector, populatePatternTableData) {
     auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
+    auto info = projectorDlpcApi->getInfo();
     bool isSucess = projectorDlpcApi->connect();
 
     ASSERT_EQ(isSucess, true);
@@ -156,6 +165,7 @@ TEST(Projector, populatePatternTableData) {
 TEST(Project, step) {
     auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
+    auto info = projectorDlpcApi->getInfo();
     bool isSucess = projectorDlpcApi->connect();
     isSucess = projectorDlpcApi->project(true);
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -177,6 +187,7 @@ TEST(Project, step) {
 TEST(Project, getSetLEDCurrent) {
     auto projectorFactory = ProjectorFactory();
     auto projectorDlpcApi = projectorFactory.getProjector(testProjector4710);
+    auto info = projectorDlpcApi->getInfo();
     bool isSucess = projectorDlpcApi->connect();
     double red, green, blue;
     isSucess = projectorDlpcApi->getLEDCurrent(red, green, blue);
