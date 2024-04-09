@@ -71,7 +71,16 @@ void CameraModel::recurseImg(const QString &folderUrl) {
   std::vector<cv::String> imgPaths;
   std::vector<std::string> sortPaths;
   auto stdPath = curFolderPath_.toLocal8Bit().toStdString();
+
   cv::glob(stdPath + std::string("/*.bmp"), imgPaths);
+
+  if(imgPaths.empty()) {
+    cv::glob(stdPath + std::string("/*.png"), imgPaths);
+  }
+  
+  if(imgPaths.empty()) {
+    cv::glob(stdPath + std::string("/*.jpg"), imgPaths);
+  }
 
   for (int i = 0; i < imgPaths.size(); ++i) {
     std::string::size_type iPos = imgPaths[i].find_last_of('\\') + 1;
