@@ -1,5 +1,5 @@
 #include "VtkProcessEngine.h"
-#include "VtkCusInteractorStyleRubberBandPick.h"
+#include "vtkCusInteractorStyleRubberBandPick.h"
 
 #include <QQuickVTKInteractiveWidget.h>
 #include <QQuickVTKInteractorAdapter.h>
