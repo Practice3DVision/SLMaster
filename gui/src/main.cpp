@@ -52,14 +52,14 @@ int main(int argc, char *argv[])
         QQuickWindow::setSceneGraphBackend(QSGRendererInterface::OpenGL);
 #endif
     }
-#ifdef WITH_CUDASTRUCTUREDLIGHT_MODULE
+#ifdef OPENCV_WITH_CUDA_MODULE
     auto deviceNum = cv::cuda::getCudaEnabledDeviceCount();
     qDebug() << "CUDA Device nums: " << deviceNum;
     if(deviceNum > 0) {
         cv::cuda::setDevice(0);
     }
     else {
-#undef WITH_CUDASTRUCTUREDLIGHT_MODULE
+#undef OPENCV_WITH_CUDA_MODULE
         qDebug() << "CUDA diasble." << deviceNum;
     }
 #endif    
