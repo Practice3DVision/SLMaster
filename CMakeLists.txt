@@ -12,9 +12,16 @@ add_subdirectory(QuickQanava)
 add_subdirectory(src)
 add_subdirectory(gui)
 
-option(BUILD_TEST "build the test case with google_test." OFF)
+option(BUILD_TEST "build the test case with google_test." ON)
 
 if(BUILD_TEST)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
     message(NOTICE "build test case...")
+endif()
+
+option(BUILD_PERF "build the perfermance case with google benchmark." ON)
+
+if(BUILD_TEST)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/perf)
+    message(NOTICE "build perfermance case...")
 endif()

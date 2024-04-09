@@ -13,7 +13,7 @@ using namespace algorithm;
 using namespace calibration;
 using namespace cameras;
 
-const string laserLineImgsPath = "../../test/data/laserLine/";
+const string laserLineImgsPath = "../../data/laserLine/";
 
 class LaserLineSuit : public testing::Test {
     public:
