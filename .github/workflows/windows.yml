@@ -57,12 +57,12 @@ jobs:
       - name: Download and extract VTK source
         run: |
             cd ..
-            Invoke-WebRequest -Uri https://github.com/Kitware/VTK/archive/refs/tags/v9.2.0.zip -OutFile VTK-9.2.zip
-            Expand-Archive -Path VTK-9.2.zip -DestinationPath .
+            Invoke-WebRequest -Uri https://github.com/Kitware/VTK/archive/refs/tags/v9.2.0.zip -OutFile VTK-9.2.0.zip
+            Expand-Archive -Path VTK-9.2.0.zip -DestinationPath .
 
       - name: Configure and build VTK with Qt
         run: |
-            cd ../VTK-9.2
+            cd ../VTK-9.2.0
             mkdir build
             cd build
             cmake .. -DVTK_Group_Qt:BOOL=ON -DBUILD_TESTING:BOOL=OFF -DBUILD_PERFORMANCE_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files"
@@ -70,7 +70,7 @@ jobs:
 
       - name: Install VTK
         run: |
-            cd ../VTK-9.2/build
+            cd ../VTK-9.2.0/build
             cmake --install . --config Release
     
       - name: Download and extract PCL source
