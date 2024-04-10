@@ -5,7 +5,7 @@
 ![win-badge] ![release-badge] ![download-badge] ![download-latest]
 
 [win-badge]: https://github.com/Practice3DVision/SLMaster/workflows/Windows/badge.svg  "Windows"
-
+[win-link]: https://github.com/Practice3DVision/SLMaster/actions/workflows/windows.yml  "Windows"
 [release-badge]: https://img.shields.io/github/release/Practice3DVision/SLMaster.svg "Release status"
 [release-link]: https://github.com/Practice3DVision/SLMaster/releases "Release status"
 [download-badge]: https://img.shields.io/github/downloads/Practice3DVision/SLMaster/total.svg "Download status"
