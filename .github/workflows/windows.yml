@@ -105,9 +105,10 @@ jobs:
             set OpenCV_DIR="C:\Program Files\OpenCV\x64\vc16\lib"
             set EIGEN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows/include/eigen3"
             set EIGEN_ROOT="C:/vcpkg/installed/x64-windows/include/eigen3"
+            set flann_DIR="C:/vcpkg/installed/x64-windows/share/flann"
             set FLANN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows/include/flann"
-            set FLANN_LIBRARY="C:/vcpkg/installed/x64-windows/lib/flann_cpp_s.lib"
-            set FLANN_LIBRARY_DEBUG="C:/vcpkg/installed/x64-windows/lib/flann_cpp_s-gd.lib"
+            set FLANN_LIBRARY="C:/vcpkg/installed/x64-windows/lib/flann_cpp.lib"
+            set FLANN_LIBRARY_DEBUG="C:/vcpkg/installed/x64-windows/lib/flann_cpp-gd.lib"
             set BOOST_ROOT="C:/vcpkg/installed/x64-windows"
             set QHULL_LIBRARY="C:/vcpkg/installed/x64-windows/lib/qhullstatic.lib"
             set QHULL_LIBRARY_DEBUG="C:/vcpkg/installed/x64-windows/lib/qhullstatic_d.lib"
@@ -117,7 +118,7 @@ jobs:
             cd ../pcl-pcl-1.12.1
             mkdir build
             cd build
-            cmake .. -DBUILD_visualization:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DBUILD_PERFORMANCE_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files" -DWITH_OPENNI:BOOL=OF -DVTK_DIR=C:\Program Files\VTK\lib\cmake\vtk-9.2 -DEIGEN_INCLUDE_DIR=C:/vcpkg/installed/x64-windows/include/eigen3 -DEIGEN_ROOT=C:/vcpkg/installed/x64-windows/include/eigen3 -DFLANN_INCLUDE_DIR=C:/vcpkg/installed/x64-windows/include/flann -DFLANN_LIBRARY=C:/vcpkg/installed/x64-windows/lib/flann_cpp_s.lib -DFLANN_LIBRARY_DEBUG=C:/vcpkg/installed/x64-windows/lib/flann_cpp_s-gd.lib -DBOOST_ROOT=C:/vcpkg/installed/x64-windows -DQHULL_LIBRARY=C:/vcpkg/installed/x64-windows/lib/qhullstatic.lib -DQHULL_LIBRARY_DEBUG=C:/vcpkg/installed/x64-windows/lib/qhullstatic_d.lib
+            cmake .. -DBUILD_visualization:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DBUILD_PERFORMANCE_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files" -DWITH_OPENNI:BOOL=OF -DPCL_BUILD_WITH_BOOST_DYNAMIC_LINKING_WIN32=ON -DPCL_BUILD_WITH_FLANN_DYNAMIC_LINKING_WIN32=ON -DPCL_BUILD_WITH_QHULL_DYNAMIC_LINKING_WIN32=ON
             cmake --build . --config Release
           
       - name: Install PCL
