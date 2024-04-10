@@ -34,8 +34,8 @@ jobs:
           cd opencv-4.5.2
           mkdir build
           cd build
-          cmake ..
-          cmake --build . --config Release
+          cmake .. -DBUILD_TESTS:BOOL=OFF -DBUILD_PERF_TESTS:BOOL=OFF
+          cmake --build . --config Release 
   
       - name: Install OpenCV
         run: |
@@ -63,7 +63,7 @@ jobs:
             cd VTK-9.2
             mkdir build
             cd build
-            cmake .. -DVTK_Group_Qt:BOOL=ON
+            cmake .. -DVTK_Group_Qt:BOOL=ON -DBUILD_TESTING:BOOL=OFF -DBUILD_PERFORMANCE_TESTS:BOOL=OFF
             cmake --build . --config Release
 
       - name: Install VTK
@@ -81,7 +81,7 @@ jobs:
             cd pcl-1.12.1
             mkdir build
             cd build
-            cmake .. -DBUILD_visualization:BOOL=ON -DVTK_DIR=C:\Program Files\VTK\lib\cmake\vtk-9.2
+            cmake .. -DBUILD_visualization:BOOL=ON -DVTK_DIR=C:\Program Files\VTK\lib\cmake\vtk-9.2 -DBUILD_TESTS:BOOL=OFF -DBUILD_PERFORMANCE_TESTS:BOOL=OFF
             cmake --build . --config Release
       
       - name: Install PCL
