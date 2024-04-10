@@ -23,14 +23,23 @@ jobs:
       - name: Install Visual Studio 2019
         uses: microsoft/setup-msbuild@v1.0.2
 
-      - name: Setup OpenCV
-        uses: Dovyski/setup-opencv-action@v1.1
-        with:
-          opencv-version: 4.5.2
-          opencv-extra-modules: true
-          install-deps: true
-          CMAKE_BUILD_TYPE: RELEASE
-          WITH_CUDA: ON
+      - name: Download and extract OpenCV source
+        run: |
+          curl -LO https://github.com/opencv/opencv/archive/opencv_4.5.2.zip
+          tar -xzf opencv_4.5.2.zip
+  
+      - name: Configure and build OpenCV
+        run: |
+          cd opencv-4.5.2
+          mkdir build
+          cd build
+          cmake ..
+          cmake --build . --config Release
+  
+      - name: Install OpenCV
+        run: |
+          cd build
+          cmake --install . --config Release  
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3.3.0
@@ -82,8 +91,9 @@ jobs:
       - name: Configure Visual Studio environment
         run: |
             "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat"
-            set VTK_DIR=C:\Program Files\VTK\lib\cmake\vtk-9.2
-            set PCL_DIR=C:\Program Files\PCL\cmake
+            set VTK_DIR="C:\Program Files\VTK\lib\cmake\vtk-9.2"
+            set PCL_DIR="C:\Program Files\PCL\cmake"
+            set OpenCV_DIR="C:\Program Files\OpenCV\x64\vc16\lib"
           
       - uses: actions/checkout@v3
         with:
