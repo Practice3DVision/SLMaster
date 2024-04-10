@@ -22,9 +22,6 @@ jobs:
     steps:
       - name: Install Visual Studio 2019
         uses: microsoft/setup-msbuild@v1.0.2
-    
-      - name: Setup VSWhere.exe
-        uses: warrenbuckley/Setup-VSWhere@v1
 
       - name: Setup OpenCV
         uses: Dovyski/setup-opencv-action@v1.1
