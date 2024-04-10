@@ -25,7 +25,7 @@ jobs:
 
       - name: Download and extract OpenCV source
         run: |
-          Invoke-WebRequest -Uri https://github.com/opencv/opencv/archive/opencv_4.5.2.zip -OutFile opencv_4.5.2.zip
+          Invoke-WebRequest -Uri https://github.com/opencv/opencv/archive/refs/tags/4.5.2.zip -OutFile opencv_4.5.2.zip
           Expand-Archive -Path opencv_4.5.2.zip -DestinationPath .
   
       - name: Configure and build OpenCV
@@ -54,7 +54,7 @@ jobs:
     
       - name: Download and extract VTK source
         run: |
-            Invoke-WebRequest -Uri https://vtk.org/files/release/9.2/VTK-9.2.zip -OutFile VTK-9.2.zip
+            Invoke-WebRequest -Uri https://github.com/Kitware/VTK/archive/refs/tags/v9.2.0.zip -OutFile VTK-9.2.zip
             Expand-Archive -Path VTK-9.2.zip -DestinationPath .
 
       - name: Configure and build VTK with Qt
@@ -72,7 +72,7 @@ jobs:
     
       - name: Download and extract PCL source
         run: |
-            Invoke-WebRequest -Uri https://github.com/PointCloudLibrary/pcl/archive/pcl_1.12.1.zip -OutFile pcl_1.12.1.zip
+            Invoke-WebRequest -Uri https://github.com/PointCloudLibrary/pcl/archive/refs/tags/pcl-1.12.1.zip -OutFile pcl_1.12.1.zip
             Expand-Archive -Path pcl_1.12.1.zip -DestinationPath .
       
       - name: Configure and build PCL with VTK
