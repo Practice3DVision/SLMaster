@@ -2,7 +2,15 @@
   SLMaster
 </h1>
 
-<img ref="https://github.com/Practice3DVision/SLMaster/releases/tag/v1.2.3" src="https://img.shields.io/badge/release-v1.2.3-blue" /> <img src="https://img.shields.io/badge/windows11-passing-rgb(0, 255, 0)" />
+![win-badge] ![release-badge] ![download-badge] ![download-latest]
+
+[win-badge]: https://github.com/Practice3DVision/SLMaster/workflows/Windows/badge.svg  "Windows"
+
+[release-badge]: https://img.shields.io/github/release/Practice3DVision/SLMaster.svg "Release status"
+[release-link]: https://github.com/Practice3DVision/SLMaster/releases "Release status"
+[download-badge]: https://img.shields.io/github/downloads/Practice3DVision/SLMaster/total.svg "Download status"
+[download-link]: https://github.com/Practice3DVision/SLMaster/releases/latest "Download status"
+[download-latest]: https://img.shields.io/github/downloads/Practice3DVision/SLMaster/latest/total.svg "latest status"
 
 [SLMaster](https://github.com/Practice3DVision/SLMaster)是一个较为完整的结构光3D相机软件。您可以使用它对任意被测物体完成静态扫描或者实时动态扫描。
 
