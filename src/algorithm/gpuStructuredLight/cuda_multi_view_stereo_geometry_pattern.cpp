@@ -61,7 +61,7 @@ class CV_EXPORTS_W MultiViewStereoGeometryPatternGPU_Impl final
 MultiViewStereoGeometryPatternGPU_Impl::Params::Params() {
     width = 1280;
     height = 720;
-    nbrOfPeriods = 40;
+    nbrOfPeriods = 32;
     shiftTime = 4;
     minDisparity = 0;
     maxDisparity = 320;
