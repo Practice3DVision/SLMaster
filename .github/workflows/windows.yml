@@ -34,7 +34,7 @@ jobs:
       - name: Install PCL with vcpkg
         run: |
             cd C:/vcpkg
-            .\vcpkg install pcl --triplet x64-windows --static
+            .\vcpkg install pcl --triplet x64-windows-static
 
       - name: Set up vcpkg integration
         run: |
