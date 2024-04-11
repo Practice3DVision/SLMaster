@@ -118,7 +118,7 @@ jobs:
             cd ../pcl-pcl-1.12.1
             mkdir build
             cd build
-            cmake .. -DBUILD_visualization:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DBUILD_PERFORMANCE_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files" -DWITH_OPENNI:BOOL=OF -DVTK_DIR=C:\Program Files\VTK\lib\cmake\vtk-9.2 -DEIGEN_INCLUDE_DIR=C:/vcpkg/installed/x64-windows/include/eigen3 -DEIGEN_ROOT=C:/vcpkg/installed/x64-windows/include/eigen3 -Dflann_DIR=C:/vcpkg/installed/x64-windows/share/flann -DBOOST_ROOT=C:/vcpkg/installed/x64-windows -DQHULL_LIBRARY=C:/vcpkg/installed/x64-windows/lib/qhullstatic.lib -DQHULL_LIBRARY_DEBUG=C:/vcpkg/installed/x64-windows/lib/qhullstatic_d.lib -DPCL_BUILD_WITH_BOOST_DYNAMIC_LINKING_WIN32=ON -DPCL_BUILD_WITH_FLANN_DYNAMIC_LINKING_WIN32=ON -DPCL_BUILD_WITH_QHULL_DYNAMIC_LINKING_WIN32=ON
+            cmake .. -DBUILD_visualization:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DBUILD_PERFORMANCE_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files" -DWITH_OPENNI:BOOL=OF -DPCL_BUILD_WITH_BOOST_DYNAMIC_LINKING_WIN32=ON -DPCL_BUILD_WITH_FLANN_DYNAMIC_LINKING_WIN32=ON -DPCL_BUILD_WITH_QHULL_DYNAMIC_LINKING_WIN32=ON
             cmake --build . --config Release
           
       - name: Install PCL
