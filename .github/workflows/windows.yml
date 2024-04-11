@@ -118,7 +118,7 @@ jobs:
             cd ../pcl-pcl-1.12.1
             mkdir build
             cd build
-            cmake .. -DBUILD_visualization:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DBUILD_PERFORMANCE_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files" -DWITH_OPENNI:BOOL=OF -DPCL_BUILD_WITH_BOOST_DYNAMIC_LINKING_WIN32=ON -DPCL_BUILD_WITH_FLANN_DYNAMIC_LINKING_WIN32=ON -DPCL_BUILD_WITH_QHULL_DYNAMIC_LINKING_WIN32=ON
+            cmake .. -DBUILD_visualization:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DBUILD_PERFORMANCE_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files" -DWITH_OPENNI:BOOL=OF -DPCL_BUILD_WITH_BOOST_DYNAMIC_LINKING_WIN32=ON -DPCL_BUILD_WITH_FLANN_DYNAMIC_LINKING_WIN32=ON -DPCL_BUILD_WITH_QHULL_DYNAMIC_LINKING_WIN32=ON -DVTK_DIR="C:\Program Files\VTK\lib\cmake\vtk-9.2" -DEIGEN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows/include/eigen3" -DEIGEN_ROOT="C:/vcpkg/installed/x64-windows/include/eigen3" -Dflann_DIR="C:/vcpkg/installed/x64-windows/share/flann" -DFLANN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows/include/flann" -DFLANN_LIBRARY="C:/vcpkg/installed/x64-windows/lib/flann_cpp.lib" -DFLANN_LIBRARY_DEBUG="C:/vcpkg/installed/x64-windows/lib/flann_cpp-gd.lib" -DBOOST_ROOT="C:/vcpkg/installed/x64-windows" -DQHULL_LIBRARY="C:/vcpkg/installed/x64-windows/lib/qhullstatic.lib" -DQHULL_LIBRARY_DEBUG="C:/vcpkg/installed/x64-windows/lib/qhullstatic_d.lib"
             cmake --build . --config Release
           
       - name: Install PCL
@@ -133,7 +133,7 @@ jobs:
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DVTK_DIR="C:\Program Files\VTK\lib\cmake\vtk-9.2" -DEIGEN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows/include/eigen3" -DEIGEN_ROOT="C:/vcpkg/installed/x64-windows/include/eigen3" -DPCL_DIR="C:\Program Files\PCL\cmake" -DOpenCV_DIR="C:\Program Files\OpenCV\x64\vc16\lib"
 
       - name: Build
         # Build your program with the given configuration

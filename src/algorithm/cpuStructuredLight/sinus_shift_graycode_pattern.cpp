@@ -1,4 +1,4 @@
-#include "sinus_comple_graycode_pattern.hpp"
+#include "sinus_shift_graycode_pattern.hpp"
 
 #include "recoverDepth.h"
 
@@ -6,15 +6,15 @@ using namespace cv;
 
 namespace slmaster {
 namespace algorithm {
-class SinusCompleGrayCodePattern_Impl final
-    : public SinusCompleGrayCodePattern {
+class SinusShiftGrayCodePattern_Impl final
+    : public SinusShiftGrayCodePattern {
   public:
     // Constructor
-    explicit SinusCompleGrayCodePattern_Impl(
-        const SinusCompleGrayCodePattern::Params &parameters =
-            SinusCompleGrayCodePattern::Params());
+    explicit SinusShiftGrayCodePattern_Impl(
+        const SinusShiftGrayCodePattern::Params &parameters =
+            SinusShiftGrayCodePattern::Params());
     // Destructor
-    virtual ~SinusCompleGrayCodePattern_Impl() CV_OVERRIDE{};
+    virtual ~SinusShiftGrayCodePattern_Impl() CV_OVERRIDE{};
 
     // Generate sinusoidal and complementary graycode patterns
     bool generate(OutputArrayOfArrays patternImages) CV_OVERRIDE;
@@ -53,7 +53,7 @@ class SinusCompleGrayCodePattern_Impl final
     Params params;
 };
 // Default parameters value
-SinusCompleGrayCodePattern_Impl::Params::Params() {
+SinusShiftGrayCodePattern_Impl::Params::Params() {
     width = 1280;
     height = 720;
     nbrOfPeriods = 32;
@@ -65,11 +65,11 @@ SinusCompleGrayCodePattern_Impl::Params::Params() {
     maxCost = 0.1f;
 }
 
-SinusCompleGrayCodePattern_Impl::SinusCompleGrayCodePattern_Impl(
-    const SinusCompleGrayCodePattern::Params &parameters)
+SinusShiftGrayCodePattern_Impl::SinusShiftGrayCodePattern_Impl(
+    const SinusShiftGrayCodePattern::Params &parameters)
     : params(parameters) {}
 
-void SinusCompleGrayCodePattern_Impl::computeConfidenceMap(
+void SinusShiftGrayCodePattern_Impl::computeConfidenceMap(
     InputArrayOfArrays patternImages, OutputArray confidenceMap) const {
     const std::vector<Mat> &imgs =
         *static_cast<const std::vector<Mat> *>(patternImages.getObj());
@@ -87,7 +87,7 @@ void SinusCompleGrayCodePattern_Impl::computeConfidenceMap(
     }
 }
 
-void SinusCompleGrayCodePattern_Impl::computePhaseMap(
+void SinusShiftGrayCodePattern_Impl::computePhaseMap(
     InputArrayOfArrays patternImages, OutputArray wrappedPhaseMap) const {
     const std::vector<Mat> &imgs =
         *static_cast<const std::vector<Mat> *>(patternImages.getObj());
@@ -124,7 +124,7 @@ void SinusCompleGrayCodePattern_Impl::computePhaseMap(
     });
 }
 
-void SinusCompleGrayCodePattern_Impl::computeFloorMap(
+void SinusShiftGrayCodePattern_Impl::computeFloorMap(
     InputArrayOfArrays patternImages, InputArray confidenceMap,
     InputArray wrappedPhaseMap, OutputArray floorMap) const {
     const std::vector<Mat> &imgs =
@@ -178,7 +178,7 @@ void SinusCompleGrayCodePattern_Impl::computeFloorMap(
     });
 }
 
-void SinusCompleGrayCodePattern_Impl::unwrapPhaseMap(
+void SinusShiftGrayCodePattern_Impl::unwrapPhaseMap(
     InputArray wrappedPhaseMap, InputArray floorMap,
     OutputArray unwrappedPhaseMap, InputArray shadowMask) const {
     const Mat &wrappedPhase =
@@ -234,7 +234,7 @@ void SinusCompleGrayCodePattern_Impl::unwrapPhaseMap(
     });
 }
 
-bool SinusCompleGrayCodePattern_Impl::generate(OutputArrayOfArrays pattern) {
+bool SinusShiftGrayCodePattern_Impl::generate(OutputArrayOfArrays pattern) {
     std::vector<Mat> &imgs = *static_cast<std::vector<Mat> *>(pattern.getObj());
     imgs.clear();
     const int height = params.horizontal ? params.width : params.height;
@@ -291,7 +291,7 @@ bool SinusCompleGrayCodePattern_Impl::generate(OutputArrayOfArrays pattern) {
 }
 
 // TODO@Evans Liu: 增加水平条纹y轴方向支持
-void SinusCompleGrayCodePattern_Impl::computeDisparity(
+void SinusShiftGrayCodePattern_Impl::computeDisparity(
     InputArray leftUnwrapMap, InputArray rightUnwrapMap,
     OutputArray disparityMap) const {
     const Mat &leftUnwrap = *static_cast<const Mat *>(leftUnwrapMap.getObj());
@@ -301,7 +301,7 @@ void SinusCompleGrayCodePattern_Impl::computeDisparity(
     matchWithAbsphase(leftUnwrap, rightUnwrap, disparity, params.minDisparity, params.maxDisparity, params.confidenceThreshold, params.maxCost);
 }
 
-bool SinusCompleGrayCodePattern_Impl::decode(
+bool SinusShiftGrayCodePattern_Impl::decode(
     const std::vector<std::vector<Mat>> &patternImages,
     OutputArray disparityMap, InputArrayOfArrays blackImages,
     InputArrayOfArrays whiteImages, int flags) const {
@@ -343,9 +343,9 @@ bool SinusCompleGrayCodePattern_Impl::decode(
     return true;
 }
 
-Ptr<SinusCompleGrayCodePattern> SinusCompleGrayCodePattern::create(
-    const SinusCompleGrayCodePattern::Params &params) {
-    return makePtr<SinusCompleGrayCodePattern_Impl>(params);
+Ptr<SinusShiftGrayCodePattern> SinusShiftGrayCodePattern::create(
+    const SinusShiftGrayCodePattern::Params &params) {
+    return makePtr<SinusShiftGrayCodePattern_Impl>(params);
 }
 } // namespace structured_light
 } // namespace cv
