@@ -109,6 +109,8 @@ jobs:
             set FLANN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows/include/flann"
             set FLANN_LIBRARY_SHARED="C:/vcpkg/installed/x64-windows/bin/flann.dll"
             set FLANN_LIBRARY_DEBUG_SHARED="C:/vcpkg/installed/x64-windows/bin/flannd.dll"
+            set FLANN_LIBRARY="C:/vcpkg/installed/x64-windows/lib/flann_cpp.lib"
+            set FLANN_LIBRARY_DEBUG="C:/vcpkg/installed/x64-windows/lib/flann_cpp-gd.lib"
             set BOOST_ROOT="C:/vcpkg/installed/x64-windows"
             set Qhull_DIR="C:/vcpkg/installed/x64-windows/share/qhull"
             
@@ -117,7 +119,7 @@ jobs:
             cd ../pcl-pcl-1.12.1
             mkdir build
             cd build
-            cmake .. -DBUILD_visualization:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DBUILD_PERFORMANCE_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files" -DWITH_OPENNI:BOOL=OF -DPCL_BUILD_WITH_BOOST_DYNAMIC_LINKING_WIN32=ON -DVTK_DIR="C:\Program Files\VTK\lib\cmake\vtk-9.2" -DEIGEN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows/include/eigen3" -DEIGEN_ROOT="C:/vcpkg/installed/x64-windows/include/eigen3" -Dflann_DIR="C:/vcpkg/installed/x64-windows/share/flann" -DFLANN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows/include/flann" -DFLANN_LIBRARY_SHARED="C:/vcpkg/installed/x64-windows/bin/flann.dll" -DFLANN_LIBRARY_DEBUG_SHARED="C:/vcpkg/installed/x64-windows/bin/flannd.dll" -DBOOST_ROOT="C:/vcpkg/installed/x64-windows" -DQhull_DIR="C:/vcpkg/installed/x64-windows/share/qhull"
+            cmake .. -DBUILD_visualization:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DBUILD_apps=OFF -DBUILD_global_tests=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files" -DWITH_OPENNI=OFF -DWITH_OPENNI2=OFF -DPCL_BUILD_WITH_BOOST_DYNAMIC_LINKING_WIN32=ON -DVTK_DIR="C:\Program Files\VTK\lib\cmake\vtk-9.2" -DEIGEN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows/include/eigen3" -DEIGEN_ROOT="C:/vcpkg/installed/x64-windows/include/eigen3" -Dflann_DIR="C:/vcpkg/installed/x64-windows/share/flann" -DFLANN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows/include/flann" -DFLANN_LIBRARY_SHARED="C:/vcpkg/installed/x64-windows/bin/flann.dll" -DFLANN_LIBRARY_DEBUG_SHARED="C:/vcpkg/installed/x64-windows/bin/flannd.dll" -DBOOST_ROOT="C:/vcpkg/installed/x64-windows" -DQhull_DIR="C:/vcpkg/installed/x64-windows/share/qhull" -DFLANN_LIBRARY="C:/vcpkg/installed/x64-windows/lib/flann_cpp.lib" -DFLANN_LIBRARY_DEBUG="C:/vcpkg/installed/x64-windows/lib/flann_cpp-gd.lib"
             cmake --build . --config Release
           
       - name: Install PCL

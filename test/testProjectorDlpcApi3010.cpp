@@ -119,7 +119,7 @@ TEST(Project, getLEDCurrent) {
     bool isSucess = projectorDlpcApi->connect();
     double red, green, blue;
     isSucess = projectorDlpcApi->getLEDCurrent(red, green, blue);
-    printf("projector's current light strength: red %d, green %d, blue %d", red, green, blue);
+    printf("projector's current light strength: red %f, green %f, blue %f", red, green, blue);
     ASSERT_EQ(isSucess, true);
     projectorDlpcApi->disConnect();
 }
@@ -132,7 +132,7 @@ TEST(Project, setLEDCurrent) {
     isSucess = projectorDlpcApi->setLEDCurrent(0.95, 0.95, 0.95);
     double red, green, blue;
     isSucess = projectorDlpcApi->getLEDCurrent(red, green, blue);
-    printf("after set light stength, projector's current light strength: red %d, green %d, blue %d", red, green, blue);
+    printf("after set light stength, projector's current light strength: red %f, green %f, blue %f", red, green, blue);
     ASSERT_EQ(isSucess, true);
     projectorDlpcApi->disConnect();
 }

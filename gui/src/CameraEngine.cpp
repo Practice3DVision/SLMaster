@@ -90,6 +90,16 @@ int CameraEngine::createStripe(const int pixelDepth, const int direction,
         params.shiftTime_ = shiftTime;
 
         pattern = TrinocularMultiViewStereoGeometryPattern::create(params);
+    } else if (stripeType == AppType::PatternMethod::SinusShiftGrayCode) {
+        MonoSinusShiftGrayCodePattern::Params params;
+
+        params.height_ = imgHeight;
+        params.width_ = imgWidth;
+        params.cycles_ = cycles;
+        params.horizontal_ = direction == AppType::Direction::Horizion;
+        params.shiftTime_ = shiftTime;
+
+        pattern = MonoSinusShiftGrayCodePattern::create(params);
     }
 
     std::vector<cv::Mat> imgs;
@@ -100,8 +110,8 @@ int CameraEngine::createStripe(const int pixelDepth, const int direction,
                             AppType::DefocusEncoding(defocusMethod));
     }
 
-    if(clipWidth < imgWidth || clipHeight < imgHeight) {
-        for (auto& img : imgs) {
+    if (clipWidth < imgWidth || clipHeight < imgHeight) {
+        for (auto &img : imgs) {
             img(cv::Rect(0, 0, clipWidth, clipHeight)).copyTo(img);
         }
     }
@@ -610,8 +620,8 @@ void CameraEngine::setPatternType(const int patternType) {
     slCamera->getNumbericalAttribute("Exposure Time", exposureTime);
     slCamera->getNumbericalAttribute("Pattern", curPattern);
 
-    if (patternType == AppType::PatternMethod::SinusCompleGrayCode) {
-        if (cameraType_ == AppType::CameraType::BinocularSLCamera) {
+    if (cameraType_ == AppType::CameraType::BinocularSLCamera) {
+        if (patternType == AppType::PatternMethod::SinusCompleGrayCode) {
             BinoSinusCompleGrayCodePattern::Params params;
 
             params.shiftTime_ = std::round(shiftTime);
@@ -626,7 +636,27 @@ void CameraEngine::setPatternType(const int patternType) {
             params.costMinDiff_ = costMinDiff;
 
             pattern_ = BinoSinusCompleGrayCodePattern::create(params);
-        } else if (cameraType_ == AppType::CameraType::MonocularSLCamera) {
+        } else if (patternType == AppType::PatternMethod::MutiplyFrequency) {
+
+        } else if (patternType == AppType::PatternMethod::SinusShiftGrayCode) {
+            BinoSinusShiftGrayCodePattern::Params params;
+
+            params.shiftTime_ = std::round(shiftTime);
+            params.cycles_ = std::round(cycles);
+            params.horizontal_ = !isVertical;
+            params.width_ = std::stoi(dlpWidth);
+            params.height_ = std::stoi(dlpHeight);
+            params.confidenceThreshold_ = confidenceThreshold;
+            params.maxCost_ = maxCost;
+            params.minDisparity_ = minDisp;
+            params.maxDisparity_ = maxDisp;
+            params.costMinDiff_ = costMinDiff;
+
+            pattern_ = BinoSinusShiftGrayCodePattern::create(params);
+        }
+    }
+    if (cameraType_ == AppType::CameraType::MonocularSLCamera) {
+        if (patternType_ == AppType::PatternMethod::SinusCompleGrayCode) {
             MonoSinusCompleGrayCodePattern::Params params;
 
             params.shiftTime_ = std::round(shiftTime);
@@ -655,9 +685,37 @@ void CameraEngine::setPatternType(const int patternType) {
             cv::cv2eigen(PR4, params.PR4_);
 
             pattern_ = MonoSinusCompleGrayCodePattern::create(params);
-        }
-    } else if (patternType == AppType::PatternMethod::MutiplyFrequency) {
+        } else if (patternType == AppType::PatternMethod::SinusShiftGrayCode) {
+            MonoSinusShiftGrayCodePattern::Params params;
 
+            params.shiftTime_ = std::round(shiftTime);
+            params.cycles_ = std::round(cycles);
+            params.horizontal_ = !isVertical;
+            params.width_ = std::stoi(dlpWidth);
+            params.height_ = std::stoi(dlpHeight);
+            params.confidenceThreshold_ = confidenceThreshold;
+            params.minDepth_ = minDepth;
+            params.maxDepth_ = maxDepth;
+
+            cv::Mat PL1 = cv::Mat::eye(4, 4, CV_32FC1);
+            slCamera->getCaliInfo()->info_.M1_.copyTo(
+                PL1(cv::Rect(0, 0, 3, 3)));
+            cv::cv2eigen(PL1, params.PL1_);
+
+            cv::Mat PR4 = cv::Mat::eye(4, 4, CV_32FC1);
+            slCamera->getCaliInfo()->info_.Rlp_.copyTo(
+                PR4(cv::Rect(0, 0, 3, 3)));
+            slCamera->getCaliInfo()->info_.Tlp_.copyTo(
+                PR4(cv::Rect(3, 0, 1, 3)));
+            cv::Mat M4Normal = cv::Mat::eye(4, 4, CV_32FC1);
+            slCamera->getCaliInfo()->info_.M4_.copyTo(
+                M4Normal(cv::Rect(0, 0, 3, 3)));
+            PR4 = M4Normal * PR4;
+            cv::cv2eigen(PR4, params.PR4_);
+
+            pattern_ = MonoSinusShiftGrayCodePattern::create(params);
+        } else if (patternType == AppType::PatternMethod::MutiplyFrequency) {
+        }
     } else if (patternType == AppType::PatternMethod::MultiViewStereoGeometry) {
         TrinocularMultiViewStereoGeometryPattern::Params params;
 
@@ -974,11 +1032,11 @@ void CameraEngine::tenLine() {
     workThread_ = std::thread(&CameraEngine::createTenLine, this);
 }
 
-bool CameraEngine::saveFrame(const QString& path) {
+bool CameraEngine::saveFrame(const QString &path) {
     auto fileName = path.mid(8, path.size() - 12);
 
     qDebug() << QString("save frame, frame path is : %1").arg(fileName);
-    
+
     cv::imwrite(fileName.toStdString() + ".bmp", frame_.textureMap_);
     cv::imwrite(fileName.toStdString() + ".tiff", frame_.depthMap_);
 
