@@ -61,4 +61,16 @@ target_link_libraries(
     GTest::gtest_main
 )
 
+add_executable(
+    TestShiftGrayCodePattern
+    ${CMAKE_CURRENT_SOURCE_DIR}/testShiftGrayCodePattern.cpp
+)
+
+target_link_libraries(
+    TestShiftGrayCodePattern
+    PUBLIC
+    slmaster
+    GTest::gtest_main
+)
+
 include(GoogleTest)

@@ -264,10 +264,11 @@ bool SinusShiftGrayCodePattern_Impl::generate(OutputArrayOfArrays pattern) {
         intensityMap = params.horizontal ? intensityMap.t() : intensityMap;
         imgs.push_back(intensityMap);
     }
-    // generate complementary graycode imgs.
+    // generate shift complementary graycode imgs.
     const int grayCodeImgsCount =
-        static_cast<int>(std::log2(params.nbrOfPeriods)) + 1;
+        static_cast<int>(std::log2(params.nbrOfPeriods));
     std::vector<uchar> encodeSequential = {0, 255};
+    const int pixelsLastHalfBlock =  (width / pow(2, grayCodeImgsCount)) / 2;
     for (int i = 0; i < grayCodeImgsCount; ++i) {
         Mat intensityMap = Mat::zeros(height, width, CV_8UC1);
         const int pixelsPerBlock =
@@ -282,6 +283,11 @@ bool SinusShiftGrayCodePattern_Impl::generate(OutputArrayOfArrays pattern) {
         for (int j = lastSequentialSize - 1; j >= 0; --j) {
             encodeSequential.push_back(encodeSequential[j]);
         }
+
+        //shift img
+        Mat cloneIntensityMap = intensityMap.clone();
+        cloneIntensityMap(Rect(0, 0, pixelsLastHalfBlock, intensityMap.rows)).copyTo(intensityMap(Rect(intensityMap.cols - pixelsLastHalfBlock, 0, pixelsLastHalfBlock, intensityMap.rows)));
+        cloneIntensityMap(Rect(pixelsLastHalfBlock, 0, intensityMap.cols - pixelsLastHalfBlock, intensityMap.rows)).copyTo(intensityMap(Rect(0, 0, intensityMap.cols - pixelsLastHalfBlock, intensityMap.rows)));
 
         intensityMap = params.horizontal ? intensityMap.t() : intensityMap;
         imgs.push_back(intensityMap);
