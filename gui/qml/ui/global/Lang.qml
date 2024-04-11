@@ -150,6 +150,7 @@ QtObject {
     property string please_select_start_point
     property string please_select_point_to_see_info
     property string multi_view_stereo_geometry
+    property string sine_shift_gray_code
     property string find_features_error
     property string pure_scan_mode
     property string pure_scan_desc
@@ -305,6 +306,7 @@ QtObject {
         camera = "相机";
         stripe_type = "条纹类型";
         sine_complementary_gray_code = "正弦互补格雷码";
+        sine_shift_gray_code = "正弦移位格雷码";
         encode = "编码";
         save = "保存";
         defocus_encoding = "离焦编码";
@@ -567,6 +569,7 @@ QtObject {
         camera = "Camera";
         stripe_type = "Stripe Type";
         sine_complementary_gray_code = "Sine Complementary Gray Code";
+        sine_shift_gray_code = "Sine Shift Gray Code";
         encode = "Encode";
         save = "Save";
         defocus_encoding = "Defocus Encoding";

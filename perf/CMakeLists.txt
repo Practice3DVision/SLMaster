@@ -23,3 +23,15 @@ target_link_libraries(
     benchmark::benchmark
     slmaster
 )
+
+add_executable(
+    PerfShiftGrayCodePattern
+    ${CMAKE_CURRENT_SOURCE_DIR}/perfShiftGrayCodePattern.cpp
+)
+
+target_link_libraries(
+    PerfShiftGrayCodePattern
+    PRIVATE
+    benchmark::benchmark
+    slmaster
+)

@@ -88,6 +88,7 @@ class AppType : public QObject
         SinusCompleGrayCode = 0,
         MutiplyFrequency,
         MultiViewStereoGeometry,
+        SinusShiftGrayCode,
     };
 
     Q_ENUM(PageType)

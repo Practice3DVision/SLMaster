@@ -268,7 +268,7 @@ FluContentPage {
 
                             FluComboBox {
                                 Layout.fillWidth: true
-                                model: [Lang.sinus_comple_gray_code, Lang.multi_frequency_heterodyne, Lang.multi_view_stereo_geometry]
+                                model: [Lang.sinus_comple_gray_code, Lang.multi_frequency_heterodyne, Lang.multi_view_stereo_geometry, Lang.sine_shift_gray_code]
                                 currentIndex: root.cur_method
 
                                 onCurrentIndexChanged: {

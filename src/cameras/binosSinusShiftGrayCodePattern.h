@@ -1,5 +1,5 @@
 /**
- * @file binosSinusCompleGrayCodePattern.h
+ * @file binosSinusShiftGrayCodePattern.h
  * @author Evans Liu (1369215984@qq.com)
  * @brief
  * @version 0.1
@@ -9,17 +9,15 @@
  *
  */
 
-#ifndef __BINOSSINUSCOMPLEGRAYCODEPATTERN_H_
-#define __BINOSSINUSCOMPLEGRAYCODEPATTERN_H_
+#ifndef __BINOSSINUSSHIFTGRAYCODEPATTERN_H_
+#define __BINOSSINUSSHIFTGRAYCODEPATTERN_H_
 
 #include "../common.h"
 #include "pattern.h"
 
 namespace slmaster {
 namespace cameras {
-// TODO@Evans
-// Liu:使用修饰器模式会更好，避免未来方法增多导致的子类爆炸，需要在OpenCV中重新更改接口
-class SLMASTER_API BinoSinusCompleGrayCodePattern : public Pattern {
+class SLMASTER_API BinoSinusShiftGrayCodePattern : public Pattern {
   public:
     struct SLMASTER_API Params {
         Params()
@@ -38,7 +36,7 @@ class SLMASTER_API BinoSinusCompleGrayCodePattern : public Pattern {
         float costMinDiff_;
     };
 
-    BinoSinusCompleGrayCodePattern();
+    BinoSinusShiftGrayCodePattern();
     virtual bool generate(IN std::vector<cv::Mat> &imgs) const override final;
     virtual bool
     decode(IN const std::vector<std::vector<cv::Mat>> &patternImages,
@@ -49,4 +47,4 @@ class SLMASTER_API BinoSinusCompleGrayCodePattern : public Pattern {
 } // namespace cameras
 } // namespace slmaster
 
-#endif // __BINOSSINUSCOMPLEGRAYCODEPATTERN_H_
+#endif // __BINOSSINUSSHIFTGRAYCODEPATTERN_H_
