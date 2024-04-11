@@ -162,6 +162,11 @@ void SinusCompleGrayCodePattern_Impl::computeFloorMap(
                     K1 = (K1 << 1) + tempVal;
                 }
 
+                if(K1 >= params.nbrOfPeriods) {
+                    floorPtr[j] = 0;
+                    continue;
+                }
+
                 tempVal ^=
                     imgsPtrs[grayCodeImgsCount - 1][j] > confidencePtr[j];
                 const uint16_t K2 = ((K1 << 1) + tempVal + 1) / 2;
