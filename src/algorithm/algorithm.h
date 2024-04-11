@@ -14,6 +14,7 @@
 
 #include "cpuStructuredLight/defocusMethod.h"
 #include "cpuStructuredLight/sinus_comple_graycode_pattern.hpp"
+#include "cpuStructuredLight/sinus_shift_graycode_pattern.hpp"
 #include "cpuStructuredLight/structured_light.hpp"
 #include "cpuStructuredLight/recoverDepth.h"
 #include "cpuStructuredLight/lasterLine.h"
