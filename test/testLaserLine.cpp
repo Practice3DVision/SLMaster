@@ -73,6 +73,7 @@ TEST_F(LaserLineSuit, testStegerExtract) {
         pointFile << "Point" + to_string(index++) << pointMat;
     }
 
+    namedWindow("test", WINDOW_NORMAL);
     imshow("test", colorImg);
     waitKey(0);
 }
