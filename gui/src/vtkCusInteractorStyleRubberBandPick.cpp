@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkCusInteractorStyleRubberBandPick.h"
+#include "VtkCusInteractorStyleRubberBandPick.h"
 
 #include "vtkAbstractPropPicker.h"
 #include "vtkAreaPicker.h"

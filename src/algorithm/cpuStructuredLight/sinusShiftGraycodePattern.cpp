@@ -1,4 +1,4 @@
-#include "sinus_comple_graycode_pattern.hpp"
+#include "sinusShiftGraycodePattern.hpp"
 
 #include "recoverDepth.h"
 
@@ -6,15 +6,14 @@ using namespace cv;
 
 namespace slmaster {
 namespace algorithm {
-class SinusCompleGrayCodePattern_Impl final
-    : public SinusCompleGrayCodePattern {
+class SinusShiftGrayCodePattern_Impl final : public SinusShiftGrayCodePattern {
   public:
     // Constructor
-    explicit SinusCompleGrayCodePattern_Impl(
-        const SinusCompleGrayCodePattern::Params &parameters =
-            SinusCompleGrayCodePattern::Params());
+    explicit SinusShiftGrayCodePattern_Impl(
+        const SinusShiftGrayCodePattern::Params &parameters =
+            SinusShiftGrayCodePattern::Params());
     // Destructor
-    virtual ~SinusCompleGrayCodePattern_Impl() CV_OVERRIDE{};
+    virtual ~SinusShiftGrayCodePattern_Impl() CV_OVERRIDE {};
 
     // Generate sinusoidal and complementary graycode patterns
     bool generate(OutputArrayOfArrays patternImages) CV_OVERRIDE;
@@ -53,7 +52,7 @@ class SinusCompleGrayCodePattern_Impl final
     Params params;
 };
 // Default parameters value
-SinusCompleGrayCodePattern_Impl::Params::Params() {
+SinusShiftGrayCodePattern_Impl::Params::Params() {
     width = 1280;
     height = 720;
     nbrOfPeriods = 32;
@@ -65,11 +64,11 @@ SinusCompleGrayCodePattern_Impl::Params::Params() {
     maxCost = 0.1f;
 }
 
-SinusCompleGrayCodePattern_Impl::SinusCompleGrayCodePattern_Impl(
-    const SinusCompleGrayCodePattern::Params &parameters)
+SinusShiftGrayCodePattern_Impl::SinusShiftGrayCodePattern_Impl(
+    const SinusShiftGrayCodePattern::Params &parameters)
     : params(parameters) {}
 
-void SinusCompleGrayCodePattern_Impl::computeConfidenceMap(
+void SinusShiftGrayCodePattern_Impl::computeConfidenceMap(
     InputArrayOfArrays patternImages, OutputArray confidenceMap) const {
     const std::vector<Mat> &imgs =
         *static_cast<const std::vector<Mat> *>(patternImages.getObj());
@@ -87,7 +86,7 @@ void SinusCompleGrayCodePattern_Impl::computeConfidenceMap(
     }
 }
 
-void SinusCompleGrayCodePattern_Impl::computePhaseMap(
+void SinusShiftGrayCodePattern_Impl::computePhaseMap(
     InputArrayOfArrays patternImages, OutputArray wrappedPhaseMap) const {
     const std::vector<Mat> &imgs =
         *static_cast<const std::vector<Mat> *>(patternImages.getObj());
@@ -124,7 +123,7 @@ void SinusCompleGrayCodePattern_Impl::computePhaseMap(
     });
 }
 
-void SinusCompleGrayCodePattern_Impl::computeFloorMap(
+void SinusShiftGrayCodePattern_Impl::computeFloorMap(
     InputArrayOfArrays patternImages, InputArray confidenceMap,
     InputArray wrappedPhaseMap, OutputArray floorMap) const {
     const std::vector<Mat> &imgs =
@@ -135,7 +134,7 @@ void SinusCompleGrayCodePattern_Impl::computeFloorMap(
     Mat &floor = *static_cast<Mat *>(floorMap.getObj());
 
     CV_Assert(!imgs.empty() && !confidence.empty() && !wrappedPhase.empty());
-    CV_Assert(std::pow(2, imgs.size() - params.shiftTime - 1) ==
+    CV_Assert(std::pow(2, imgs.size() - params.shiftTime) ==
               params.nbrOfPeriods);
 
     const int height = imgs[0].rows;
@@ -144,7 +143,7 @@ void SinusCompleGrayCodePattern_Impl::computeFloorMap(
 
     const int grayCodeImgsCount =
         static_cast<int>(imgs.size() - params.shiftTime);
-
+    // 计算初始格雷码
     parallel_for_(Range(0, height), [&](const Range &range) {
         std::vector<const uchar *> imgsPtrs(grayCodeImgsCount);
 
@@ -156,34 +155,106 @@ void SinusCompleGrayCodePattern_Impl::computeFloorMap(
             auto wrappedPhasePtr = wrappedPhase.ptr<float>(i);
             auto floorPtr = floor.ptr<uint16_t>(i);
             for (int j = 0; j < width; ++j) {
-                uint16_t K1 = 0, tempVal = 0;
-                for (int k = 0; k < grayCodeImgsCount - 1; ++k) {
+                uint16_t curK = 0, tempVal = 0;
+                for (int k = 0; k < grayCodeImgsCount; ++k) {
                     tempVal ^= imgsPtrs[k][j] > confidencePtr[j];
-                    K1 = (K1 << 1) + tempVal;
+                    curK = (curK << 1) + tempVal;
                 }
 
-                if(K1 >= params.nbrOfPeriods) {
+                if(curK >= params.nbrOfPeriods) {
                     floorPtr[j] = 0;
                     continue;
                 }
 
-                tempVal ^=
-                    imgsPtrs[grayCodeImgsCount - 1][j] > confidencePtr[j];
-                const uint16_t K2 = ((K1 << 1) + tempVal + 1) / 2;
+                floorPtr[j] =curK;
+            }
+        }
+    });
 
-                if (wrappedPhasePtr[j] <= -CV_PI / 2) {
-                    floorPtr[j] = K2;
-                } else if (wrappedPhasePtr[j] >= CV_PI / 2) {
-                    floorPtr[j] = K2 - 1;
-                } else {
-                    floorPtr[j] = K1;
+    // 进一步修正格雷码（垂直条纹情况）
+    if (!params.horizontal) {
+        parallel_for_(Range(0, height), [&](const Range &range) {
+            for (int i = range.start; i < range.end; ++i) {
+                auto floorPtr = floor.ptr<uint16_t>(i);
+                auto confidencePtr = confidence.ptr<float>(i);
+                auto wrappedPhasePtr = wrappedPhase.ptr<float>(i);
+                std::vector<std::pair<int, float>> middleLocs(params.nbrOfPeriods, std::make_pair(0, FLT_MAX));
+
+                for (int j = 0; j < width; ++j) {
+                    int kFloor = floorPtr[j];
+
+                    if (kFloor == 0) {
+                        continue;
+                    }
+
+                    auto cost = abs(abs(wrappedPhasePtr[j]) - CV_PI);
+
+                    if (cost < middleLocs[kFloor].second &&
+                        confidencePtr[j] > params.confidenceThreshold) {
+                        middleLocs[kFloor].first = j;
+                        middleLocs[kFloor].second = cost;
+                    }
+                }
+
+                for (int j = 0; j < width; ++j) {
+                    int kFloor = floorPtr[j];
+
+                    if (kFloor == 0) {
+                        continue;
+                    }
+
+                    if ((abs(wrappedPhasePtr[j]) < CV_2PI / 3 &&
+                         j < middleLocs[kFloor].first) ||
+                        wrappedPhasePtr[j] >= CV_2PI / 3) {
+                        floorPtr[j] -= 1;
+                    }
+                }
+            }
+        });
+
+        return;
+    }
+
+    // 进一步修正格雷码（水平条纹情况）
+    parallel_for_(Range(0, floor.cols), [&](const Range &range) {
+        for (int j = range.start; j < range.end; ++j) {
+            std::vector<std::pair<int, float>> middleLocs(params.nbrOfPeriods, std::make_pair(0, FLT_MAX));
+
+            for (int i = 0; i < height; ++i) {
+                int kFloor = floor.ptr<uint16_t>(i)[j];
+
+                if (kFloor == 0) {
+                    continue;
+                }
+
+                auto cost = abs(abs(wrappedPhase.ptr<float>(i)[j]) - CV_PI);
+
+                if (abs(wrappedPhase.ptr<float>(i)[j] - CV_PI) <
+                        middleLocs[kFloor].second &&
+                    confidence.ptr<float>(i)[j] > params.confidenceThreshold) {
+                    middleLocs[kFloor].first = j;
+                    middleLocs[kFloor].second = cost;
+                }
+            }
+
+            for (int i = 0; i < height; ++i) {
+                int kFloor = floor.ptr<uint16_t>(i)[j];
+
+                if (kFloor == 0) {
+                    continue;
+                }
+
+                if ((abs(wrappedPhase.ptr<float>(i)[j]) < CV_2PI / 3 &&
+                     j < middleLocs[kFloor].first) ||
+                    wrappedPhase.ptr<float>(i)[j] >= CV_2PI / 3) {
+                    floor.ptr<uint16_t>(i)[j] -= 1;
                 }
             }
         }
     });
 }
 
-void SinusCompleGrayCodePattern_Impl::unwrapPhaseMap(
+void SinusShiftGrayCodePattern_Impl::unwrapPhaseMap(
     InputArray wrappedPhaseMap, InputArray floorMap,
     OutputArray unwrappedPhaseMap, InputArray shadowMask) const {
     const Mat &wrappedPhase =
@@ -239,7 +310,7 @@ void SinusCompleGrayCodePattern_Impl::unwrapPhaseMap(
     });
 }
 
-bool SinusCompleGrayCodePattern_Impl::generate(OutputArrayOfArrays pattern) {
+bool SinusShiftGrayCodePattern_Impl::generate(OutputArrayOfArrays pattern) {
     std::vector<Mat> &imgs = *static_cast<std::vector<Mat> *>(pattern.getObj());
     imgs.clear();
     const int height = params.horizontal ? params.width : params.height;
@@ -269,10 +340,11 @@ bool SinusCompleGrayCodePattern_Impl::generate(OutputArrayOfArrays pattern) {
         intensityMap = params.horizontal ? intensityMap.t() : intensityMap;
         imgs.push_back(intensityMap);
     }
-    // generate complementary graycode imgs.
+    // generate shift complementary graycode imgs.
     const int grayCodeImgsCount =
-        static_cast<int>(std::log2(params.nbrOfPeriods)) + 1;
+        static_cast<int>(std::log2(params.nbrOfPeriods));
     std::vector<uchar> encodeSequential = {0, 255};
+    const int pixelsLastHalfBlock = (width / pow(2, grayCodeImgsCount)) / 2;
     for (int i = 0; i < grayCodeImgsCount; ++i) {
         Mat intensityMap = Mat::zeros(height, width, CV_8UC1);
         const int pixelsPerBlock =
@@ -288,6 +360,19 @@ bool SinusCompleGrayCodePattern_Impl::generate(OutputArrayOfArrays pattern) {
             encodeSequential.push_back(encodeSequential[j]);
         }
 
+        // shift img
+        Mat cloneIntensityMap = intensityMap.clone();
+        cloneIntensityMap(Rect(0, 0, pixelsLastHalfBlock, intensityMap.rows))
+            .copyTo(
+                intensityMap(Rect(intensityMap.cols - pixelsLastHalfBlock, 0,
+                                  pixelsLastHalfBlock, intensityMap.rows)));
+        cloneIntensityMap(Rect(pixelsLastHalfBlock, 0,
+                               intensityMap.cols - pixelsLastHalfBlock,
+                               intensityMap.rows))
+            .copyTo(
+                intensityMap(Rect(0, 0, intensityMap.cols - pixelsLastHalfBlock,
+                                  intensityMap.rows)));
+
         intensityMap = params.horizontal ? intensityMap.t() : intensityMap;
         imgs.push_back(intensityMap);
     }
@@ -296,17 +381,19 @@ bool SinusCompleGrayCodePattern_Impl::generate(OutputArrayOfArrays pattern) {
 }
 
 // TODO@Evans Liu: 增加水平条纹y轴方向支持
-void SinusCompleGrayCodePattern_Impl::computeDisparity(
+void SinusShiftGrayCodePattern_Impl::computeDisparity(
     InputArray leftUnwrapMap, InputArray rightUnwrapMap,
     OutputArray disparityMap) const {
     const Mat &leftUnwrap = *static_cast<const Mat *>(leftUnwrapMap.getObj());
     const Mat &rightUnwrap = *static_cast<const Mat *>(rightUnwrapMap.getObj());
     Mat &disparity = *static_cast<Mat *>(disparityMap.getObj());
 
-    matchWithAbsphase(leftUnwrap, rightUnwrap, disparity, params.minDisparity, params.maxDisparity, params.confidenceThreshold, params.maxCost);
+    matchWithAbsphase(leftUnwrap, rightUnwrap, disparity, params.minDisparity,
+                      params.maxDisparity, params.confidenceThreshold,
+                      params.maxCost);
 }
 
-bool SinusCompleGrayCodePattern_Impl::decode(
+bool SinusShiftGrayCodePattern_Impl::decode(
     const std::vector<std::vector<Mat>> &patternImages,
     OutputArray disparityMap, InputArrayOfArrays blackImages,
     InputArrayOfArrays whiteImages, int flags) const {
@@ -348,9 +435,9 @@ bool SinusCompleGrayCodePattern_Impl::decode(
     return true;
 }
 
-Ptr<SinusCompleGrayCodePattern> SinusCompleGrayCodePattern::create(
-    const SinusCompleGrayCodePattern::Params &params) {
-    return makePtr<SinusCompleGrayCodePattern_Impl>(params);
+Ptr<SinusShiftGrayCodePattern> SinusShiftGrayCodePattern::create(
+    const SinusShiftGrayCodePattern::Params &params) {
+    return makePtr<SinusShiftGrayCodePattern_Impl>(params);
 }
-} // namespace structured_light
-} // namespace cv
+} // namespace algorithm
+} // namespace slmaster

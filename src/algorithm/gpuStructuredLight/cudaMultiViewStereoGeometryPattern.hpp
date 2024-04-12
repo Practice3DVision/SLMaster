@@ -13,7 +13,7 @@
 #define __OPENCV_CUDA_MUTIL_VIEW_STEREO_GEOMETRY_GPU_HPP__
 
 #include "../../common.h"
-#include "cudastructuredlight.hpp"
+#include "cudaStructuredLight.hpp"
 #include "opencv2/core/cuda.hpp"
 
 #include <Eigen/Eigen>

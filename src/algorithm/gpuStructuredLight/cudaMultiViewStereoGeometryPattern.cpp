@@ -1,4 +1,4 @@
-#include "cuda_multi_view_stereo_geometry_pattern.hpp"
+#include "cudaMultiViewStereoGeometryPattern.hpp"
 
 using namespace cv;
 using namespace cv::cuda;
