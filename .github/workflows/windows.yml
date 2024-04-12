@@ -31,7 +31,7 @@ jobs:
           Expand-Archive -Path "cmake-3.28.2-windows-x86_64" -DestinationPath "cmake-3.28" -Force
           echo "C:\cmake-3.28\bin" >> $GITHUB_PATH
           echo "CMAKE_3.28_BIN=C:\cmake-3.28\bin" >> $GITHUB_ENV
-          echo "::set-env name=VCPKG_CMAKE_SYSTEM_VERSION::3.28.2"
+          echo "VCPKG_CMAKE_SYSTEM_VERSION=3.28.2" >> $GITHUB_ENV
 
       - name: Install vcpkg
         run: |
