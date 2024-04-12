@@ -26,11 +26,10 @@ jobs:
 
       - name: Install CMake 3.28
         run: |
-          wget --quiet https://github.com/Kitware/CMake/releases/download/v3.28.2/cmake-3.28.2-windows-x86_64.zip
-          mkdir cmake-3.28
-          tar -xvf cmake-3.28.2-windows-x86_64.zip -C cmake-3.28 --strip-components=1
-          echo "::add-path::$PWD/cmake-3.28/bin"
-          echo "::set-env name=VCPKG_CMAKE_SYSTEM_VERSION::3.28.2"
+          Invoke-WebRequest -Uri "https://github.com/Kitware/CMake/releases/download/v3.28.2/cmake-3.28.2-windows-x86_64.zip" -OutFile "cmake-3.28.2-windows-x86_64"
+          Expand-Archive -Path "cmake-3.28.2-windows-x86_64" -DestinationPath "cmake-3.28" -Force
+          Write-Output "::add-path::$PWD/cmake-3.28/bin"
+          Write-Output "::set-env name=VCPKG_CMAKE_SYSTEM_VERSION::3.28.2"
 
       - name: Install vcpkg
         run: |
@@ -39,12 +38,6 @@ jobs:
             cd vcpkg
             .\bootstrap-vcpkg.bat
             .\vcpkg integrate install
-
-      - name: Configure CMake
-        run: |
-            mkdir build
-            cd build
-            cmake .. -DCMAKE_TOOLCHAIN_FILE=$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake
 
       - name: Install PCL with vcpkg
         run: |
