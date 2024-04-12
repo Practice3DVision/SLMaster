@@ -13,16 +13,17 @@
 #define __SLMASTER_ALGORITHM_H_
 
 #include "cpuStructuredLight/defocusMethod.h"
-#include "cpuStructuredLight/sinus_comple_graycode_pattern.hpp"
-#include "cpuStructuredLight/sinus_shift_graycode_pattern.hpp"
-#include "cpuStructuredLight/structured_light.hpp"
+#include "cpuStructuredLight/sinusCompleGraycodePattern.hpp"
+#include "cpuStructuredLight/sinusShiftGraycodePattern.hpp"
+#include "cpuStructuredLight/interzonePhaseUnwrappingPattern.hpp"
+#include "cpuStructuredLight/structuredLight.hpp"
 #include "cpuStructuredLight/recoverDepth.h"
 #include "cpuStructuredLight/lasterLine.h"
 
 #ifdef OPENCV_WITH_CUDA_MODULE
-#include "gpuStructuredLight/cuda_multi_view_stereo_geometry_pattern.hpp"
-#include "gpuStructuredLight/cuda_sinus_comple_graycode_pattern.hpp"
-#include "gpuStructuredLight/cudastructuredlight.hpp"
+#include "gpuStructuredLight/cudaMultiViewStereoGeometryPattern.hpp"
+#include "gpuStructuredLight/cudaSinusCompleGraycodePattern.hpp"
+#include "gpuStructuredLight/cudaStructuredLight.hpp"
 #endif
 
 #endif //! __SLMASTER_ALGORITHM_H_

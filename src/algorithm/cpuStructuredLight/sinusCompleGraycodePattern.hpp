@@ -1,27 +1,27 @@
 /**
- * @file sinus_shift_graycode_pattern.hpp
+ * @file sinus_comple_graycode_pattern.hpp
  * @author Evans Liu (1369215984@qq.com)
  * @brief
  * @version 0.1
- * @date 2024-04-11
+ * @date 2024-03-23
  *
  * @copyright Copyright (c) 2024
  *
  */
 
-#ifndef __OPENCV_SINUSOIDAL_SHIFT_GRAYCODE_HPP__
-#define __OPENCV_SINUSOIDAL_SHIFT_GRAYCODE_HPP__
+#ifndef __OPENCV_SINUSOIDAL_COMPLEMENTARY_GRAYCODE_HPP__
+#define __OPENCV_SINUSOIDAL_COMPLEMENTARY_GRAYCODE_HPP__
 
 #include <opencv2/core.hpp>
 
-#include "structured_light.hpp"
+#include "structuredLight.hpp"
 
 namespace slmaster {
 namespace algorithm {
-/** @brief Class implementing the Sinusoidal Shift Gray-code pattern,
- based on @cite Wu, Z., et al.
+/** @brief Class implementing the Sinusoidal Complementary Gray-code pattern,
+ based on @cite Zhang Q.
  *
- *  The resulting pattern consists of a sinusoidal pattern and a shift Gray code
+ *  The resulting pattern consists of a sinusoidal pattern and a Gray code
  pattern corresponding to the period width.
  *
  *  The entire projection sequence contains the sine fringe sequence and the
@@ -36,12 +36,12 @@ namespace algorithm {
  *
  *  For an image in 1280*720 format, a phase-shifted fringe pattern needs to be
  generated for 32 periods, with a period width of 1280 / 32 = 40 and
- *  the required number of Gray code patterns being log 2 (32) = 5. The
+ *  the required number of Gray code patterns being log 2 (32) = 5 + 1 = 6.the
  algorithm can be applied to sinusoidal complementary Gray codes of any number
  of steps and any bits,
  *  as long as their period widths satisfy the above principle.
  */
-class SLMASTER_API SinusShiftGrayCodePattern : public StructuredLightPattern {
+class SLMASTER_API SinusCompleGrayCodePattern : public StructuredLightPattern {
   public:
     /** @brief Parameters of StructuredLightPattern constructor.
      *  @param width Projector's width. Default value is 1280.
@@ -65,9 +65,9 @@ class SLMASTER_API SinusShiftGrayCodePattern : public StructuredLightPattern {
      SinusCompleGrayCodePattern::Params: the width and the height of the
      projector.
      */
-    static cv::Ptr<SinusShiftGrayCodePattern>
-    create(const SinusShiftGrayCodePattern::Params &parameters =
-               SinusShiftGrayCodePattern::Params());
+    static cv::Ptr<SinusCompleGrayCodePattern>
+    create(const SinusCompleGrayCodePattern::Params &parameters =
+               SinusCompleGrayCodePattern::Params());
     /**
      * @brief Compute a confidence map from sinusoidal patterns.
      * @param patternImages Input data to compute the confidence map.
@@ -105,10 +105,9 @@ class SLMASTER_API SinusShiftGrayCodePattern : public StructuredLightPattern {
      * @param shadowMask Mask used to discard shadow regions.
      * @param confidenceThreshod confidence threshod to discard invalid data.
      */
-    virtual void
-    unwrapPhaseMap(cv::InputArray wrappedPhaseMap, cv::InputArray floorMap,
-                   cv::OutputArray unwrappedPhaseMap,
-                   cv::InputArray shadowMask = cv::noArray()) const = 0;
+    virtual void unwrapPhaseMap(cv::InputArray wrappedPhaseMap, cv::InputArray floorMap,
+                                cv::OutputArray unwrappedPhaseMap,
+                                cv::InputArray shadowMask = cv::noArray()) const = 0;
     /**
      * @brief compute disparity from left unwrap map and right unwrap map.
      * @param lhsUnwrapMap left unwrap map.

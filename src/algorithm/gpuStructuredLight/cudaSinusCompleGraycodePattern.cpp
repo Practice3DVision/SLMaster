@@ -1,4 +1,4 @@
-#include "cuda_sinus_comple_graycode_pattern.hpp"
+#include "cudaSinusCompleGraycodePattern.hpp"
 
 using namespace cv;
 using namespace cv::cuda;
