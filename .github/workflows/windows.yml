@@ -96,7 +96,7 @@ jobs:
             cd ../pcl-pcl-1.12.1
             mkdir build
             cd build
-            cmake .. -DBUILD_visualization:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DBUILD_PERFORMANCE_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files" -DWITH_OPENNI:BOOL=OF -DPCL_BUILD_WITH_BOOST_DYNAMIC_LINKING_WIN32=ON -DVTK_DIR="C:\Program Files\VTK\lib\cmake\vtk-9.2" -DPCL_DIR="C:\Program Files\PCL\cmake" -DOpenCV_DIR="C:\Program Files\OpenCV\x64\vc16\lib" -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
+            cmake .. -DBUILD_visualization:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DBUILD_PERFORMANCE_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files" -DWITH_OPENNI:BOOL=OF -DPCL_BUILD_WITH_BOOST_DYNAMIC_LINKING_WIN32=ON -DVTK_DIR="C:\Program Files\VTK\lib\cmake\vtk-9.2" -DPCL_DIR="C:\Program Files\PCL\cmake" -DOpenCV_DIR="C:\Program Files\OpenCV\x64\vc16\lib" -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" -DBUILD_outofcore=OFF -DBUILD_tools=OFF
             cmake --build . --config Release
           
       - name: Install PCL
