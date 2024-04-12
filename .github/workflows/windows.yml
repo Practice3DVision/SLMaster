@@ -48,14 +48,14 @@ jobs:
             set VTK_DIR="C:\Program Files\VTK\lib\cmake\vtk-9.2"
             set PCL_DIR="C:\Program Files\PCL\cmake"
             set OpenCV_DIR="C:\Program Files\OpenCV\x64\vc16\lib"
-            set EIGEN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows/include/eigen3"
-            set EIGEN_ROOT="C:/vcpkg/installed/x64-windows/include/eigen3"
-            set flann_DIR="C:/vcpkg/installed/x64-windows/share/flann"
-            set FLANN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows/include/flann"
-            set FLANN_LIBRARY="C:/vcpkg/installed/x64-windows/lib/flann_cpp_s.lib"
-            set FLANN_LIBRARY_DEBUG="C:/vcpkg/installed/x64-windows/lib/flann_cpp_s-gd.lib"
-            set BOOST_ROOT="C:/vcpkg/installed/x64-windows"
-            set Qhull_DIR="C:/vcpkg/installed/x64-windows/share/qhull"
+            set EIGEN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows-static/include/eigen3"
+            set EIGEN_ROOT="C:/vcpkg/installed/x64-windows-static/include/eigen3"
+            set flann_DIR="C:/vcpkg/installed/x64-windows-static/share/flann"
+            set FLANN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows-static/include/flann"
+            set FLANN_LIBRARY="C:/vcpkg/installed/x64-windows-static/lib/flann_cpp_s.lib"
+            set FLANN_LIBRARY_DEBUG="C:/vcpkg/installed/x64-windows-static/lib/flann_cpp_s-gd.lib"
+            set BOOST_ROOT="C:/vcpkg/installed/x64-windows-static"
+            set Qhull_DIR="C:/vcpkg/installed/x64-windows-static/share/qhull"
 
       - name: Download and extract OpenCV source
         run: |
@@ -117,7 +117,7 @@ jobs:
             cd ../pcl-pcl-1.12.1
             mkdir build
             cd build
-            cmake .. -DBUILD_visualization:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DBUILD_apps=OFF -DBUILD_global_tests=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files" -DWITH_OPENNI=OFF -DWITH_OPENNI2=OFF -DVTK_DIR="C:\Program Files\VTK\lib\cmake\vtk-9.2" -DEIGEN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows/include/eigen3" -DEIGEN_ROOT="C:/vcpkg/installed/x64-windows/include/eigen3" -Dflann_DIR="C:/vcpkg/installed/x64-windows/share/flann" -DFLANN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows/include/flann" -DFLANN_LIBRARY="C:/vcpkg/installed/x64-windows/lib/flann_cpp_s.lib" -DFLANN_LIBRARY_DEBUG="C:/vcpkg/installed/x64-windows/lib/flann_cpp_s-gd.lib" -DBOOST_ROOT="C:/vcpkg/installed/x64-windows" -DQhull_DIR="C:/vcpkg/installed/x64-windows/share/qhull"
+            cmake .. -DBUILD_visualization:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DBUILD_apps=OFF -DBUILD_global_tests=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files" -DWITH_OPENNI=OFF -DWITH_OPENNI2=OFF -DVTK_DIR="C:\Program Files\VTK\lib\cmake\vtk-9.2" -DEIGEN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows-static/include/eigen3" -DEIGEN_ROOT="C:/vcpkg/installed/x64-windows-static/include/eigen3" -Dflann_DIR="C:/vcpkg/installed/x64-windows-static/share/flann" -DFLANN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows-static/include/flann" -DFLANN_LIBRARY="C:/vcpkg/installed/x64-windows-static/lib/flann_cpp_s.lib" -DFLANN_LIBRARY_DEBUG="C:/vcpkg/installed/x64-windows-static/lib/flann_cpp_s-gd.lib" -DBOOST_ROOT="C:/vcpkg/installed/x64-windows-static" -DQhull_DIR="C:/vcpkg/installed/x64-windows-static/share/qhull"
             cmake --build . --config Release
           
       - name: Install PCL
@@ -132,7 +132,7 @@ jobs:
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DVTK_DIR="C:\Program Files\VTK\lib\cmake\vtk-9.2" -DPCL_DIR="C:\Program Files\PCL\cmake" -DOpenCV_DIR="C:\Program Files\OpenCV\x64\vc16\lib" -DEIGEN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows/include/eigen3" -DEIGEN_ROOT="C:/vcpkg/installed/x64-windows/include/eigen3" -Dflann_DIR="C:/vcpkg/installed/x64-windows/share/flann" -DFLANN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows/include/flann" -DFLANN_LIBRARY="C:/vcpkg/installed/x64-windows/lib/flann_cpp_s.lib" -DFLANN_LIBRARY_DEBUG="C:/vcpkg/installed/x64-windows/lib/flann_cpp_s-gd.lib" -DBOOST_ROOT="C:/vcpkg/installed/x64-windows" -DQhull_DIR="C:/vcpkg/installed/x64-windows/share/qhull"
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DVTK_DIR="C:\Program Files\VTK\lib\cmake\vtk-9.2" -DPCL_DIR="C:\Program Files\PCL\cmake" -DOpenCV_DIR="C:\Program Files\OpenCV\x64\vc16\lib" -DEIGEN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows-static/include/eigen3" -DEIGEN_ROOT="C:/vcpkg/installed/x64-windows-static/include/eigen3" -Dflann_DIR="C:/vcpkg/installed/x64-windows-static/share/flann" -DFLANN_INCLUDE_DIR="C:/vcpkg/installed/x64-windows-static/include/flann" -DFLANN_LIBRARY="C:/vcpkg/installed/x64-windows-static/lib/flann_cpp_s.lib" -DFLANN_LIBRARY_DEBUG="C:/vcpkg/installed/x64-windows-static/lib/flann_cpp_s-gd.lib" -DBOOST_ROOT="C:/vcpkg/installed/x64-windows-static" -DQhull_DIR="C:/vcpkg/installed/x64-windows-static/share/qhull"
 
       - name: Build
         # Build your program with the given configuration
