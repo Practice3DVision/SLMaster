@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef __OPENCV_CUDA_MUTIL_VIEW_STEREO_GEOMETRY_GPU_HPP__
-#define __OPENCV_CUDA_MUTIL_VIEW_STEREO_GEOMETRY_GPU_HPP__
+#ifndef __CUDA_MUTIL_VIEW_STEREO_GEOMETRY_GPU_PATTERN_HPP_
+#define __CUDA_MUTIL_VIEW_STEREO_GEOMETRY_GPU_PATTERN_HPP_
 
 #include "../../common.h"
 #include "cudaStructuredLight.hpp"
@@ -146,4 +146,4 @@ class SLMASTER_API MultiViewStereoGeometryPatternGPU
 
 } // namespace algorithm
 } // namespace slmaster
-#endif //!__OPENCV_CUDA_MUTIL_VIEW_STEREO_GEOMETRY_GPU_HPP__
+#endif //!__CUDA_MUTIL_VIEW_STEREO_GEOMETRY_GPU_PATTERN_HPP_

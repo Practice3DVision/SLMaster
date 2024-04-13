@@ -15,7 +15,7 @@
 #include "cpuStructuredLight/defocusMethod.h"
 #include "cpuStructuredLight/sinusCompleGraycodePattern.hpp"
 #include "cpuStructuredLight/sinusShiftGraycodePattern.hpp"
-#include "cpuStructuredLight/interzonePhaseUnwrappingPattern.hpp"
+#include "cpuStructuredLight/interzoneSinusFourGrayscalePattern.hpp"
 #include "cpuStructuredLight/structuredLight.hpp"
 #include "cpuStructuredLight/recoverDepth.h"
 #include "cpuStructuredLight/lasterLine.h"

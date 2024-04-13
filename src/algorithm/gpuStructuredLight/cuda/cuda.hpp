@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef __CUDASTRUCTUREDLIGHT_CUDA_HPP__
-#define __CUDASTRUCTUREDLIGHT_CUDA_HPP__
+#ifndef __CUDASTRUCTUREDLIGHT_CUDA_HPP_
+#define __CUDASTRUCTUREDLIGHT_CUDA_HPP_
 
 #include "common.hpp"
 

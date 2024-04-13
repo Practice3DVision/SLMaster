@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef __OPENCV_SINUSOIDAL_SHIFT_GRAYCODE_HPP__
-#define __OPENCV_SINUSOIDAL_SHIFT_GRAYCODE_HPP__
+#ifndef __SINUSOIDAL_SHIFT_GRAYCODE_PATTERN_HPP_
+#define __SINUSOIDAL_SHIFT_GRAYCODE_PATTERN_HPP_
 
 #include <opencv2/core.hpp>
 
@@ -37,7 +37,7 @@ namespace algorithm {
  *  For an image in 1280*720 format, a phase-shifted fringe pattern needs to be
  generated for 32 periods, with a period width of 1280 / 32 = 40 and
  *  the required number of Gray code patterns being log 2 (32) = 5. The
- algorithm can be applied to sinusoidal complementary Gray codes of any number
+ algorithm can be applied to sinusoidal shift Gray codes of any number
  of steps and any bits,
  *  as long as their period widths satisfy the above principle.
  */
@@ -89,7 +89,7 @@ class SLMASTER_API SinusShiftGrayCodePattern : public StructuredLightPattern {
      * @param confidenceMap Input data to threshold gray code img, we use
      * confidence map because that we set confidence map is same as texture map,
      * A = B.
-     * @param wrappedPhaseMap Input data to help us select K1 or K2.
+     * @param wrappedPhaseMap Input data to help us select K.
      * @param floorMap Floor map obtained through complementary graycode and
      * wrappedPhaseMap.
      */
