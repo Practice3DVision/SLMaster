@@ -111,10 +111,10 @@ jobs:
         run: |
             mkdir build
             cd build
-            cmake .. -DCMAKE_BUILD_TYPE=Release -DVTK_DIR="C:/Program Files/VTK/lib/cmake/vtk-9.2" -DPCL_DIR="C:/Program Files/PCL/cmake" -DOpenCV_DIR="C:/Program Files/OpenCV/x64/vc16/lib" -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" -GNinja
+            cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" -DVTK_DIR="C:/Program Files/VTK/lib/cmake/vtk-9.2" -DPCL_DIR="C:/Program Files/PCL/cmake" -DOpenCV_DIR="C:/Program Files/OpenCV/x64/vc16/lib"
 
       - name: Build
         # Build your program with the given configuration
         run: |
             cd build
-            ninja -j16
+            cmake --build . --config Release
