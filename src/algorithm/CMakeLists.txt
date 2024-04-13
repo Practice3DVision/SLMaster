@@ -11,7 +11,7 @@ find_package(OpenCV COMPONENTS core cudev)
 FILE(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/cpuStructuredLight/*.h ${CMAKE_CURRENT_SOURCE_DIR}/cpuStructuredLight/*.hpp ${CMAKE_CURRENT_SOURCE_DIR}/cpuStructuredLight/*.cpp)
 
 if(OpenCV_cudev_FOUND)
-    message(NOTICE "OpenCV With CUDA module.")
+    message(NOTICE "[SLMaster]: OpenCV With CUDA module.")
     add_definitions(-DOPENCV_WITH_CUDA_MODULE)
     enable_language(CUDA)
     FILE(GLOB_RECURSE GPU_ALGORITHMS ${CMAKE_CURRENT_SOURCE_DIR}/gpuStructuredLight/*.h ${CMAKE_CURRENT_SOURCE_DIR}/gpuStructuredLight/*.hpp ${CMAKE_CURRENT_SOURCE_DIR}/gpuStructuredLight/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/gpuStructuredLight/*.cu)
@@ -22,7 +22,7 @@ if(OpenCV_cudev_FOUND)
     target_link_libraries(algorithm PUBLIC ${OpenCV_LIBRARIES} ${PCL_LIBRARIES} ${CUDA_LIBRARIES})
     set_target_properties(algorithm PROPERTIES CUDA_STANDARD 11)
 else()
-    message(FATAL_ERROR "OpenCV dosn't With CUDA module! Just complier CPU Version.")
+    message(WARNING "[SLMaster]: OpenCV dosn't With CUDA module! Just complier CPU Version.")
     
     source_group("SOURCES" FILES ${SOURCES})
 

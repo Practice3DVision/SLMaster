@@ -1,3 +1,3 @@
 [submodule "QuickQanava"]
-	path = QuickQanava
+	path = ./gui/thirdParty/QuickQanava
 	url = https://github.com/cneben/QuickQanava.git

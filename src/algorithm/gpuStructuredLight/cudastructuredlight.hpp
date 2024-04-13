@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef __OPENCV_CUDA_STRUCTURED_LIGHT_HPP__
-#define __OPENCV_CUDA_STRUCTURED_LIGHT_HPP__
+#ifndef __CUDA_STRUCTURED_LIGHT_HPP_
+#define __CUDA_STRUCTURED_LIGHT_HPP_
 
 #ifndef __cplusplus
 #error cudastructuredlight.hpp header must be complier as C++
@@ -81,4 +81,4 @@ class SLMASTER_API StructuredLightPatternGPU : public virtual cv::Algorithm {
 } // namespace algorithm
 } // namespace slmaster
 
-#endif //!__OPENCV_CUDA_STRUCTURED_LIGHT_HPP__
+#endif //!__CUDA_STRUCTURED_LIGHT_HPP__

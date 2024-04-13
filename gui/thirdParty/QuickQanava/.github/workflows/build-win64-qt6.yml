@@ -1,0 +1,47 @@
+name: Win64 Qt6 CMake msvc2019
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test-build:
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.4.*'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2019_64'
+          dir: '${{ github.workspace }}/'
+          install-deps: 'true'
+          modules: 'qtwebengine'
+          cache: 'false'
+          cache-key-prefix: 'install-qt-action'
+          setup-python: 'false'
+
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+        
+      - uses: ilammy/msvc-dev-cmd@v1
+      
+      - name: Install dependencies and generate project files
+        run: |
+          cmake -S '${{ github.workspace }}/' -B '${{ github.workspace }}/Build' -DCMAKE_GENERATOR:STRING=Ninja -DCMAKE_BUILD_TYPE:STRING=Release 
+         
+      - name: Compiling QuickQanava
+        shell: cmd
+        run: |
+          echo "Calling vcvarsall.exe..."
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+          echo "Moving to build folder..."
+          cd Build
+          cmake --build ./ --target all

@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef __OPENCV_STRUCTURED_LIGHT_HPP__
-#define __OPENCV_STRUCTURED_LIGHT_HPP__
+#ifndef __STRUCTURED_LIGHT_PATTERN_HPP_
+#define __STRUCTURED_LIGHT_PATTERN_HPP_
 
 #include <opencv2/core.hpp>
 

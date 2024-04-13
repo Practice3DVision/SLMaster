@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef __CUDASTRUCTUREDLIGHT_COMMON_H__
-#define __CUDASTRUCTUREDLIGHT_COMMON_H__
+#ifndef __CUDASTRUCTUREDLIGHT_COMMON_H_
+#define __CUDASTRUCTUREDLIGHT_COMMON_H_
 
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>

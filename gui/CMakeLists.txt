@@ -1,5 +1,8 @@
 project(SLMasterGui)
 
+add_subdirectory(thirdParty/FluentUI)
+add_subdirectory(thirdParty/QuickQanava)
+
 find_package(PCL REQUIRED)
 find_package(VTK REQUIRED)
 find_package(QT NAMES Qt5 Qt6 REQUIRED COMPONENTS Core Gui Quick Qml QuickControls2)

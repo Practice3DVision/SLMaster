@@ -1,3 +1,14 @@
+/**
+ * @file recoverDepth.h
+ * @author Evans Liu (1369215984@qq.com)
+ * @brief 
+ * @version 0.1
+ * @date 2024-04-13
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #ifndef __RECOVER_DEPTH_H_
 #define __RECOVER_DEPTH_H_
 
