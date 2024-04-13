@@ -44,15 +44,13 @@ jobs:
           cmake --install . --config Release  
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v3.3.0
+        uses: jurplel/install-qt-action@v3
         with:
-          version: 5.15.2
-          host: windows
-          target: desktop
-          arch: win64_msvc2019_64
-          install-deps: true
-          archives: qtbase qtsvg qtdeclarative qtgamepad qtgraphicaleffects qtimageformats qtlocation
-          set-env: true
+          aqtversion: '==3.1.*'
+          version: '5.15.2'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2019_64'
     
       - name: Download and extract VTK source
         run: |
