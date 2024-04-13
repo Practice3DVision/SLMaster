@@ -35,7 +35,7 @@ jobs:
           cd ../opencv-4.5.2
           mkdir build
           cd build
-          cmake .. -DBUILD_TESTS:BOOL=OFF -DBUILD_PERF_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files"
+          cmake .. -DBUILD_TESTS:BOOL=OFF -DBUILD_PERF_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files/OpenCV"
           cmake --build . --config Release 
   
       - name: Install OpenCV
@@ -63,7 +63,7 @@ jobs:
             cd ../VTK-9.2.0
             mkdir build
             cd build
-            cmake .. -DVTK_GROUP_ENABLE_Qt=YES -DCMAKE_INSTALL_PREFIX="C:/Program Files"
+            cmake .. -DVTK_GROUP_ENABLE_Qt=YES -DCMAKE_INSTALL_PREFIX="C:/Program Files/VTK"
             cmake --build . --config Release
 
       - name: Install VTK
@@ -94,7 +94,7 @@ jobs:
             cd ../pcl-pcl-1.12.1
             mkdir build
             cd build
-            cmake .. -DBUILD_visualization:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DBUILD_PERFORMANCE_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files" -DWITH_OPENNI:BOOL=OF -DPCL_BUILD_WITH_BOOST_DYNAMIC_LINKING_WIN32=ON -DVTK_DIR="C:\Program Files\VTK\lib\cmake\vtk-9.2" -DPCL_DIR="C:\Program Files\PCL\cmake" -DOpenCV_DIR="C:\Program Files\OpenCV\x64\vc16\lib" -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" -DBUILD_outofcore=OFF -DBUILD_tools=OFF
+            cmake .. -DBUILD_visualization:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DBUILD_PERFORMANCE_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files/PCL" -DWITH_OPENNI:BOOL=OF -DPCL_BUILD_WITH_BOOST_DYNAMIC_LINKING_WIN32=ON -DVTK_DIR="C:\Program Files\VTK\lib\cmake\vtk-9.2" -DPCL_DIR="C:\Program Files\PCL\cmake" -DOpenCV_DIR="C:\Program Files\OpenCV\x64\vc16\lib" -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" -DBUILD_outofcore=OFF -DBUILD_tools=OFF
             cmake --build . --config Release
           
       - name: Install PCL
@@ -112,7 +112,7 @@ jobs:
         run: |
             mkdir build
             cd build
-            cmake .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DVTK_DIR="C:\Program Files\VTK\lib\cmake\vtk-9.2" -DPCL_DIR="C:\Program Files\PCL\cmake" -DOpenCV_DIR="C:\Program Files\OpenCV\x64\vc16\lib" -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
+            cmake .. -DCMAKE_BUILD_TYPE=Release -DVTK_DIR="C:/Program Files/VTK/lib/cmake/vtk-9.2" -DPCL_DIR="C:/Program Files/PCL/cmake" -DOpenCV_DIR="C:/Program Files/OpenCV/x64/vc16/lib"
 
       - name: Build
         # Build your program with the given configuration
