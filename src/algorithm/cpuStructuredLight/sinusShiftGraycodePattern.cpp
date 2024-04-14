@@ -161,12 +161,12 @@ void SinusShiftGrayCodePattern_Impl::computeFloorMap(
                     curK = (curK << 1) + tempVal;
                 }
 
-                if(curK >= params.nbrOfPeriods) {
+                if (curK >= params.nbrOfPeriods) {
                     floorPtr[j] = 0;
                     continue;
                 }
 
-                floorPtr[j] =curK;
+                floorPtr[j] = curK;
             }
         }
     });
@@ -178,7 +178,8 @@ void SinusShiftGrayCodePattern_Impl::computeFloorMap(
                 auto floorPtr = floor.ptr<uint16_t>(i);
                 auto confidencePtr = confidence.ptr<float>(i);
                 auto wrappedPhasePtr = wrappedPhase.ptr<float>(i);
-                std::vector<std::pair<int, float>> middleLocs(params.nbrOfPeriods, std::make_pair(0, FLT_MAX));
+                std::vector<std::pair<int, float>> middleLocs(
+                    params.nbrOfPeriods, std::make_pair(0, FLT_MAX));
 
                 for (int j = 0; j < width; ++j) {
                     int kFloor = floorPtr[j];
@@ -218,7 +219,8 @@ void SinusShiftGrayCodePattern_Impl::computeFloorMap(
     // 进一步修正格雷码（水平条纹情况）
     parallel_for_(Range(0, floor.cols), [&](const Range &range) {
         for (int j = range.start; j < range.end; ++j) {
-            std::vector<std::pair<int, float>> middleLocs(params.nbrOfPeriods, std::make_pair(0, FLT_MAX));
+            std::vector<std::pair<int, float>> middleLocs(
+                params.nbrOfPeriods, std::make_pair(0, FLT_MAX));
 
             for (int i = 0; i < height; ++i) {
                 int kFloor = floor.ptr<uint16_t>(i)[j];
@@ -340,7 +342,7 @@ bool SinusShiftGrayCodePattern_Impl::generate(OutputArrayOfArrays pattern) {
         intensityMap = params.horizontal ? intensityMap.t() : intensityMap;
         imgs.push_back(intensityMap);
     }
-    // generate shift complementary graycode imgs.
+    // generate shift graycode imgs.
     const int grayCodeImgsCount =
         static_cast<int>(std::log2(params.nbrOfPeriods));
     std::vector<uchar> encodeSequential = {0, 255};
