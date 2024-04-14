@@ -26,20 +26,20 @@ jobs:
       - name: Download and extract OpenCV source
         run: |
           cd ..
-          Invoke-WebRequest -Uri https://github.com/opencv/opencv/archive/refs/tags/4.5.2.zip -OutFile opencv_4.5.2.zip
-          Expand-Archive -Path opencv_4.5.2.zip -DestinationPath .
+          Invoke-WebRequest -Uri https://github.com/opencv/opencv/archive/refs/tags/4.8.0.zip -OutFile opencv_4.8.0.zip
+          Expand-Archive -Path opencv_4.8.0.zip -DestinationPath .
   
       - name: Configure and build OpenCV
         run: |
-          cd ../opencv-4.5.2
+          cd ../opencv-4.8.0
           mkdir build
           cd build
           cmake .. -DBUILD_TESTS:BOOL=OFF -DBUILD_PERF_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files/OpenCV"
-          cmake --build . --config Release 
+          cmake --build . --config Release --parallel
   
       - name: Install OpenCV
         run: |
-          cd ../opencv-4.5.2/build
+          cd ../opencv-4.8.0/build
           cmake --install . --config Release  
 
       - name: Install Qt
@@ -63,7 +63,7 @@ jobs:
             mkdir build
             cd build
             cmake .. -DVTK_GROUP_ENABLE_Qt=YES -DCMAKE_INSTALL_PREFIX="C:/Program Files/VTK"
-            cmake --build . --config Release
+            cmake --build . --config Release --parallel
 
       - name: Install VTK
         run: |
@@ -94,7 +94,7 @@ jobs:
             mkdir build
             cd build
             cmake .. -DBUILD_visualization:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DBUILD_PERFORMANCE_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files/PCL" -DWITH_OPENNI:BOOL=OF -DPCL_BUILD_WITH_BOOST_DYNAMIC_LINKING_WIN32=ON -DVTK_DIR="C:\Program Files\VTK\lib\cmake\vtk-9.2" -DPCL_DIR="C:\Program Files\PCL\cmake" -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" -DBUILD_outofcore=OFF -DBUILD_tools=OFF
-            cmake --build . --config Release
+            cmake --build . --config Release --parallel
           
       - name: Install PCL
         run: |
