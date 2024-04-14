@@ -8,10 +8,8 @@ using namespace std;
 using namespace cv;
 
 class ShiftGrayCodePatternSuit : public testing::Test {
-    public:
-        void SetUp() override {
-
-        }
+  public:
+    void SetUp() override {}
 };
 
 TEST_F(ShiftGrayCodePatternSuit, testGenerate) {

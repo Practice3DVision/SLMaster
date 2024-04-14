@@ -35,3 +35,15 @@ target_link_libraries(
     benchmark::benchmark
     slmaster
 )
+
+add_executable(
+    PerfInterzoneSinusFourGrayscalePattern
+    ${CMAKE_CURRENT_SOURCE_DIR}/perfInterzoneSinusFourGrayscalePattern.cpp
+)
+
+target_link_libraries(
+    PerfInterzoneSinusFourGrayscalePattern
+    PRIVATE
+    benchmark::benchmark
+    slmaster
+)

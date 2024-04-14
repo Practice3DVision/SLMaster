@@ -96,20 +96,19 @@ class SLMASTER_API InterzoneSinusFourGrayscalePattern
      */
     virtual void computeFloorMap(cv::InputArrayOfArrays patternImages,
                                  cv::InputArray confidenceMap,
-                                 cv::InputArray wrappedPhaseMap,
                                  cv::OutputArray floorMap) const = 0;
     /**
      * @brief Unwrap the wrapped phase map to remove phase ambiguities.
      * @param wrappedPhaseMap The wrapped phase map computed from the pattern.
+     * @param confidenceThreshod confidence map.
+     * @param floorMap floorMap map.
      * @param unwrappedPhaseMap The unwrapped phase map used to find
      * correspondences between the two devices.
-     * @param shadowMask Mask used to discard shadow regions.
-     * @param confidenceThreshod confidence threshod to discard invalid data.
      */
-    virtual void
-    unwrapPhaseMap(cv::InputArray wrappedPhaseMap, cv::InputArray floorMap,
-                   cv::OutputArray unwrappedPhaseMap,
-                   cv::InputArray shadowMask = cv::noArray()) const = 0;
+    virtual void unwrapPhaseMap(cv::InputArray wrappedPhaseMap,
+                                cv::InputArray confidenceMap,
+                                cv::InputArray floorMap,
+                                cv::OutputArray unwrappedPhaseMap) const = 0;
     /**
      * @brief compute disparity from left unwrap map and right unwrap map.
      * @param lhsUnwrapMap left unwrap map.

@@ -8,13 +8,12 @@ using namespace std;
 using namespace cv;
 
 class ShiftGrayCodePatternSuit : public benchmark::Fixture {
-    public:
-        void SetUp(const benchmark::State &) override{
-
-        }
+  public:
+    void SetUp(const benchmark::State &) override {}
 };
 
-BENCHMARK_DEFINE_F(ShiftGrayCodePatternSuit, testGenerate)(benchmark::State& state) {
+BENCHMARK_DEFINE_F(ShiftGrayCodePatternSuit, testGenerate)
+(benchmark::State &state) {
     auto params = SinusShiftGrayCodePattern::Params();
     params.shiftTime = 4;
     params.height = 1080;
@@ -31,7 +30,8 @@ BENCHMARK_DEFINE_F(ShiftGrayCodePatternSuit, testGenerate)(benchmark::State& sta
     }
 }
 
-BENCHMARK_DEFINE_F(ShiftGrayCodePatternSuit, testUnwrap)(benchmark::State& state) {
+BENCHMARK_DEFINE_F(ShiftGrayCodePatternSuit, testUnwrap)
+(benchmark::State &state) {
     auto params = SinusShiftGrayCodePattern::Params();
     params.shiftTime = 4;
     params.height = 1080;
@@ -54,7 +54,13 @@ BENCHMARK_DEFINE_F(ShiftGrayCodePatternSuit, testUnwrap)(benchmark::State& state
     }
 }
 
-BENCHMARK_REGISTER_F(ShiftGrayCodePatternSuit, testGenerate)->MeasureProcessCPUTime()->UseRealTime()->Unit(benchmark::TimeUnit::kMillisecond);
-BENCHMARK_REGISTER_F(ShiftGrayCodePatternSuit, testUnwrap)->MeasureProcessCPUTime()->UseRealTime()->Unit(benchmark::TimeUnit::kMillisecond);
+BENCHMARK_REGISTER_F(ShiftGrayCodePatternSuit, testGenerate)
+    ->MeasureProcessCPUTime()
+    ->UseRealTime()
+    ->Unit(benchmark::TimeUnit::kMillisecond);
+BENCHMARK_REGISTER_F(ShiftGrayCodePatternSuit, testUnwrap)
+    ->MeasureProcessCPUTime()
+    ->UseRealTime()
+    ->Unit(benchmark::TimeUnit::kMillisecond);
 
 BENCHMARK_MAIN();

@@ -73,4 +73,16 @@ target_link_libraries(
     GTest::gtest_main
 )
 
+add_executable(
+    TestInterzoneSinusFourGrayscalePattern
+    ${CMAKE_CURRENT_SOURCE_DIR}/testInterzoneSinusFourGrayscalePattern.cpp
+)
+
+target_link_libraries(
+    TestInterzoneSinusFourGrayscalePattern
+    PUBLIC
+    slmaster
+    GTest::gtest_main
+)
+
 include(GoogleTest)
