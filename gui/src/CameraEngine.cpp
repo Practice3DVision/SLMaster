@@ -717,6 +717,7 @@ void CameraEngine::setPatternType(const int patternType) {
         } else if (patternType == AppType::PatternMethod::MutiplyFrequency) {
         }
     } else if (patternType == AppType::PatternMethod::MultiViewStereoGeometry) {
+#ifdef OPENCV_WITH_CUDA_MODULE
         TrinocularMultiViewStereoGeometryPattern::Params params;
 
         params.shiftTime_ = std::round(shiftTime);
@@ -777,6 +778,11 @@ void CameraEngine::setPatternType(const int patternType) {
         cv::cv2eigen(PR4, params.PR4_);
 
         pattern_ = TrinocularMultiViewStereoGeometryPattern::create(params);
+#else
+        qDebug() << QString("TrinocularMultiViewStereoGeometryPattern is "
+                            "disable when CUDA isn't support.");
+        return;
+#endif
     }
 
     slCamera->setPattern(pattern_);
