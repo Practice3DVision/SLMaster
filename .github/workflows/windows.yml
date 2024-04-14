@@ -103,7 +103,15 @@ jobs:
           
       - uses: actions/checkout@v3
         with:
-            submodules: true
+            submodules: recursive
+
+      - name: Set up Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v3
+        with:
+            version: 1.11.1 # Current latest version.
+      
+      - name: Set up MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
   
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -111,10 +119,10 @@ jobs:
         run: |
             mkdir build
             cd build
-            cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" -DVTK_DIR="C:/Program Files/VTK/lib/cmake/vtk-9.2" -DPCL_DIR="C:/Program Files/PCL/cmake" -DOpenCV_DIR="C:/Program Files/OpenCV/x64/vc16/lib"
+            cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" -DVTK_DIR="C:/Program Files/VTK/lib/cmake/vtk-9.2" -DPCL_DIR="C:/Program Files/PCL/cmake" -DOpenCV_DIR="C:/Program Files/OpenCV/x64/vc16/lib" -DFRAMELESSHELPER_ENABLE_SPECTRE=ON -DFRAMELESSHELPER_ENABLE_EHCONTGUARD=ON -DFRAMELESSHELPER_ENABLE_INTELCET=ON -DFRAMELESSHELPER_ENABLE_CFGUARD=ON -GNinja
 
       - name: Build
         # Build your program with the given configuration
         run: |
             cd build
-            cmake --build . --config Release
+            cmake --build . --target all --config Release --parallel
