@@ -24,27 +24,27 @@
 
 ## 依赖 🍁
 **SLMaster**依赖的库包含如下几点：
-- [FluentUI](https://github.com/Practice3DVision/SLMaster/tree/master/FluentUI) <img src="https://img.shields.io/badge/项目内包含（部分代码进行了修改）-passing-rgb(0, 255, 0)" />
-- [QuickQanava](https://github.com/cneben/QuickQanava/tree/2.4.1) <img src="https://img.shields.io/badge/项目内包含v2.4.1-passing-rgb(0, 255, 0)" />
-- [MVSDK](https://www.irayple.com/cn/serviceSupport/downloadCenter/18?p=17) <img src="https://img.shields.io/badge/项目内包含v2.3.5-passing-rgb(0, 255, 0)" />
-- [opencv_contribute](https://github.com/opencv/opencv_contrib.git) <img src="https://img.shields.io/badge/v4.8.0-passing-rgb(0, 255, 0)" />
-- [OpenCV](https://github.com/opencv/opencv.git) <img src="https://img.shields.io/badge/v4.8.0-passing-rgb(0, 255, 0)" />
-- [VTK](https://github.com/Kitware/VTK/tree/v9.2.0) <img src="https://img.shields.io/badge/v9.2.0-passing-rgb(0, 255, 0)" />
-- [PCL](https://github.com/PointCloudLibrary/pcl/tree/pcl-1.12.1) <img src="https://img.shields.io/badge/v1.12.1-passing-rgb(0, 255, 0)" /> 
-- [Qt5](https://doc.qt.io/qt-5/index.html) <img src="https://img.shields.io/badge/v5.15.14-passing-rgb(0, 255, 0)" />
+- [FluentUI](https://github.com/Practice3DVision/SLMaster/tree/master/FluentUI)`V1.5.6`（项目内包含）
+- [QuickQanava](https://github.com/cneben/QuickQanava/tree/2.4.1)`V2.4.1`（项目内包含）
+- [MVSDK](https://www.irayple.com/cn/serviceSupport/downloadCenter/18?p=17)`V2.3.5`（项目内包含）
+- [opencv_contribute](https://github.com/opencv/opencv_contrib.git)`V4.8.0`
+- [OpenCV](https://github.com/opencv/opencv.git)`V4.8.0`
+- [VTK](https://github.com/Kitware/VTK/tree/v9.2.0)`V9.2.0`
+- [PCL](https://github.com/PointCloudLibrary/pcl/tree/pcl-1.12.1)`V1.12.1`
+- [Qt5](https://doc.qt.io/qt-5/index.html)`V5.15.14`
 
 > 如果电脑没有`NVIDIA GPU`，软件仍然能够使用CPU加速有效运行，此时可无需`opencv_contribute`依赖。
 
 ## 编译 🚀
 当你获取到本库代码之后，首先检查上述依赖，若不满足依赖条件，可通过点击上述依赖库跳转至对应的库，随后下载其代码并进行编译。以上面库皆没有编译安装的环境为例，编译顺序如下：
-
-1. 下载[OpenCV](https://github.com/opencv/opencv.git)和[opencv_contribute](https://github.com/opencv/opencv_contrib.git)并进行编译（若`WITH_CUDA`未勾选请勾选上）
-2. 下载[Qt5.15](https://doc.qt.io/qt-5/index.html)并选择`MSVC`编译套件安装
-3. 下载[VTK](https://github.com/Kitware/VTK/tree/v9.2.0)并令`VTK_GROUP_ENABLE_Qt=YES`进行编译
-4. 下载[PCL-1.12.1-AllInOne](https://github.com/PointCloudLibrary/pcl/releases)进行安装，安装完成后删除`PCL`安装文件夹下的除`3rdParty`外的其它任何文件，并将`3rdParty`文件夹中的`VTK`文件夹删除
-5. 下载[PCL](https://github.com/PointCloudLibrary/pcl/tree/pcl-1.12.1)并选择好第三方库路径进行编译
-6. 打开命令行窗口，键入`git clone --recursive https://github.com/Practice3DVision/SLMaster.git`克隆`SLMaster`
-7. 打开`VSCode`编译运行`SLMasterGui`即可
+1. 下载[MVSDK](https://www.irayple.com/cn/serviceSupport/downloadCenter/18?p=17)并进行安装。
+2. 下载[OpenCV](https://github.com/opencv/opencv.git)和[opencv_contribute](https://github.com/opencv/opencv_contrib.git)并进行编译（若`WITH_CUDA`未勾选请勾选上）
+3. 下载[Qt5.15](https://doc.qt.io/qt-5/index.html)并选择`MSVC`编译套件安装
+4. 下载[VTK](https://github.com/Kitware/VTK/tree/v9.2.0)并令`VTK_GROUP_ENABLE_Qt=YES`进行编译
+5. 下载[PCL-1.12.1-AllInOne](https://github.com/PointCloudLibrary/pcl/releases)进行安装，安装完成后删除`PCL`安装文件夹下的除`3rdParty`外的其它任何文件，并将`3rdParty`文件夹中的`VTK`文件夹删除
+6. 下载[PCL](https://github.com/PointCloudLibrary/pcl/tree/pcl-1.12.1)并选择好第三方库路径进行编译
+7. 打开命令行窗口，键入`git clone --recursive https://github.com/Practice3DVision/SLMaster.git`克隆`SLMaster`
+8. 打开`VSCode`编译运行`SLMasterGui`即可
 
 > 注意！
 > 每当编译好一个库都应当在系统环境变量中加入。例如，编译完成OpenCV后，设置好系统环境变量OpenCV_DIR路径。
