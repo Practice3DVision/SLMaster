@@ -1,0 +1,6 @@
+[2024/04/15 16:03:11.662] <INFO> "Ini settings file path is: C:/Users/Liuyunhuang/AppData/Local/Evans Liu/SLMasterGui/SLMasterGui.ini"
+[2024/04/15 16:03:11.662] <INFO> load settings file sucess.
+[2024/04/15 16:03:11.685] <DEBUG> CUDA Device nums:  1
+[2024/04/15 16:03:11.776] <INFO> "set camera config json path..."
+[2024/04/15 16:03:11.785] <DEBUG> ("D:/code/Qt/SLMaster/build/gui", "qrc:/qt-project.org/imports", "C:/Qt/5.15.14/msvc2019_64/qml")
+[2024/04/15 16:03:30.976] <INFO> start create stripe...

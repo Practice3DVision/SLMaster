@@ -100,6 +100,16 @@ int CameraEngine::createStripe(const int pixelDepth, const int direction,
         params.shiftTime_ = shiftTime;
 
         pattern = MonoSinusShiftGrayCodePattern::create(params);
+    } else if (stripeType == AppType::PatternMethod::InterzoneSinusFourGrayscale) {
+        MonoInterzoneSinusFourGrayscalePattern::Params params;
+
+        params.height_ = imgHeight;
+        params.width_ = imgWidth;
+        params.cycles_ = cycles;
+        params.horizontal_ = direction == AppType::Direction::Horizion;
+        params.shiftTime_ = shiftTime;
+
+        pattern = MonoInterzoneSinusFourGrayscalePattern::create(params);
     }
 
     std::vector<cv::Mat> imgs;
@@ -654,6 +664,22 @@ void CameraEngine::setPatternType(const int patternType) {
 
             pattern_ = BinoSinusShiftGrayCodePattern::create(params);
         }
+        else if(patternType_ == AppType::PatternMethod::InterzoneSinusFourGrayscale) {
+            BinoInterzoneSinusFourGrayscalePattern::Params params;
+
+            params.shiftTime_ = std::round(shiftTime);
+            params.cycles_ = std::round(cycles);
+            params.horizontal_ = !isVertical;
+            params.width_ = std::stoi(dlpWidth);
+            params.height_ = std::stoi(dlpHeight);
+            params.confidenceThreshold_ = confidenceThreshold;
+            params.maxCost_ = maxCost;
+            params.minDisparity_ = minDisp;
+            params.maxDisparity_ = maxDisp;
+            params.costMinDiff_ = costMinDiff;
+
+            pattern_ = BinoInterzoneSinusFourGrayscalePattern::create(params);
+        }
     }
     if (cameraType_ == AppType::CameraType::MonocularSLCamera) {
         if (patternType_ == AppType::PatternMethod::SinusCompleGrayCode) {
@@ -714,7 +740,38 @@ void CameraEngine::setPatternType(const int patternType) {
             cv::cv2eigen(PR4, params.PR4_);
 
             pattern_ = MonoSinusShiftGrayCodePattern::create(params);
-        } else if (patternType == AppType::PatternMethod::MutiplyFrequency) {
+        } 
+        else if (patternType == AppType::PatternMethod::MutiplyFrequency) {
+        }
+        else if(patternType_ == AppType::PatternMethod::InterzoneSinusFourGrayscale) {
+            MonoInterzoneSinusFourGrayscalePattern::Params params;
+
+            params.shiftTime_ = std::round(shiftTime);
+            params.cycles_ = std::round(cycles);
+            params.horizontal_ = !isVertical;
+            params.width_ = std::stoi(dlpWidth);
+            params.height_ = std::stoi(dlpHeight);
+            params.confidenceThreshold_ = confidenceThreshold;
+            params.minDepth_ = minDepth;
+            params.maxDepth_ = maxDepth;
+
+            cv::Mat PL1 = cv::Mat::eye(4, 4, CV_32FC1);
+            slCamera->getCaliInfo()->info_.M1_.copyTo(
+                PL1(cv::Rect(0, 0, 3, 3)));
+            cv::cv2eigen(PL1, params.PL1_);
+
+            cv::Mat PR4 = cv::Mat::eye(4, 4, CV_32FC1);
+            slCamera->getCaliInfo()->info_.Rlp_.copyTo(
+                PR4(cv::Rect(0, 0, 3, 3)));
+            slCamera->getCaliInfo()->info_.Tlp_.copyTo(
+                PR4(cv::Rect(3, 0, 1, 3)));
+            cv::Mat M4Normal = cv::Mat::eye(4, 4, CV_32FC1);
+            slCamera->getCaliInfo()->info_.M4_.copyTo(
+                M4Normal(cv::Rect(0, 0, 3, 3)));
+            PR4 = M4Normal * PR4;
+            cv::cv2eigen(PR4, params.PR4_);
+
+            pattern_ = MonoInterzoneSinusFourGrayscalePattern::create(params);
         }
     } else if (patternType == AppType::PatternMethod::MultiViewStereoGeometry) {
 #ifdef OPENCV_WITH_CUDA_MODULE

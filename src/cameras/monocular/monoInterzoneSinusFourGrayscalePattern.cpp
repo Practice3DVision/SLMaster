@@ -1,6 +1,6 @@
-#include "monoSinusShiftGrayCodePattern.h"
+#include "monoInterzoneSinusFourGrayscalePattern.h"
 
-#include "../algorithm/algorithm.h"
+#include "../../algorithm/algorithm.h"
 
 using namespace cv;
 using namespace cv::cuda;
@@ -12,20 +12,20 @@ using namespace algorithm;
 
 namespace cameras {
 
-static MonoSinusShiftGrayCodePattern::Params params__;
+static MonoInterzoneSinusFourGrayscalePattern::Params params__;
 
-MonoSinusShiftGrayCodePattern::MonoSinusShiftGrayCodePattern() {}
+MonoInterzoneSinusFourGrayscalePattern::MonoInterzoneSinusFourGrayscalePattern() {}
 
 std::shared_ptr<Pattern>
-MonoSinusShiftGrayCodePattern::create(const Params &params) {
+MonoInterzoneSinusFourGrayscalePattern::create(const Params &params) {
     params__ = params;
 
-    return std::make_shared<MonoSinusShiftGrayCodePattern>();
+    return std::make_shared<MonoInterzoneSinusFourGrayscalePattern>();
 }
 
-bool MonoSinusShiftGrayCodePattern::generate(vector<Mat> &imgs) const {
+bool MonoInterzoneSinusFourGrayscalePattern::generate(vector<Mat> &imgs) const {
 
-    SinusShiftGrayCodePattern::Params params;
+    InterzoneSinusFourGrayscalePattern::Params params;
     params.width = params__.width_;
     params.height = params__.height_;
     params.nbrOfPeriods = params__.cycles_;
@@ -33,10 +33,10 @@ bool MonoSinusShiftGrayCodePattern::generate(vector<Mat> &imgs) const {
     params.confidenceThreshold = params__.confidenceThreshold_;
     params.shiftTime = params__.shiftTime_;
 
-    return SinusShiftGrayCodePattern::create(params)->generate(imgs);
+    return InterzoneSinusFourGrayscalePattern::create(params)->generate(imgs);
 }
 
-bool MonoSinusShiftGrayCodePattern::decode(
+bool MonoInterzoneSinusFourGrayscalePattern::decode(
     const vector<vector<Mat>> &patternImages, Mat &depthMap,
     const bool isGpu) const {
     CV_Assert(patternImages.size() >= 1);
@@ -96,7 +96,7 @@ bool MonoSinusShiftGrayCodePattern::decode(
     }
 #endif
 
-    SinusShiftGrayCodePattern::Params params;
+    InterzoneSinusFourGrayscalePattern::Params params;
     params.shiftTime = params__.shiftTime_;
     params.confidenceThreshold = params__.confidenceThreshold_;
     params.height = params__.height_;
@@ -104,15 +104,13 @@ bool MonoSinusShiftGrayCodePattern::decode(
     params.nbrOfPeriods = params__.cycles_;
     params.horizontal = params__.horizontal_;
 
-    auto pattern = SinusShiftGrayCodePattern::create(params);
+    auto pattern = InterzoneSinusFourGrayscalePattern::create(params);
     Mat wrappedMap, confidenceMap, floorMap, unwrappedMap;
 
     pattern->computePhaseMap(patternImages[0], wrappedMap);
     pattern->computeConfidenceMap(patternImages[0], confidenceMap);
-    pattern->computeFloorMap(patternImages[0], confidenceMap, wrappedMap,
-                             floorMap);
-    pattern->unwrapPhaseMap(wrappedMap, floorMap, unwrappedMap,
-                            confidenceMap > params__.confidenceThreshold_);
+    pattern->computeFloorMap(patternImages[0], confidenceMap, floorMap);
+    pattern->unwrapPhaseMap(wrappedMap, confidenceMap, floorMap, unwrappedMap);
 
     reverseCamera(unwrappedMap, params__.PL1_, params__.PR4_,
                   params__.minDepth_, params__.maxDepth_,

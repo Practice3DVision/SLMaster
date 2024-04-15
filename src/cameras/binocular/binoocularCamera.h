@@ -1,20 +1,19 @@
 /**
- * @file monocularCamera.h
+ * @file binoocularCamera.h
  * @author Evans Liu (1369215984@qq.com)
  * @brief
  * @version 0.1
- * @date 2024-03-23
+ * @date 2024-03-19
  *
  * @copyright Copyright (c) 2024
  *
  */
 
-#ifndef __MONOCULAR_CAMERA_H_
-#define __MONOCULAR_CAMERA_H_
+#ifndef __BINOCULAR_CAMERA_H_
+#define __BINOCULAR_CAMERA_H_
 
-#include "../device/device.h"
-
-#include "slCamera.h"
+#include "../../device.h"
+#include "../slCamera.h"
 
 
 #include <unordered_map>
@@ -22,18 +21,18 @@
 namespace slmaster {
 namespace cameras {
 /** @brief 结构光相机 */
-class SLMASTER_API MonocularCamera : public SLCamera {
+class SLMASTER_API BinocularCamera : public SLCamera {
   public:
     /**
      * @brief 使用配置文件加载相机配置
      *
      * @param jsonPath json文件路径
      */
-    MonocularCamera(IN const std::string jsonPath);
+    BinocularCamera(IN const std::string jsonPath);
     /**
      * @brief 结束时保存当前参数
      */
-    ~MonocularCamera();
+    ~BinocularCamera();
     /**
      * @brief 获取相机信息
      *
@@ -259,6 +258,10 @@ class SLMASTER_API MonocularCamera : public SLCamera {
     std::unordered_map<std::string, bool> propertiesChangedSignals_;
     device::CameraFactory cameraFactory_;
     device::ProjectorFactory projectorFactory_;
+    cv::Mat mapLX_;
+    cv::Mat mapLY_;
+    cv::Mat mapRX_;
+    cv::Mat mapRY_;
     std::atomic_bool isCaptureStop_;
     std::thread imgCreateThread_;
     std::thread frameDataCreateThread_;
@@ -267,4 +270,4 @@ class SLMASTER_API MonocularCamera : public SLCamera {
 } // namespace cameras
 } // namespace slmaster
 
-#endif // !__MONOCULAR_CAMERA_H_
+#endif // !__BINOCULAR_CAMERA_H_

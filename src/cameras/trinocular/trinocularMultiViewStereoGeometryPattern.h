@@ -12,8 +12,8 @@
 #ifndef __TRINOCULAR_MULTIVIEW_STEREO_GEOMETRY_PATTERN_H_
 #define __TRINOCULAR_MULTIVIEW_STEREO_GEOMETRY_PATTERN_H_
 
-#include "../common.h"
-#include "pattern.h"
+#include "../../common.h"
+#include "../pattern.h"
 
 namespace slmaster {
 namespace cameras {

@@ -1,8 +1,8 @@
 #include "slCameraFactory.h"
 
-#include "binoocularCamera.h"
-#include "monocularCamera.h"
-#include "trinocularCamera.h"
+#include "binocular/binoocularCamera.h"
+#include "monocular/monocularCamera.h"
+#include "trinocular/trinocularCamera.h"
 
 using namespace std;
 

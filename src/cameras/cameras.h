@@ -15,15 +15,20 @@
  #include "caliInfo.h"
  #include "tool.h"
  #include "pattern.h"
- #include "monoSinusCompleGrayCodePattern.h"
- #include "monoSinusShiftGrayCodePattern.h"
- #include "binosSinusCompleGrayCodePattern.h"
- #include "binosSinusShiftGrayCodePattern.h"
- #include "trinocularMultiViewStereoGeometryPattern.h"
  #include "slCamera.h"
- #include "monocularCamera.h"
- #include "binoocularCamera.h"
- #include "trinocularCamera.h"
  #include "slCameraFactory.h"
+
+ #include "monocular/monocularCamera.h"
+ #include "monocular/monoSinusCompleGrayCodePattern.h"
+ #include "monocular/monoSinusShiftGrayCodePattern.h"
+ #include "monocular/monoInterzoneSinusFourGrayscalePattern.h"
+
+ #include "binocular/binoocularCamera.h"
+ #include "binocular/binosSinusCompleGrayCodePattern.h"
+ #include "binocular/binosSinusShiftGrayCodePattern.h"
+ #include "binocular/binosInterzoneSinusFourGrayscalePattern.h"
+
+ #include "trinocular/trinocularCamera.h"
+ #include "trinocular/trinocularMultiViewStereoGeometryPattern.h"
 
  #endif //!__SLMASTER_CAMERAS_H_

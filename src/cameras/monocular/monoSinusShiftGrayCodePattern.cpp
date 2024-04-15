@@ -1,6 +1,6 @@
-#include "monoSinusCompleGrayCodePattern.h"
+#include "monoSinusShiftGrayCodePattern.h"
 
-#include "../algorithm/algorithm.h"
+#include "../../algorithm/algorithm.h"
 
 using namespace cv;
 using namespace cv::cuda;
@@ -12,20 +12,20 @@ using namespace algorithm;
 
 namespace cameras {
 
-static MonoSinusCompleGrayCodePattern::Params params__;
+static MonoSinusShiftGrayCodePattern::Params params__;
 
-MonoSinusCompleGrayCodePattern::MonoSinusCompleGrayCodePattern() {}
+MonoSinusShiftGrayCodePattern::MonoSinusShiftGrayCodePattern() {}
 
 std::shared_ptr<Pattern>
-MonoSinusCompleGrayCodePattern::create(const Params &params) {
+MonoSinusShiftGrayCodePattern::create(const Params &params) {
     params__ = params;
 
-    return std::make_shared<MonoSinusCompleGrayCodePattern>();
+    return std::make_shared<MonoSinusShiftGrayCodePattern>();
 }
 
-bool MonoSinusCompleGrayCodePattern::generate(vector<Mat> &imgs) const {
+bool MonoSinusShiftGrayCodePattern::generate(vector<Mat> &imgs) const {
 
-    SinusCompleGrayCodePattern::Params params;
+    SinusShiftGrayCodePattern::Params params;
     params.width = params__.width_;
     params.height = params__.height_;
     params.nbrOfPeriods = params__.cycles_;
@@ -33,16 +33,17 @@ bool MonoSinusCompleGrayCodePattern::generate(vector<Mat> &imgs) const {
     params.confidenceThreshold = params__.confidenceThreshold_;
     params.shiftTime = params__.shiftTime_;
 
-    return SinusCompleGrayCodePattern::create(params)->generate(imgs);
+    return SinusShiftGrayCodePattern::create(params)->generate(imgs);
 }
 
-bool MonoSinusCompleGrayCodePattern::decode(
+bool MonoSinusShiftGrayCodePattern::decode(
     const vector<vector<Mat>> &patternImages, Mat &depthMap,
     const bool isGpu) const {
     CV_Assert(patternImages.size() >= 1);
 
 #ifdef OPENCV_WITH_CUDA_MODULE
     if (isGpu) {
+        /*
         SinusCompleGrayCodePatternGPU::Params params;
         params.shiftTime = params__.shiftTime_;
         params.confidenceThreshold = params__.confidenceThreshold_;
@@ -89,12 +90,13 @@ bool MonoSinusCompleGrayCodePattern::decode(
                             depthMapDev, params__.horizontal_);
 
         depthMapDev.download(depthMap);
-
         return true;
+        */
+        return false;
     }
 #endif
 
-    SinusCompleGrayCodePattern::Params params;
+    SinusShiftGrayCodePattern::Params params;
     params.shiftTime = params__.shiftTime_;
     params.confidenceThreshold = params__.confidenceThreshold_;
     params.height = params__.height_;
@@ -102,7 +104,7 @@ bool MonoSinusCompleGrayCodePattern::decode(
     params.nbrOfPeriods = params__.cycles_;
     params.horizontal = params__.horizontal_;
 
-    auto pattern = SinusCompleGrayCodePattern::create(params);
+    auto pattern = SinusShiftGrayCodePattern::create(params);
     Mat wrappedMap, confidenceMap, floorMap, unwrappedMap;
 
     pattern->computePhaseMap(patternImages[0], wrappedMap);
