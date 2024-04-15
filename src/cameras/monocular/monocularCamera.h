@@ -1,20 +1,20 @@
 /**
- * @file trinocularCamera.h
+ * @file monocularCamera.h
  * @author Evans Liu (1369215984@qq.com)
  * @brief
  * @version 0.1
- * @date 2024-03-19
+ * @date 2024-03-23
  *
  * @copyright Copyright (c) 2024
  *
  */
 
-#ifndef __TRINOCULAR_CAMERA_H_
-#define __TRINOCULAR_CAMERA_H_
+#ifndef __MONOCULAR_CAMERA_H_
+#define __MONOCULAR_CAMERA_H_
 
-#include "../common.h"
-#include "../device/device.h"
-#include "slCamera.h"
+#include "../../device/device.h"
+
+#include "../slCamera.h"
 
 
 #include <unordered_map>
@@ -22,18 +22,18 @@
 namespace slmaster {
 namespace cameras {
 /** @brief 结构光相机 */
-class SLMASTER_API TrinocularCamera : public SLCamera {
+class SLMASTER_API MonocularCamera : public SLCamera {
   public:
     /**
      * @brief 使用配置文件加载相机配置
      *
      * @param jsonPath json文件路径
      */
-    TrinocularCamera(IN const std::string jsonPath);
+    MonocularCamera(IN const std::string jsonPath);
     /**
      * @brief 结束时保存当前参数
      */
-    ~TrinocularCamera();
+    ~MonocularCamera();
     /**
      * @brief 获取相机信息
      *
@@ -80,18 +80,7 @@ class SLMASTER_API TrinocularCamera : public SLCamera {
      * @param imgs 待烧录的条纹
      * @return
      */
-    bool burnPatterns(IN const std::vector<cv::Mat> &imgs) override;
-    /**
-     * @brief 连续捕获
-     * @param frameData 获取到的数据
-     * @return
-     */
-    bool continuesCapture(IN SafeQueue<FrameData> &frameDataQueue) override;
-    /**
-     * @brief 停止连续捕获
-     * @return
-     */
-    bool stopContinuesCapture() override;
+    bool burnPatterns(const std::vector<cv::Mat> &imgs) override;
     /**
      * @brief 获取一帧数据
      *
@@ -100,6 +89,17 @@ class SLMASTER_API TrinocularCamera : public SLCamera {
      * @return false 失败
      */
     bool capture(IN FrameData &frameData) override;
+    /**
+     * @brief 连续捕获
+     * @param frameData 获取到的数据
+     * @return
+     */
+    bool continuesCapture(SafeQueue<FrameData> &frameDataQueue) override;
+    /**
+     * @brief 停止连续捕获
+     * @return
+     */
+    bool stopContinuesCapture() override;
     /**
      * @brief 获取一帧数据(离线)
      *
@@ -243,8 +243,8 @@ class SLMASTER_API TrinocularCamera : public SLCamera {
     /**
      * @brief 解码并重建
      */
-    void decode(IN const std::vector<std::vector<cv::Mat>> &imgs,
-                OUT FrameData &frameData);
+    void decode(const std::vector<std::vector<cv::Mat>> &imgs,
+                FrameData &frameData);
     /**
      * @brief 处理信号
      */
@@ -267,4 +267,4 @@ class SLMASTER_API TrinocularCamera : public SLCamera {
 } // namespace cameras
 } // namespace slmaster
 
-#endif // __TRINOCULAR_CAMERA_H_
+#endif // !__MONOCULAR_CAMERA_H_

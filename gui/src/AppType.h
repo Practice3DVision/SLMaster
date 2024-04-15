@@ -89,6 +89,7 @@ class AppType : public QObject
         MutiplyFrequency,
         MultiViewStereoGeometry,
         SinusShiftGrayCode,
+        InterzoneSinusFourGrayscale,
     };
 
     Q_ENUM(PageType)

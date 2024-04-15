@@ -1,34 +1,32 @@
-#include "monocularCamera.h"
+#include "trinocularCamera.h"
 
-#include "tool.h"
-
-#include "../algorithm/algorithm.h"
+#include "../binocular/binosSinusCompleGrayCodePattern.h"
+#include "../tool.h"
 
 namespace slmaster {
 namespace cameras {
-MonocularCamera::MonocularCamera(const std::string jsonPath)
+TrinocularCamera::TrinocularCamera(IN const std::string jsonPath)
     : SLCamera(jsonPath), jsonPath_(jsonPath), isInitial_(false),
       isCaptureStop_(true) {
-
     if (loadParams(jsonPath, jsonVal_)) {
         if (booleanProperties_["Gpu Accelerate"]) {
-#ifndef OPENCV_WITH_CUDA_MODULE
+#ifndef WITH_CUDASTRUCTUREDLIGHT_MODULE
             std::clog << "lib isn't build with cuda, we will disable it!"
                       << std::endl;
             booleanProperties_["Gpu Accelerate"] = false;
-#endif //! OPENCV_WITH_CUDA_MODULE
+#endif //! WITH_CUDASTRUCTUREDLIGHT_MODULE
         }
 
         isInitial_ = true;
     }
 }
 
-MonocularCamera::~MonocularCamera() { updateCamera(); }
+TrinocularCamera::~TrinocularCamera() { updateCamera(); }
 
-bool MonocularCamera::loadParams(const std::string jsonPath,
-                                 Json::Value &jsonVal) {
+bool TrinocularCamera::loadParams(const std::string jsonPath,
+                                  Json::Value &jsonVal) {
     if (!readJsonFile(jsonPath, jsonVal)) {
-        std::cerr << "binocular camera parse json file error!" << std::endl;
+        std::cerr << "trinocular camera parse json file error!" << std::endl;
         return false;
     }
 
@@ -40,12 +38,12 @@ bool MonocularCamera::loadParams(const std::string jsonPath,
     return true;
 }
 
-bool MonocularCamera::saveParams(const std::string jsonPath,
-                                 Json::Value &jsonVal) {
+bool TrinocularCamera::saveParams(const std::string jsonPath,
+                                  Json::Value &jsonVal) {
     if (jsonVal.empty()) {
-        std::cerr
-            << "binocular camera write json file error, json value is empty! \n"
-            << std::endl;
+        std::cerr << "trinocular camera write json file error, json value is "
+                     "empty! \n"
+                  << std::endl;
         return false;
     }
 
@@ -59,7 +57,7 @@ bool MonocularCamera::saveParams(const std::string jsonPath,
     return true;
 }
 
-void MonocularCamera::parseArray(Json::Value &jsonVal, const bool isWrite) {
+void TrinocularCamera::parseArray(Json::Value &jsonVal, const bool isWrite) {
     const int numOfCameraInfo = jsonVal.size();
 
     for (int i = 0; i < numOfCameraInfo; ++i) {
@@ -92,14 +90,20 @@ void MonocularCamera::parseArray(Json::Value &jsonVal, const bool isWrite) {
     }
 }
 
-SLCameraInfo MonocularCamera::getCameraInfo() {
+SLCameraInfo TrinocularCamera::getCameraInfo() {
     const device::CameraFactory::CameraManufactor manufator =
         stringProperties_["2D Camera Manufactor"] == "Huaray"
             ? device::CameraFactory::Huaray
             : device::CameraFactory::Halcon;
     auto pLeftCamera = cameraFactory_.getCamera(
         stringProperties_["Left Camera Name"], manufator);
+    auto pRightCamera = cameraFactory_.getCamera(
+        stringProperties_["Right Camera Name"], manufator);
+    auto pColorCamera = cameraFactory_.getCamera(
+        stringProperties_["Color Camera Name"], manufator);
     auto leftCameraInfo = pLeftCamera->getCameraInfo();
+    auto rightCameraInfo = pRightCamera->getCameraInfo();
+    auto colorCameraInfo = pColorCamera->getCameraInfo();
 
     auto pProjector =
         projectorFactory_.getProjector(stringProperties_["DLP Evm"]);
@@ -111,7 +115,8 @@ SLCameraInfo MonocularCamera::getCameraInfo() {
     }
 
     SLCameraInfo slCameraInfo;
-    slCameraInfo.isFind_ = leftCameraInfo.isFind_ && projectorInfo.isFind_;
+    slCameraInfo.isFind_ = leftCameraInfo.isFind_ && rightCameraInfo.isFind_ &&
+                           colorCameraInfo.isFind_ && projectorInfo.isFind_;
     slCameraInfo.cameraName_ =
         slCameraInfo.isFind_ ? stringProperties_["Camera Name"] : "NOT_FOUND";
     slCameraInfo.intrinsic_ = slCameraInfo.isFind_
@@ -121,7 +126,7 @@ SLCameraInfo MonocularCamera::getCameraInfo() {
     return slCameraInfo;
 }
 
-bool MonocularCamera::connect() {
+bool TrinocularCamera::connect() {
     bool connectState = false;
 
     try {
@@ -133,38 +138,52 @@ bool MonocularCamera::connect() {
             cameraFactory_
                 .getCamera(stringProperties_["Left Camera Name"], manufator)
                 ->connect();
+        const bool connectRightCamera =
+            cameraFactory_
+                .getCamera(stringProperties_["Right Camera Name"], manufator)
+                ->connect();
+        const bool connectColorCamera =
+            cameraFactory_
+                .getCamera(stringProperties_["Color Camera Name"], manufator)
+                ->connect();
         const bool connectProjector =
             projectorFactory_.getProjector(stringProperties_["DLP Evm"])
                 ->connect();
-
-        bool hasColorCamera = (stringProperties_["Color Camera Name"] != "");
-        bool connectColorCamera = true;
-        if (hasColorCamera) {
-            connectColorCamera =
-                cameraFactory_
-                    .getCamera(stringProperties_["Color Camera Name"],
-                               manufator)
-                    ->connect();
-        }
-
-        connectState =
-            connectLeftCamera && connectProjector && connectColorCamera;
+        connectState = connectLeftCamera && connectRightCamera &&
+                       connectColorCamera && connectProjector;
 
         if (connectState) {
-            updateEnableDepthCamera();
-            updateExposureTime();
-            updateLightStrength();
-
             cameraFactory_
                 .getCamera(stringProperties_["Left Camera Name"], manufator)
                 ->start();
+            cameraFactory_
+                .getCamera(stringProperties_["Right Camera Name"], manufator)
+                ->start();
+            cameraFactory_
+                .getCamera(stringProperties_["Color Camera Name"], manufator)
+                ->start();
+            cameraFactory_
+                .getCamera(stringProperties_["Color Camera Name"], manufator)
+                ->setEnumAttribute("BalanceRatioSelector", "Red");
+            cameraFactory_
+                .getCamera(stringProperties_["Color Camera Name"], manufator)
+                ->setNumberAttribute("Balance", 1.72477);
+            cameraFactory_
+                .getCamera(stringProperties_["Color Camera Name"], manufator)
+                ->setEnumAttribute("BalanceRatioSelector", "Green");
+            cameraFactory_
+                .getCamera(stringProperties_["Color Camera Name"], manufator)
+                ->setNumberAttribute("Balance", 1.0);
+            cameraFactory_
+                .getCamera(stringProperties_["Color Camera Name"], manufator)
+                ->setEnumAttribute("BalanceRatioSelector", "Blue");
+            cameraFactory_
+                .getCamera(stringProperties_["Color Camera Name"], manufator)
+                ->setNumberAttribute("Balance", 1.66687);
 
-            if (hasColorCamera) {
-                cameraFactory_
-                    .getCamera(stringProperties_["Color Camera Name"],
-                               manufator)
-                    ->start();
-            }
+            updateEnableDepthCamera();
+            updateExposureTime();
+            updateLightStrength();
         } else {
             if (cameraFactory_
                     .getCamera(stringProperties_["Left Camera Name"], manufator)
@@ -174,8 +193,17 @@ bool MonocularCamera::connect() {
                     ->disConnect();
             }
 
-            if (hasColorCamera &&
+            if (cameraFactory_
+                    .getCamera(stringProperties_["Right Camera Name"],
+                               manufator)
+                    ->isConnect()) {
                 cameraFactory_
+                    .getCamera(stringProperties_["Right Camera Name"],
+                               manufator)
+                    ->disConnect();
+            }
+
+            if (cameraFactory_
                     .getCamera(stringProperties_["Color Camera Name"],
                                manufator)
                     ->isConnect()) {
@@ -192,14 +220,14 @@ bool MonocularCamera::connect() {
             }
         }
     } catch (...) {
-        std::cerr << "Connect binocular camera error! \n" << std::endl;
+        std::cerr << "Connect trinocular camera error! \n" << std::endl;
         return false;
     }
 
     return connectState;
 }
 
-bool MonocularCamera::disConnect() {
+bool TrinocularCamera::disConnect() {
     // TODO@Evans
     // Liu:中途篡改不正确的2D相机制造商将导致漏洞，系统会重新查找该制造商同ID相机
     const device::CameraFactory::CameraManufactor manufator =
@@ -210,21 +238,22 @@ bool MonocularCamera::disConnect() {
         cameraFactory_
             .getCamera(stringProperties_["Left Camera Name"], manufator)
             ->disConnect();
+    const bool disConnectRightCamera =
+        cameraFactory_
+            .getCamera(stringProperties_["Right Camera Name"], manufator)
+            ->disConnect();
+    const bool disConnectColorCamera =
+        cameraFactory_
+            .getCamera(stringProperties_["Color Camera Name"], manufator)
+            ->disConnect();
     const bool disConnectProjector =
         projectorFactory_.getProjector(stringProperties_["DLP Evm"])
             ->disConnect();
-    bool disConnectcolorCamera = true;
-    if (stringProperties_["Color Camera Name"] == "") {
-        disConnectcolorCamera =
-            cameraFactory_
-                .getCamera(stringProperties_["Color Camera Name"], manufator)
-                ->disConnect();
-    }
-
-    return disConnectLeftCamera && disConnectProjector && disConnectcolorCamera;
+    return disConnectLeftCamera && disConnectRightCamera &&
+           disConnectColorCamera && disConnectProjector;
 }
 
-bool MonocularCamera::isConnect() {
+bool TrinocularCamera::isConnect() {
     const device::CameraFactory::CameraManufactor manufator =
         stringProperties_["2D Camera Manufactor"] == "Huaray"
             ? device::CameraFactory::Huaray
@@ -233,60 +262,61 @@ bool MonocularCamera::isConnect() {
         cameraFactory_
             .getCamera(stringProperties_["Left Camera Name"], manufator)
             ->isConnect();
+    const bool isConnectRightCamera =
+        cameraFactory_
+            .getCamera(stringProperties_["Right Camera Name"], manufator)
+            ->isConnect();
+    const bool isConnectColorCamera =
+        cameraFactory_
+            .getCamera(stringProperties_["Color Camera Name"], manufator)
+            ->isConnect();
     const bool isConnectProjector =
         projectorFactory_.getProjector(stringProperties_["DLP Evm"])
             ->isConnect();
-    bool isConnectColorCamera = true;
-    if (stringProperties_["Color Camera Name"] == "") {
-        isConnectColorCamera =
-            cameraFactory_
-                .getCamera(stringProperties_["Color Camera Name"], manufator)
-                ->isConnect();
-    }
 
-    return isConnectLeftCamera && isConnectProjector && isConnectColorCamera;
+    return isConnectLeftCamera && isConnectRightCamera &&
+           isConnectColorCamera && isConnectProjector;
 }
 
-void MonocularCamera::decode(const std::vector<std::vector<cv::Mat>> &imgs,
-                             FrameData &frameData) {
-    // 默认深度相机为左相机，纹理相机为左相机
-    const int index = imgs.size() == 2 ? 1 : 0;
+void TrinocularCamera::decode(const std::vector<std::vector<cv::Mat>> &imgs,
+                              FrameData &frameData) {
+    // 默认深度相机为左相机，纹理相机为彩色相机
+    // 顺序依次为左相机、右相机、彩色相机(Camera 1、Camera 2、Camera 3)
     frameData.textureMap_ =
-        cv::Mat::zeros(imgs[index][0].size(), imgs[index][0].type());
-
-    const int shiftTime = static_cast<int>(numbericalProperties_["Phase Shift Times"]);
+        cv::Mat::zeros(imgs[2][0].size(), imgs[2][0].type());
     
+    const int shiftTime = static_cast<int>(numbericalProperties_["Phase Shift Times"]);
+
     for (int i = 0; i < shiftTime; ++i) {
-        frameData.textureMap_ +=
-            (imgs[index][i] / shiftTime);
+        frameData.textureMap_ += (imgs[2][i] / shiftTime);
     }
+
+    std::vector<std::vector<cv::Mat>> imgsOperat(imgs.begin(), imgs.cend());
 
     if (frameData.textureMap_.type() == CV_8UC1) {
         cv::cvtColor(frameData.textureMap_, frameData.textureMap_,
                      cv::COLOR_GRAY2BGR);
+    } else {
+        for (auto img : imgsOperat[2]) {
+            cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
+        }
     }
 
     cv::Mat depthMap;
 
-    pattern_->decode(imgs, depthMap, booleanProperties_["Gpu Accelerate"]);
+    pattern_->decode(imgsOperat, depthMap,
+                     booleanProperties_["Gpu Accelerate"]);
 
     if (booleanProperties_["Noise Filter"]) {
-        cv::bilateralFilter(depthMap.clone(), depthMap, 15, 20, 50);
+        cv::Mat operateMap = depthMap.clone();
+        cv::bilateralFilter(operateMap, depthMap, 15, 20, 50);
     }
 
     fromDepthMapToCloud(depthMap, frameData.textureMap_, *caliInfo_,
-                        *frameData.pointCloud_, frameData.depthMap_,
-                        index == 1);
+                        *frameData.pointCloud_, frameData.depthMap_, true);
 }
 
-bool MonocularCamera::offlineCapture(
-    const std::vector<std::vector<cv::Mat>> &imgs, FrameData &frameData) {
-
-    decode(imgs, frameData);
-    return true;
-}
-
-bool MonocularCamera::continuesCapture(SafeQueue<FrameData> &frameDataQueue) {
+bool TrinocularCamera::continuesCapture(SafeQueue<FrameData> &frameDataQueue) {
     if (!isCaptureStop_.load(std::memory_order_acquire)) {
         return true;
     }
@@ -308,57 +338,51 @@ bool MonocularCamera::continuesCapture(SafeQueue<FrameData> &frameDataQueue) {
                 : device::CameraFactory::Halcon;
         auto pLeftCamera = cameraFactory_.getCamera(
             stringProperties_["Left Camera Name"], manufator);
-
-        device::Camera *pColorCamera = nullptr;
-        if (stringProperties_["Color Camera Name"] != "") {
-            pColorCamera = cameraFactory_.getCamera(
-                stringProperties_["Color Camera Name"], manufator);
-        }
-
+        auto pRightCamera = cameraFactory_.getCamera(
+            stringProperties_["Right Camera Name"], manufator);
+        auto pColorCamera = cameraFactory_.getCamera(
+            stringProperties_["Color Camera Name"], manufator);
         const int imgSizeWaitFor = numbericalProperties_["Total Fringes"];
 
         while (!isCaptureStop_.load(std::memory_order_acquire)) {
-            if (pLeftCamera->getImgs().size() >= imgSizeWaitFor &&
-                (pColorCamera ? pColorCamera->getImgs().size() >= imgSizeWaitFor
-                              : true)) {
-                std::vector<std::vector<cv::Mat>> imgs(pColorCamera ? 2 : 1);
+            auto leftImgs = pLeftCamera->getImgs();
+            auto rightImgs = pRightCamera->getImgs();
+            auto colorImgs = pColorCamera->getImgs();
+            if (leftImgs.size() >= imgSizeWaitFor &&
+                rightImgs.size() >= imgSizeWaitFor &&
+                colorImgs.size() >= imgSizeWaitFor) {
+                std::vector<std::vector<cv::Mat>> imgs(3);
                 int index = 0;
                 while (index != imgSizeWaitFor) {
                     imgs[0].emplace_back(pLeftCamera->popImg());
-                    if (pColorCamera) {
-                        imgs[1].emplace_back(pColorCamera->popImg());
-                    }
+                    imgs[1].emplace_back(pRightCamera->popImg());
+                    imgs[2].emplace_back(pColorCamera->popImg());
                     ++index;
                 }
 
-                if (imgsCreated_.size() > 2) {
-                    continue;
+                if (imgsCreated_.size() < 2) {
+                    imgsCreated_.push(std::move(imgs));
                 }
-
-                imgsCreated_.push(imgs);
+            } else {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
         }
     });
 
     frameDataCreateThread_ = std::thread([&] {
         while (!isCaptureStop_.load(std::memory_order_acquire)) {
-            if (imgsCreated_.empty()) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(5));
-                continue;
-            }
-
             std::vector<std::vector<cv::Mat>> imgs;
-            imgsCreated_.move_pop(imgs);
-
-            if (stringProperties_["Color Camera Name"] != "") {
-                for (int i = 0; i < imgs.size(); ++i) {
-                    cv::cvtColor(imgs[i], imgs[i], cv::COLOR_BayerBG2BGR);
+            if (imgsCreated_.try_pop(imgs)) {
+                for (int i = 0; i < imgs[2].size(); ++i) {
+                    cv::cvtColor(imgs[2][i], imgs[2][i], cv::COLOR_BayerBG2BGR);
                 }
-            }
 
-            FrameData curFrameData;
-            decode(imgs, curFrameData);
-            frameDataQueue.push(curFrameData);
+                FrameData curFrameData;
+                decode(imgs, curFrameData);
+                frameDataQueue.push(curFrameData);
+            } else {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
         }
     });
 
@@ -367,7 +391,7 @@ bool MonocularCamera::continuesCapture(SafeQueue<FrameData> &frameDataQueue) {
     return true;
 }
 
-bool MonocularCamera::stopContinuesCapture() {
+bool TrinocularCamera::stopContinuesCapture() {
     auto pProjector =
         projectorFactory_.getProjector(stringProperties_["DLP Evm"]);
     pProjector->stop();
@@ -393,29 +417,31 @@ bool MonocularCamera::stopContinuesCapture() {
             : device::CameraFactory::Halcon;
     cameraFactory_.getCamera(stringProperties_["Left Camera Name"], manufator)
         ->clearImgs();
-    if (stringProperties_["Color Camera Name"] != "") {
-        cameraFactory_
-            .getCamera(stringProperties_["Color Camera Name"], manufator)
-            ->clearImgs();
-    }
+    cameraFactory_.getCamera(stringProperties_["Right Camera Name"], manufator)
+        ->clearImgs();
+    cameraFactory_.getCamera(stringProperties_["Color Camera Name"], manufator)
+        ->clearImgs();
 
     return true;
 }
 
-bool MonocularCamera::capture(FrameData &frameData) {
+bool TrinocularCamera::offlineCapture(
+    const std::vector<std::vector<cv::Mat>> &imgs, FrameData &frameData) {
+    decode(imgs, frameData);
+    return true;
+}
+
+bool TrinocularCamera::capture(FrameData &frameData) {
     const device::CameraFactory::CameraManufactor manufator =
         stringProperties_["2D Camera Manufactor"] == "Huaray"
             ? device::CameraFactory::Huaray
             : device::CameraFactory::Halcon;
     auto pLeftCamera = cameraFactory_.getCamera(
         stringProperties_["Left Camera Name"], manufator);
-
-    device::Camera *pColorCamera = nullptr;
-    if (stringProperties_["Color Camera Name"] != "") {
-        pColorCamera = cameraFactory_.getCamera(
-            stringProperties_["Color Camera Name"], manufator);
-    }
-
+    auto pRightCamera = cameraFactory_.getCamera(
+        stringProperties_["Right Camera Name"], manufator);
+    auto pColorCamera = cameraFactory_.getCamera(
+        stringProperties_["Color Camera Name"], manufator);
     auto pProjector =
         projectorFactory_.getProjector(stringProperties_["DLP Evm"]);
     const int imgSizeWaitFor = numbericalProperties_["Total Fringes"];
@@ -431,25 +457,23 @@ bool MonocularCamera::capture(FrameData &frameData) {
                        totalExposureTime + 1000000);
     // 注意相机回调函数是主函数运行，因此尽量将该线程设置为多线程，从而不影响相机取图
     while (pLeftCamera->getImgs().size() < imgSizeWaitFor ||
-           (pColorCamera ? (pColorCamera->getImgs().size() < imgSizeWaitFor)
-                         : false)) {
+           pRightCamera->getImgs().size() < imgSizeWaitFor ||
+           pColorCamera->getImgs().size() < imgSizeWaitFor) {
         if (std::chrono::steady_clock::now() > endTime) {
             pLeftCamera->clearImgs();
-
-            if (pColorCamera) {
-                pColorCamera->clearImgs();
-            }
-
+            pRightCamera->clearImgs();
+            pColorCamera->clearImgs();
             return false;
         }
     }
 
-    std::vector<std::vector<cv::Mat>> imgs(pColorCamera ? 2 : 1);
+    std::vector<std::vector<cv::Mat>> imgs(3);
     while (pLeftCamera->getImgs().size()) {
         imgs[0].emplace_back(pLeftCamera->popImg());
-        if (pColorCamera) {
-            imgs[1].emplace_back(pColorCamera->popImg());
-        }
+        imgs[1].emplace_back(pRightCamera->popImg());
+        cv::Mat img = pColorCamera->popImg();
+        cv::cvtColor(img, img, cv::COLOR_BayerBG2BGR);
+        imgs[2].emplace_back(img);
     }
 
     decode(imgs, frameData);
@@ -457,12 +481,12 @@ bool MonocularCamera::capture(FrameData &frameData) {
     return true;
 }
 
-bool MonocularCamera::setDepthCameraEnabled(const bool isEnable) {
+bool TrinocularCamera::setDepthCameraEnabled(const bool isEnable) {
     return setBooleanAttribute("Enable Depth Camera", isEnable);
 }
 
-bool MonocularCamera::getStringAttribute(const std::string attributeName,
-                                         std::string &val) {
+bool TrinocularCamera::getStringAttribute(const std::string attributeName,
+                                          std::string &val) {
 
     if (!stringProperties_.count(attributeName)) {
         std::cerr << "property " << attributeName.data()
@@ -475,8 +499,8 @@ bool MonocularCamera::getStringAttribute(const std::string attributeName,
     return true;
 }
 
-bool MonocularCamera::getNumbericalAttribute(const std::string attributeName,
-                                             double &val) {
+bool TrinocularCamera::getNumbericalAttribute(const std::string attributeName,
+                                              double &val) {
     if (!numbericalProperties_.count(attributeName)) {
         std::cerr << "property " << attributeName.data()
                   << " is not be supported !\n"
@@ -488,8 +512,8 @@ bool MonocularCamera::getNumbericalAttribute(const std::string attributeName,
     return true;
 }
 
-bool MonocularCamera::getBooleanAttribute(const std::string attributeName,
-                                          bool &val) {
+bool TrinocularCamera::getBooleanAttribute(const std::string attributeName,
+                                           bool &val) {
     if (!booleanProperties_.count(attributeName)) {
         std::cerr << "property " << attributeName.data()
                   << " is not be supported !\n"
@@ -502,8 +526,8 @@ bool MonocularCamera::getBooleanAttribute(const std::string attributeName,
     return true;
 }
 
-bool MonocularCamera::setStringAttribute(const std::string attributeName,
-                                         const std::string val) {
+bool TrinocularCamera::setStringAttribute(const std::string attributeName,
+                                          const std::string val) {
     stringProperties_[attributeName] = val;
 
     if (isInitial_) {
@@ -514,8 +538,8 @@ bool MonocularCamera::setStringAttribute(const std::string attributeName,
     return true;
 }
 
-bool MonocularCamera::setNumberAttribute(const std::string attributeName,
-                                         const double val) {
+bool TrinocularCamera::setNumberAttribute(const std::string attributeName,
+                                          const double val) {
 
     numbericalProperties_[attributeName] = val;
 
@@ -527,8 +551,8 @@ bool MonocularCamera::setNumberAttribute(const std::string attributeName,
     return true;
 }
 
-bool MonocularCamera::setBooleanAttribute(const std::string attributeName,
-                                          const bool val) {
+bool TrinocularCamera::setBooleanAttribute(const std::string attributeName,
+                                           const bool val) {
     booleanProperties_[attributeName] = val;
 
     if (isInitial_) {
@@ -539,8 +563,8 @@ bool MonocularCamera::setBooleanAttribute(const std::string attributeName,
     return true;
 }
 
-bool MonocularCamera::resetCameraConfig() {
-    stringProperties_["Camera Name"] = "Binocular Camera";
+bool TrinocularCamera::resetCameraConfig() {
+    stringProperties_["Camera Name"] = "Trinocular Camera";
     stringProperties_["Manufactor"] = "@Evans Liu";
     stringProperties_["Email"] = "@1369215984@qq.com";
     stringProperties_["Accuracy"] = "0.2mm @1m";
@@ -549,27 +573,32 @@ bool MonocularCamera::resetCameraConfig() {
     stringProperties_["True Width"] = "600mm";
     stringProperties_["True Height"] = "500mm";
     stringProperties_["DLP Evm"] = "DLP4710";
+    stringProperties_["Color Camera Name"] = "Color";
     stringProperties_["Left Camera Name"] = "Left";
+    stringProperties_["Right Camera Name"] = "Right";
     stringProperties_["2D Camera Manufactor"] = "Huaray";
+    stringProperties_["Calibration File Path"] = "../../data/caliInfo.yml";
     stringProperties_["Intrinsic Path"] = "../../data/caliInfo.yml";
 
     numbericalProperties_["Contrast Threshold"] = 5;
     numbericalProperties_["Cost Min Diff"] = 0.001;
+    numbericalProperties_["Cost Max Diff"] = 1.0;
+    numbericalProperties_["Max Cost"] = 0.1;
     numbericalProperties_["Light Strength"] = 0.9;
     numbericalProperties_["Exposure Time"] = 20000;
     numbericalProperties_["Pre Exposure Time"] = 5000;
     numbericalProperties_["Aft Exposure Time"] = 5000;
-    numbericalProperties_["Phase Shift Times"] = 12;
-    numbericalProperties_["Cycles"] = 64;
-    numbericalProperties_["Total Fringes"] = 19;
-    numbericalProperties_["Pattern"] = 0.0;
+    numbericalProperties_["Phase Shift Times"] = 3;
+    numbericalProperties_["Cycles"] = 32;
+    numbericalProperties_["Total Fringes"] = 3;
+    numbericalProperties_["Pattern"] = 2.0;
     numbericalProperties_["Minimum Depth"] = 0.0;
     numbericalProperties_["Maximum Depth"] = 1500;
 
-    booleanProperties_["Is One Bit"] = false;
+    booleanProperties_["Is One Bit"] = true;
     booleanProperties_["Enable Depth Camera"] = true;
     booleanProperties_["Noise Filter"] = true;
-    booleanProperties_["Gpu Accelerate"] = false;
+    booleanProperties_["Gpu Accelerate"] = true;
     booleanProperties_["Is Vertical"] = true;
 
     saveParams(jsonPath_, jsonVal_);
@@ -578,7 +607,7 @@ bool MonocularCamera::resetCameraConfig() {
     return updateCamera();
 }
 
-bool MonocularCamera::burnPatterns(const std::vector<cv::Mat> &imgs) {
+bool TrinocularCamera::burnPatterns(const std::vector<cv::Mat> &imgs) {
     // TODO@Evans Liu:
     // 目前只支持烧录单方向条纹，双方向需要使用更底层的投影仪SDK，示例CameraEngine.cpp中的burnStripe函数
     auto pProjector =
@@ -618,46 +647,44 @@ bool MonocularCamera::burnPatterns(const std::vector<cv::Mat> &imgs) {
     return isSuccess;
 }
 
-void MonocularCamera::updateExposureTime() {
+void TrinocularCamera::updateExposureTime() {
     const device::CameraFactory::CameraManufactor manufator =
         stringProperties_["2D Camera Manufactor"] == "Huaray"
             ? device::CameraFactory::Huaray
             : device::CameraFactory::Halcon;
-    bool isSucess =
-        cameraFactory_
-            .getCamera(stringProperties_["Left Camera Name"], manufator)
-            ->setNumberAttribute("ExposureTime",
-                                 numbericalProperties_["Exposure Time"]);
-    if (stringProperties_["Color Camera Name"] != "") {
-        cameraFactory_
-            .getCamera(stringProperties_["Color Camera Name"], manufator)
-            ->setNumberAttribute("ExposureTime",
-                                 numbericalProperties_["Exposure Time"]);
-    }
+    cameraFactory_.getCamera(stringProperties_["Color Camera Name"], manufator)
+        ->setNumberAttribute("ExposureTime",
+                             numbericalProperties_["Exposure Time"]);
+
+    cameraFactory_.getCamera(stringProperties_["Left Camera Name"], manufator)
+        ->setNumberAttribute("ExposureTime",
+                             numbericalProperties_["Exposure Time"]);
+    cameraFactory_.getCamera(stringProperties_["Right Camera Name"], manufator)
+        ->setNumberAttribute("ExposureTime",
+                             numbericalProperties_["Exposure Time"]);
 }
 
-void MonocularCamera::updateEnableDepthCamera() {
+void TrinocularCamera::updateEnableDepthCamera() {
     const device::CameraFactory::CameraManufactor manufator =
         stringProperties_["2D Camera Manufactor"] == "Huaray"
             ? device::CameraFactory::Huaray
             : device::CameraFactory::Halcon;
+    cameraFactory_.getCamera(stringProperties_["Color Camera Name"], manufator)
+        ->setTrigMode(device::trigLine);
     cameraFactory_.getCamera(stringProperties_["Left Camera Name"], manufator)
         ->setTrigMode(device::trigLine);
-    if (stringProperties_["Color Camera Name"] != "") {
-        cameraFactory_
-            .getCamera(stringProperties_["Color Camera Name"], manufator)
-            ->setTrigMode(device::trigLine);
-    }
+    cameraFactory_.getCamera(stringProperties_["Right Camera Name"], manufator)
+        ->setTrigMode(device::trigLine);
 }
 
-void MonocularCamera::updateLightStrength() {
+void TrinocularCamera::updateLightStrength() {
     projectorFactory_.getProjector(stringProperties_["DLP Evm"])
         ->setLEDCurrent(numbericalProperties_["Light Strength"],
                         numbericalProperties_["Light Strength"],
                         numbericalProperties_["Light Strength"]);
 }
 
-void MonocularCamera::parseSignals() {
+void TrinocularCamera::parseSignals() {
     if (propertiesChangedSignals_["Enable Depth Camera"]) {
         if (booleanProperties_["Enable Depth Camera"]) {
             updateEnableDepthCamera();
@@ -671,7 +698,7 @@ void MonocularCamera::parseSignals() {
     }
 }
 
-bool MonocularCamera::updateCamera() {
+bool TrinocularCamera::updateCamera() {
     saveParams(jsonPath_, jsonVal_);
 
     return true;

@@ -1,6 +1,6 @@
 #include "binosSinusShiftGrayCodePattern.h"
 
-#include "../algorithm/algorithm.h"
+#include "../../algorithm/algorithm.h"
 
 using namespace cv;
 

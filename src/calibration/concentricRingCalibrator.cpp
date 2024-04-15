@@ -155,7 +155,8 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
         pointsOfCell.clear();
         isFind = cv::findCirclesGrid(
             threshodFindCircle, cv::Size(patternSize.width, patternSize.height),
-            pointsOfCell, cv::CALIB_CB_SYMMETRIC_GRID | cv::CALIB_CB_CLUSTERING, detector);
+            pointsOfCell, cv::CALIB_CB_SYMMETRIC_GRID | cv::CALIB_CB_CLUSTERING,
+            detector);
 
         if (!isFind) {
             return false;

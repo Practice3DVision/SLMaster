@@ -1,5 +1,5 @@
 /**
- * @file binoocularCamera.h
+ * @file trinocularCamera.h
  * @author Evans Liu (1369215984@qq.com)
  * @brief
  * @version 0.1
@@ -9,11 +9,12 @@
  *
  */
 
-#ifndef __BINOCULAR_CAMERA_H_
-#define __BINOCULAR_CAMERA_H_
+#ifndef __TRINOCULAR_CAMERA_H_
+#define __TRINOCULAR_CAMERA_H_
 
-#include "../../device.h"
-#include "slCamera.h"
+#include "../../common.h"
+#include "../../device/device.h"
+#include "../slCamera.h"
 
 
 #include <unordered_map>
@@ -21,18 +22,18 @@
 namespace slmaster {
 namespace cameras {
 /** @brief 结构光相机 */
-class SLMASTER_API BinocularCamera : public SLCamera {
+class SLMASTER_API TrinocularCamera : public SLCamera {
   public:
     /**
      * @brief 使用配置文件加载相机配置
      *
      * @param jsonPath json文件路径
      */
-    BinocularCamera(IN const std::string jsonPath);
+    TrinocularCamera(IN const std::string jsonPath);
     /**
      * @brief 结束时保存当前参数
      */
-    ~BinocularCamera();
+    ~TrinocularCamera();
     /**
      * @brief 获取相机信息
      *
@@ -79,7 +80,18 @@ class SLMASTER_API BinocularCamera : public SLCamera {
      * @param imgs 待烧录的条纹
      * @return
      */
-    bool burnPatterns(const std::vector<cv::Mat> &imgs) override;
+    bool burnPatterns(IN const std::vector<cv::Mat> &imgs) override;
+    /**
+     * @brief 连续捕获
+     * @param frameData 获取到的数据
+     * @return
+     */
+    bool continuesCapture(IN SafeQueue<FrameData> &frameDataQueue) override;
+    /**
+     * @brief 停止连续捕获
+     * @return
+     */
+    bool stopContinuesCapture() override;
     /**
      * @brief 获取一帧数据
      *
@@ -88,17 +100,6 @@ class SLMASTER_API BinocularCamera : public SLCamera {
      * @return false 失败
      */
     bool capture(IN FrameData &frameData) override;
-    /**
-     * @brief 连续捕获
-     * @param frameData 获取到的数据
-     * @return
-     */
-    bool continuesCapture(SafeQueue<FrameData> &frameDataQueue) override;
-    /**
-     * @brief 停止连续捕获
-     * @return
-     */
-    bool stopContinuesCapture() override;
     /**
      * @brief 获取一帧数据(离线)
      *
@@ -242,8 +243,8 @@ class SLMASTER_API BinocularCamera : public SLCamera {
     /**
      * @brief 解码并重建
      */
-    void decode(const std::vector<std::vector<cv::Mat>> &imgs,
-                FrameData &frameData);
+    void decode(IN const std::vector<std::vector<cv::Mat>> &imgs,
+                OUT FrameData &frameData);
     /**
      * @brief 处理信号
      */
@@ -258,10 +259,6 @@ class SLMASTER_API BinocularCamera : public SLCamera {
     std::unordered_map<std::string, bool> propertiesChangedSignals_;
     device::CameraFactory cameraFactory_;
     device::ProjectorFactory projectorFactory_;
-    cv::Mat mapLX_;
-    cv::Mat mapLY_;
-    cv::Mat mapRX_;
-    cv::Mat mapRY_;
     std::atomic_bool isCaptureStop_;
     std::thread imgCreateThread_;
     std::thread frameDataCreateThread_;
@@ -270,4 +267,4 @@ class SLMASTER_API BinocularCamera : public SLCamera {
 } // namespace cameras
 } // namespace slmaster
 
-#endif // !__BINOCULAR_CAMERA_H_
+#endif // __TRINOCULAR_CAMERA_H_

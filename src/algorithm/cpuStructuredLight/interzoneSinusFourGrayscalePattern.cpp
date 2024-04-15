@@ -53,7 +53,7 @@ class InterzoneSinusFourGrayscalePattern_Impl final
 
   private:
     // threshod four grayscale floor img
-    void threshod(const Mat &img, std::vector<float> &threshodVal,
+    void threshod(const Mat &img, const Mat &confidenceMap, std::vector<float> &threshodVal,
                   Mat &out) const;
     // k-means cluster
     float kMeans(const Mat &img, const Mat &confidenceMap,
@@ -197,7 +197,7 @@ float InterzoneSinusFourGrayscalePattern_Impl::kMeans(
 
             for (int j = 0; j < img.cols; ++j) {
                 // skip lower confidence pixels
-                if (ptrConfidenceMap[j] < params.confidenceThreshold) {
+                if (ptrConfidenceMap[j] < params.confidenceThreshold || isnan(ptrImg[j])) {
                     continue;
                 }
                 // find minimum distance
@@ -206,7 +206,7 @@ float InterzoneSinusFourGrayscalePattern_Impl::kMeans(
                 for (int k = 0; k < 4; ++k) {
                     float distance = abs(ptrImg[j] - threshod[k]);
 
-                    if (distance < minDistance) {
+                    if (distance <= minDistance) {
                         minDistance = distance;
                         minDistanceK = k;
                     }
@@ -221,7 +221,15 @@ float InterzoneSinusFourGrayscalePattern_Impl::kMeans(
     });
 
     for (int k = 0; k < 4; ++k) {
-        threshod[k] = sumGray[k].first / sumGray[k].second;
+        float curThreshod = sumGray[k].first / sumGray[k].second;
+        float diff = curThreshod - threshod[k];
+        //skip too big change
+        if(sumGray[k].second == 0 || abs(diff) > 0.05f) {
+            threshod[k] += curThreshod > threshod[k] ? 0.05f : -0.05f;
+            continue;
+        }
+        
+        threshod[k] = curThreshod;
     }
 
     score /= (sumGray[0].second + sumGray[1].second + sumGray[2].second +
@@ -231,7 +239,7 @@ float InterzoneSinusFourGrayscalePattern_Impl::kMeans(
 }
 
 void InterzoneSinusFourGrayscalePattern_Impl::threshod(
-    const Mat &img, std::vector<float> &threshodVal, Mat &out) const {
+    const Mat &img, const Mat &confidenceMap, std::vector<float> &threshodVal, Mat &out) const {
     CV_Assert(!img.empty() && threshodVal.size() == 4);
 
     out = Mat::zeros(img.size(), CV_8UC1);
@@ -243,9 +251,14 @@ void InterzoneSinusFourGrayscalePattern_Impl::threshod(
     parallel_for_(Range(0, img.rows), [&](const Range &range) {
         for (int i = range.start; i < range.end; ++i) {
             auto ptrImg = img.ptr<float>(i);
+            auto ptrConfidence = confidenceMap.ptr<float>(i);
             auto ptrOut = out.ptr<uchar>(i);
 
             for (int j = 0; j < img.cols; ++j) {
+                if(ptrConfidence[j] < params.confidenceThreshold) {
+                    continue;
+                }
+
                 if (ptrImg[j] >= -FLT_MAX &&
                     ptrImg[j] < threshodVal[0] + half01) {
                     ptrOut[j] = 0;
@@ -327,9 +340,9 @@ void InterzoneSinusFourGrayscalePattern_Impl::computeFloorMap(
 
         do {
             score = kMeans(normalizeGrayImgs[i], confidence, threshodVal);
-        } while (++count < 5 && score > 20.f);
+        } while (++count < 3 && score > 0.01f);
 
-        threshod(normalizeGrayImgs[i], threshodVal, threshodGrayImgs[i]);
+        threshod(normalizeGrayImgs[i], confidence, threshodVal, threshodGrayImgs[i]);
     }
     // compute floor map
     parallel_for_(Range(0, height), [&](const Range &range) {
@@ -341,8 +354,13 @@ void InterzoneSinusFourGrayscalePattern_Impl::computeFloorMap(
             }
 
             auto ptrFloor = floor.ptr<uint16_t>(i);
+            auto ptrConfidence = confidence.ptr<float>(i);
 
             for (int j = 0; j < width; ++j) {
+                if(ptrConfidence[j] < params.confidenceThreshold) {
+                    continue;
+                }
+
                 int val = 0;
 
                 for (int k = 0; k < imgsPtrs.size(); ++k) {

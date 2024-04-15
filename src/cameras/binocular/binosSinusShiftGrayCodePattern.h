@@ -9,11 +9,11 @@
  *
  */
 
-#ifndef __BINOSSINUSSHIFTGRAYCODEPATTERN_H_
-#define __BINOSSINUSSHIFTGRAYCODEPATTERN_H_
+#ifndef __BINOS_SINUS_SHIFT_GRAYCODE_PATTERN_H_
+#define __BINOS_SINUS_SHIFT_GRAYCODE_PATTERN_H_
 
-#include "../common.h"
-#include "pattern.h"
+#include "../../common.h"
+#include "../pattern.h"
 
 namespace slmaster {
 namespace cameras {
@@ -47,4 +47,4 @@ class SLMASTER_API BinoSinusShiftGrayCodePattern : public Pattern {
 } // namespace cameras
 } // namespace slmaster
 
-#endif // __BINOSSINUSSHIFTGRAYCODEPATTERN_H_
+#endif // __BINOS_SINUS_SHIFT_GRAYCODE_PATTERN_H_

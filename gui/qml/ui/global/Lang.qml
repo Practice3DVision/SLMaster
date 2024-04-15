@@ -45,6 +45,7 @@ QtObject {
     property string camera
     property string stripe_type
     property string sine_complementary_gray_code
+    property string interzone_sinus_four_grayscale
     property string encode
     property string save
     property string defocus_encoding
@@ -307,6 +308,7 @@ QtObject {
         stripe_type = "条纹类型";
         sine_complementary_gray_code = "正弦互补格雷码";
         sine_shift_gray_code = "正弦移位格雷码";
+        interzone_sinus_four_grayscale = "四灰度编码广义分区间相位展开";
         encode = "编码";
         save = "保存";
         defocus_encoding = "离焦编码";
@@ -788,6 +790,7 @@ QtObject {
         sequenceInverse = "Feature Point Sequence Inverse";
         horizonVerticalInv = "Horizon/Vertical Feature Point Sequence Inverse";
         useCurrentFeaturePoints = "Use Current Feature Points";
+        interzone_sinus_four_grayscale = "Interzone Sinus Four Grayscale";
     }
 
     property string __locale
