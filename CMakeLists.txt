@@ -4,7 +4,7 @@ project(SLMaster)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 set(CMAKE_BUILD_TYPE Release)
-#Release模式必须使用以下属性
+set(CMAKE_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build)
 set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} /O2 /Zi")
 
 add_subdirectory(src)
