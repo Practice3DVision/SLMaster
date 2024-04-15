@@ -2,11 +2,6 @@ cmake_minimum_required(VERSION 3.20)
 
 project(cameras)
 
-find_package(OpenCV COMPONENTS core cudev)
-if(OpenCV_cudev_FOUND)
-    add_definitions(-DOPENCV_WITH_CUDA_MODULE)
-endif()
-
 file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.h ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
 if(BUILD_SLMASTER_SHARED)
