@@ -136,7 +136,7 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
     cv::Mat src_display = inputImg.clone();
     cv::Mat threshodFindCircle = inputImg.clone();
     cv::adaptiveThreshold(threshodFindCircle, threshodFindCircle, 255,
-                          cv::ADAPTIVE_THRESH_MEAN_C, cv::THRESH_BINARY, 41, 0);
+                          cv::ADAPTIVE_THRESH_MEAN_C, cv::THRESH_BINARY, 51, 0);
     // cv::threshold(threshodFindCircle, threshodFindCircle, 0, 255,
     // cv::THRESH_BINARY | cv::THRESH_OTSU);
 
@@ -154,8 +154,8 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
     if (!isFind) {
         pointsOfCell.clear();
         isFind = cv::findCirclesGrid(
-            threshodFindCircle, cv::Size(patternSize.height, patternSize.width),
-            pointsOfCell, cv::CALIB_CB_SYMMETRIC_GRID, detector);
+            threshodFindCircle, cv::Size(patternSize.width, patternSize.height),
+            pointsOfCell, cv::CALIB_CB_SYMMETRIC_GRID | cv::CALIB_CB_CLUSTERING, detector);
 
         if (!isFind) {
             return false;
