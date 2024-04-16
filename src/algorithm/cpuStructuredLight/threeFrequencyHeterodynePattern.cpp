@@ -173,13 +173,13 @@ void ThreeFrequencyHeterodynePattern_Impl::computeFloorMap(
     const int width = confidence.cols;
     floor = Mat::zeros(height, width, CV_16UC1);
 
-    std::vector<double> frequencies = { 1.0 / params.nbrOfPeriods, 1.0 / (params.nbrOfPeriods - 6), 1.0 / (params.nbrOfPeriods - 11)};
+    std::vector<float> frequencies = { 1.f / params.nbrOfPeriods, 1.f / (params.nbrOfPeriods - 6), 1.f / (params.nbrOfPeriods - 11)};
 
-    auto frequency12 =  frequencies[0] * frequencies[1] / (frequencies[1] - frequencies[0]);
-    auto frequency23 =  frequencies[1] * frequencies[2] / (frequencies[2] - frequencies[1]);
-    auto frequency123 =  frequency23 * frequency12 / (frequency23 - frequency12);
-    auto ratio2d1 = frequency12 / frequencies[0];
-    auto ratio123d12 = frequency123 / frequency12;
+    float frequency12 =  frequencies[0] * frequencies[1] / (frequencies[1] - frequencies[0]);
+    float frequency23 =  frequencies[1] * frequencies[2] / (frequencies[2] - frequencies[1]);
+    float frequency123 =  frequency23 * frequency12 / (frequency23 - frequency12);
+    float ratio2d1 = frequency12 / frequencies[0];
+    float ratio123d12 = frequency123 / frequency12;
 
     Mat wrap12 = Mat::zeros(height, width, CV_32FC1);
     Mat wrap23 = Mat::zeros(height, width, CV_32FC1);

@@ -47,7 +47,7 @@ TEST_F(ThreeFrequencyHeterodynePatternSuit, testGenerateUnwrap) {
     params.height = 1080;
     params.width = 1920;
     params.horizontal = false;
-    params.nbrOfPeriods = 70;
+    params.nbrOfPeriods = 64;
 
     auto pattern = ThreeFrequencyHeterodynePattern::create(params);
 
