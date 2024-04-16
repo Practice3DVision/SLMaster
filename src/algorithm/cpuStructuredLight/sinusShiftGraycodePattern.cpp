@@ -79,11 +79,34 @@ void SinusShiftGrayCodePattern_Impl::computeConfidenceMap(
 
     confidence = Mat::zeros(imgs[0].size(), CV_32FC1);
 
-    for (int i = 0; i < params.shiftTime; ++i) {
-        cv::Mat fltImg;
-        imgs[i].convertTo(fltImg, CV_32FC1);
-        confidence += fltImg / params.shiftTime;
-    }
+    const int height = imgs[0].rows;
+    const int width = imgs[0].cols;
+
+    const float shiftVal = static_cast<float>(CV_2PI) / params.shiftTime;
+
+    parallel_for_(Range(0, height), [&](const Range &range) {
+        std::vector<const uchar *> imgsPtrs(params.shiftTime);
+
+        for (int i = range.start; i < range.end; ++i) {
+            auto confidencePtr = confidence.ptr<float>(i);
+
+            for (int j = 0; j < params.shiftTime; ++j) {
+                imgsPtrs[j] = imgs[j].ptr<uchar>(i);
+            }
+
+            for (int j = 0; j < width; ++j) {
+                float molecules = 0.f, denominator = 0.f;
+                for (int k = 0; k < params.shiftTime; ++k) {
+                    molecules += imgsPtrs[k][j] * sin(k * shiftVal);
+                    denominator += imgsPtrs[k][j] * cos(k * shiftVal);
+                }
+
+                confidencePtr[j] =
+                    2.f / params.shiftTime *
+                    sqrt(molecules * molecules + denominator * denominator);
+            }
+        }
+    });
 }
 
 void SinusShiftGrayCodePattern_Impl::computePhaseMap(
@@ -406,7 +429,7 @@ bool SinusShiftGrayCodePattern_Impl::decode(
 
     Mat &disparity = *static_cast<Mat *>(disparityMap.getObj());
 
-    if (flags == SINUSOIDAL_COMPLEMENTARY_GRAY_CODE) {
+    if (flags == SINUSOIDAL_SHIFT_GRAY_CODE) {
         std::vector<cv::Mat> confidenceMap(2);
         std::vector<cv::Mat> wrappedMap(2);
         std::vector<cv::Mat> floorMap(2);

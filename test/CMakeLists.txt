@@ -85,4 +85,16 @@ target_link_libraries(
     GTest::gtest_main
 )
 
+add_executable(
+    TestThreeFrequencyHeterodynePattern
+    ${CMAKE_CURRENT_SOURCE_DIR}/testThreeFrequencyHeterodynePattern.cpp
+)
+
+target_link_libraries(
+    TestThreeFrequencyHeterodynePattern
+    PUBLIC
+    slmaster
+    GTest::gtest_main
+)
+
 include(GoogleTest)

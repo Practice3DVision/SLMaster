@@ -76,7 +76,7 @@ bool BinoSinusShiftGrayCodePattern::decode(
     auto pattern = algorithm::SinusShiftGrayCodePattern::create(params);
     return pattern->decode(
         patternImages, disparityMap, cv::noArray(), cv::noArray(),
-        algorithm::SINUSOIDAL_COMPLEMENTARY_GRAY_CODE);
+        algorithm::SINUSOIDAL_SHIFT_GRAY_CODE);
 }
 } // namespace cameras
 } // namespace slmaster

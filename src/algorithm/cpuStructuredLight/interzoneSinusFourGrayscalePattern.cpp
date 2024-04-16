@@ -555,7 +555,7 @@ bool InterzoneSinusFourGrayscalePattern_Impl::decode(
 
     Mat &disparity = *static_cast<Mat *>(disparityMap.getObj());
 
-    if (flags == SINUSOIDAL_COMPLEMENTARY_GRAY_CODE) {
+    if (flags == INTERZONE_SINUS_FOUR_GRAYSCALE) {
         std::vector<cv::Mat> confidenceMap(2);
         std::vector<cv::Mat> wrappedMap(2);
         std::vector<cv::Mat> floorMap(2);

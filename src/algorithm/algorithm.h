@@ -16,6 +16,7 @@
 #include "cpuStructuredLight/sinusCompleGraycodePattern.hpp"
 #include "cpuStructuredLight/sinusShiftGraycodePattern.hpp"
 #include "cpuStructuredLight/interzoneSinusFourGrayscalePattern.hpp"
+#include "cpuStructuredLight/threeFrequencyHeterodynePattern.hpp"
 #include "cpuStructuredLight/structuredLight.hpp"
 #include "cpuStructuredLight/recoverDepth.h"
 #include "cpuStructuredLight/lasterLine.h"
