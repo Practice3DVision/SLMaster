@@ -76,7 +76,7 @@ bool BinoInterzoneSinusFourGrayscalePattern::decode(
     auto pattern = algorithm::InterzoneSinusFourGrayscalePattern::create(params);
     return pattern->decode(
         patternImages, disparityMap, cv::noArray(), cv::noArray(),
-        algorithm::SINUSOIDAL_COMPLEMENTARY_GRAY_CODE);
+        algorithm::INTERZONE_SINUS_FOUR_GRAYSCALE);
 }
 } // namespace cameras
 } // namespace slmaster

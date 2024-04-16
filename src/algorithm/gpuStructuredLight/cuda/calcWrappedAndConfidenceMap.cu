@@ -22,19 +22,20 @@ __global__ void calc_wrapped_and_confidence_map_psp(
         float stepShiftVal = __fdividef(CV_2PI, shiftSteps);
 #pragma unroll
         for (int i = 0; i < PIXELS_PROCESS; ++i) {
-            float sinusPart = 0.f, cosPart = 0.f, confidence = 0.f;
+            float molecules = 0.f, denominator = 0.f;
 #pragma unroll
             for (int j = 0; j < shiftSteps; ++j) {
                 SRC_TYPE curVal =
                     __ldg(&phaseImgs.ptr(y)[shiftSteps * (x + i) + j]);
                 const float shiftVal = j * stepShiftVal;
-                sinusPart += curVal * __sinf(shiftVal);
-                cosPart += curVal * __cosf(shiftVal);
-                confidence += curVal;
+                molecules += curVal * __sinf(shiftVal);
+                denominator += curVal * __cosf(shiftVal);
             }
 
-            wrappedMap.ptr(y)[x + i] = -atan2(sinusPart, cosPart);
-            confidenceMap.ptr(y)[x + i] = __fdividef(confidence, shiftSteps);
+            wrappedMap.ptr(y)[x + i] = -atan2(molecules, denominator);
+            confidenceMap.ptr(y)[x + i] =
+                __fdividef(2.f, shiftSteps) *
+                sqrt(molecules * molecules + denominator * denominator);
         }
     }
 }

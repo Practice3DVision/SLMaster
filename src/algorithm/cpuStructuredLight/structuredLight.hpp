@@ -25,6 +25,23 @@ enum {
         0, //!< Zhang Q, Su X, Xiang L, et al. 3-D shape measurement based on
            //!< complementary Gray-code light[J]. Optics and Lasers in
            //!< Engineering, 2012, 50(4): 574-579.>
+    SINUSOIDAL_SHIFT_GRAY_CODE, // Wu, Z., et al. (2019). "High-speed
+                                // three-dimensional shape measurement based on
+                                // shifting Gray-code light." Opt Express
+                                // 27(16): 22631-22644.
+    INTERZONE_SINUS_FOUR_GRAYSCALE, // Wu, Z., et al. (2021). "Generalized phase
+                                    // unwrapping method that avoids jump errors
+                                    // for fringe projection profilometry." Opt
+                                    // Express 29(17): 27181-27192.
+    // He, X., et al. (2019). "Quaternary gray-code phase unwrapping for binary
+    // fringe projection profilometry." Optics and Lasers in Engineering 121:
+    // 358-368.
+    THREE_FREQUENCY_HETERODYNE, // Carsten Reich, Reinhold Ritter, and Jan
+                                // Thesing "3-D shape measurement of complex
+                                // objects by combining photogrammetry and
+                                // fringe projection," Optical Engineering
+                                // 39(1), 2000.
+
 };
 
 /** @brief Abstract base class for generating and decoding structured light
