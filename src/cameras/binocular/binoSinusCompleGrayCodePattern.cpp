@@ -1,4 +1,4 @@
-#include "binosSinusCompleGrayCodePattern.h"
+#include "binoSinusCompleGrayCodePattern.h"
 
 #include "../../algorithm/algorithm.h"
 
@@ -24,11 +24,12 @@ bool BinoSinusCompleGrayCodePattern::generate(
     params.confidenceThreshold = params__.confidenceThreshold_;
     params.shiftTime = params__.shiftTime_;
 
-    return algorithm::SinusCompleGrayCodePattern::create(params)
-        ->generate(imgs);
+    return algorithm::SinusCompleGrayCodePattern::create(params)->generate(
+        imgs);
 }
 
-std::shared_ptr<Pattern> BinoSinusCompleGrayCodePattern::create(const Params& params) {
+std::shared_ptr<Pattern>
+BinoSinusCompleGrayCodePattern::create(const Params &params) {
     params__ = params;
 
     return std::make_shared<BinoSinusCompleGrayCodePattern>();
@@ -54,8 +55,9 @@ bool BinoSinusCompleGrayCodePattern::decode(
         params.maxDisparity = params__.maxDisparity_;
 
         auto pattern = algorithm::SinusCompleGrayCodePatternGPU::create(params);
-        return pattern->decode(patternImages, disparityMap,
-                               algorithm::SINUSOIDAL_COMPLEMENTARY_GRAY_CODE_GPU);
+        return pattern->decode(
+            patternImages, disparityMap,
+            algorithm::SINUSOIDAL_COMPLEMENTARY_GRAY_CODE_GPU);
     }
 #endif
 
@@ -71,9 +73,8 @@ bool BinoSinusCompleGrayCodePattern::decode(
     params.confidenceThreshold = params__.confidenceThreshold_;
 
     auto pattern = algorithm::SinusCompleGrayCodePattern::create(params);
-    return pattern->decode(
-        patternImages, disparityMap, cv::noArray(), cv::noArray(),
-        algorithm::SINUSOIDAL_COMPLEMENTARY_GRAY_CODE);
+    return pattern->decode(patternImages, disparityMap,
+                           algorithm::SINUSOIDAL_COMPLEMENTARY_GRAY_CODE);
 }
 } // namespace cameras
 } // namespace slmaster

@@ -22,8 +22,6 @@ class SinusCompleGrayCodePattern_Impl final
     // decode patterns and compute disparity map.
     bool decode(const std::vector<std::vector<Mat>> &patternImages,
                 OutputArray disparityMap,
-                InputArrayOfArrays blackImages = noArray(),
-                InputArrayOfArrays whiteImages = noArray(),
                 int flags = 0) const CV_OVERRIDE;
 
     // Compute a confidence map from sinusoidal patterns
@@ -41,9 +39,8 @@ class SinusCompleGrayCodePattern_Impl final
                          OutputArray floorMap) const CV_OVERRIDE;
 
     // Unwrap the wrapped phase map to remove phase ambiguities
-    void unwrapPhaseMap(InputArray wrappedPhaseMap, InputArray floorMap,
-                        OutputArray unwrappedPhaseMap,
-                        InputArray shadowMask = noArray()) const CV_OVERRIDE;
+    void unwrapPhaseMap(InputArray wrappedPhaseMap, InputArray floorMap, cv::InputArray confidenceMap,
+                        OutputArray unwrappedPhaseMap) const CV_OVERRIDE;
 
     // Compute disparity
     void computeDisparity(InputArray lhsUnwrapMap, InputArray rhsUnwrapMap,
@@ -80,34 +77,11 @@ void SinusCompleGrayCodePattern_Impl::computeConfidenceMap(
 
     confidence = Mat::zeros(imgs[0].size(), CV_32FC1);
 
-    const int height = imgs[0].rows;
-    const int width = imgs[0].cols;
-
-    const float shiftVal = static_cast<float>(CV_2PI) / params.shiftTime;
-
-    parallel_for_(Range(0, height), [&](const Range &range) {
-        std::vector<const uchar *> imgsPtrs(params.shiftTime);
-
-        for (int i = range.start; i < range.end; ++i) {
-            auto confidencePtr = confidence.ptr<float>(i);
-
-            for (int j = 0; j < params.shiftTime; ++j) {
-                imgsPtrs[j] = imgs[j].ptr<uchar>(i);
-            }
-
-            for (int j = 0; j < width; ++j) {
-                float molecules = 0.f, denominator = 0.f;
-                for (int k = 0; k < params.shiftTime; ++k) {
-                    molecules += imgsPtrs[k][j] * sin(k * shiftVal);
-                    denominator += imgsPtrs[k][j] * cos(k * shiftVal);
-                }
-
-                confidencePtr[j] =
-                    2.f / params.shiftTime *
-                    sqrt(molecules * molecules + denominator * denominator);
-            }
-        }
-    });
+    for (int i = 0; i < params.shiftTime; ++i) {
+        cv::Mat fltImg;
+        imgs[i].convertTo(fltImg, CV_32FC1);
+        confidence += fltImg / params.shiftTime;
+    }
 }
 
 void SinusCompleGrayCodePattern_Impl::computePhaseMap(
@@ -122,7 +96,7 @@ void SinusCompleGrayCodePattern_Impl::computePhaseMap(
     const int width = imgs[0].cols;
     wrappedPhase = Mat::zeros(height, width, CV_32FC1);
 
-    const float shiftVal = static_cast<float>(CV_2PI) / params.shiftTime;
+    const double shiftVal = static_cast<float>(CV_2PI) / params.shiftTime;
 
     parallel_for_(Range(0, height), [&](const Range &range) {
         std::vector<const uchar *> imgsPtrs(params.shiftTime);
@@ -135,13 +109,17 @@ void SinusCompleGrayCodePattern_Impl::computePhaseMap(
             }
 
             for (int j = 0; j < width; ++j) {
-                float molecules = 0.f, denominator = 0.f;
+                double molecules = 0, denominator = 0;
                 for (int k = 0; k < params.shiftTime; ++k) {
                     molecules += imgsPtrs[k][j] * sin(k * shiftVal);
                     denominator += imgsPtrs[k][j] * cos(k * shiftVal);
                 }
 
-                wrappedPhasePtr[j] = -atan2(molecules, denominator);
+                float phase = -atan2(molecules, denominator);
+
+                phase = phase > CV_PI ? 3.1415926 : (phase < -CV_PI ? -3.1415926 : phase);
+
+                wrappedPhasePtr[j] = phase;
             }
         }
     });
@@ -207,11 +185,12 @@ void SinusCompleGrayCodePattern_Impl::computeFloorMap(
 }
 
 void SinusCompleGrayCodePattern_Impl::unwrapPhaseMap(
-    InputArray wrappedPhaseMap, InputArray floorMap,
-    OutputArray unwrappedPhaseMap, InputArray shadowMask) const {
+    InputArray wrappedPhaseMap, InputArray floorMap, cv::InputArray confidenceMap,
+    OutputArray unwrappedPhaseMap) const {
     const Mat &wrappedPhase =
         *static_cast<const Mat *>(wrappedPhaseMap.getObj());
     const Mat &floor = *static_cast<const Mat *>(floorMap.getObj());
+    const Mat &confidence = *static_cast<const Mat *>(confidenceMap.getObj());
     Mat &unwrappedPhase = *static_cast<Mat *>(unwrappedPhaseMap.getObj());
 
     CV_Assert(!wrappedPhase.empty() && !floor.empty());
@@ -220,43 +199,22 @@ void SinusCompleGrayCodePattern_Impl::unwrapPhaseMap(
     const int width = wrappedPhase.cols;
     unwrappedPhase = Mat::zeros(height, width, CV_32FC1);
 
-    cv::Mat shadow;
-    if (!shadowMask.empty()) {
-        shadow = *static_cast<Mat *>(shadowMask.getObj());
-    }
-
     parallel_for_(Range(0, height), [&](const Range &range) {
         for (int i = range.start; i < range.end; ++i) {
             auto wrappedPhasePtr = wrappedPhase.ptr<float>(i);
             auto floorPtr = floor.ptr<uint16_t>(i);
+            auto confidencePtr = confidence.ptr<float>(i);
             auto unwrappedPhasePtr = unwrappedPhase.ptr<float>(i);
-            const uchar *shadowPtr =
-                shadow.empty() ? nullptr : shadow.ptr<uchar>(i);
+            
             for (int j = 0; j < width; ++j) {
                 // we add CV_PI to make wrap map to begin with 0.
-                if (shadowPtr) {
-                    if (shadowPtr[j]) {
-                        if (floorPtr[j] < params.nbrOfPeriods) {
-                            unwrappedPhasePtr[j] =
-                                wrappedPhasePtr[j] +
-                                static_cast<float>(CV_2PI) * floorPtr[j] +
-                                static_cast<float>(CV_PI);
-                        } else {
-                            unwrappedPhasePtr[j] = 0.f;
-                        }
-                    } else {
-                        unwrappedPhasePtr[j] = 0.f;
-                    }
-                } else {
-                    if (floorPtr[j] < params.nbrOfPeriods) {
-                        unwrappedPhasePtr[j] =
-                            wrappedPhasePtr[j] +
-                            static_cast<float>(CV_2PI) * floorPtr[j] +
-                            static_cast<float>(CV_PI);
-                    } else {
-                        unwrappedPhasePtr[j] = 0.f;
-                    }
+                if (confidencePtr[j] > params.confidenceThreshold) {
+                    unwrappedPhasePtr[j] =
+                        wrappedPhasePtr[j] + CV_2PI * floorPtr[j] + CV_PI;
+                    continue;
                 }
+
+                unwrappedPhasePtr[j] = 0.f;
             }
         }
     });
@@ -271,19 +229,16 @@ bool SinusCompleGrayCodePattern_Impl::generate(OutputArrayOfArrays pattern) {
     // generate phase-shift imgs.
     for (int i = 0; i < params.shiftTime; ++i) {
         Mat intensityMap = Mat::zeros(height, width, CV_8UC1);
-        const float shiftVal =
-            static_cast<float>(CV_2PI) / params.shiftTime * i;
+        const double shiftVal = CV_2PI / params.shiftTime * i;
 
         for (int j = 0; j < height; ++j) {
             auto intensityMapPtr = intensityMap.ptr<uchar>(j);
             for (int k = 0; k < width; ++k) {
                 // Set the fringe starting intensity to 0 so that it corresponds
                 // to the complementary graycode interval.
-                const float wrappedPhaseVal =
+                const double wrappedPhaseVal =
                     (k % pixelsPerPeriod) /
-                        static_cast<float>(pixelsPerPeriod) *
-                        static_cast<float>(CV_2PI) -
-                    static_cast<float>(CV_PI);
+                        static_cast<double>(pixelsPerPeriod) * CV_2PI - CV_PI;
                 intensityMapPtr[k] = static_cast<uchar>(
                     127.5 + 127.5 * cos(wrappedPhaseVal + shiftVal));
             }
@@ -333,10 +288,7 @@ void SinusCompleGrayCodePattern_Impl::computeDisparity(
 
 bool SinusCompleGrayCodePattern_Impl::decode(
     const std::vector<std::vector<Mat>> &patternImages,
-    OutputArray disparityMap, InputArrayOfArrays blackImages,
-    InputArrayOfArrays whiteImages, int flags) const {
-    CV_UNUSED(blackImages);
-    CV_UNUSED(whiteImages);
+    OutputArray disparityMap, int flags) const {
 
     CV_Assert(!patternImages.empty());
 
@@ -360,10 +312,8 @@ bool SinusCompleGrayCodePattern_Impl::decode(
                             confidenceMap[range.start], wrappedMap[range.start],
                             floorMap[range.start]);
             // calculate unwrapped map
-            unwrapPhaseMap(wrappedMap[range.start], floorMap[range.start],
-                           unwrapMap[range.start],
-                           confidenceMap[range.start] >
-                               params.confidenceThreshold);
+            unwrapPhaseMap(wrappedMap[range.start], floorMap[range.start], confidenceMap[range.start],
+                           unwrapMap[range.start]);
         });
 
         // calculate disparity map

@@ -22,11 +22,13 @@
  #include "monocular/monoSinusCompleGrayCodePattern.h"
  #include "monocular/monoSinusShiftGrayCodePattern.h"
  #include "monocular/monoInterzoneSinusFourGrayscalePattern.h"
+ #include "monocular/monoThreeFrequencyHeterodynePattern.h"
 
  #include "binocular/binoocularCamera.h"
- #include "binocular/binosSinusCompleGrayCodePattern.h"
- #include "binocular/binosSinusShiftGrayCodePattern.h"
- #include "binocular/binosInterzoneSinusFourGrayscalePattern.h"
+ #include "binocular/binoSinusCompleGrayCodePattern.h"
+ #include "binocular/binoSinusShiftGrayCodePattern.h"
+ #include "binocular/binoInterzoneSinusFourGrayscalePattern.h"
+ #include "binocular/binoThreeFrequencyHeterodynePattern.h"
 
  #include "trinocular/trinocularCamera.h"
  #include "trinocular/trinocularMultiViewStereoGeometryPattern.h"

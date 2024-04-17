@@ -144,7 +144,7 @@ QtObject {
     property string enable_gpu
     property string texture
     property string sinus_comple_gray_code
-    property string multi_frequency_heterodyne
+    property string three_frequency_heterodyne
     property string reserved
     property string please_select
     property string select_finished
@@ -407,7 +407,7 @@ QtObject {
         enable_gpu = "GPU加速";
         texture = "纹理";
         sinus_comple_gray_code = "正弦互补格雷码";
-        multi_frequency_heterodyne = "多频外差";
+        three_frequency_heterodyne = "三频外差";
         reserved = "保留";
         please_select = "请通过右键点击屏幕以绘制包围盒！";
         select_finished = "包围盒绘制完成！";
@@ -672,7 +672,7 @@ QtObject {
         enable_gpu = "GPU Accelerate";
         texture = "Texture";
         sinus_comple_gray_code = "Sinusoidal Complementary Gray Code";
-        multi_frequency_heterodyne = "Multi Frequency Heterodyne";
+        three_frequency_heterodyne = "Three Frequency Heterodyne";
         reserved = "Reserved";
         please_select = "Please select end point through right button click to finish draw bounding box!";
         select_finished = "Select bounding box finish!";

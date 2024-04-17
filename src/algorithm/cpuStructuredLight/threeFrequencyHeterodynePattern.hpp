@@ -91,14 +91,13 @@ class SLMASTER_API ThreeFrequencyHeterodynePattern : public StructuredLightPatte
     /**
      * @brief Unwrap the wrapped phase map to remove phase ambiguities.
      * @param wrappedPhaseMap The wrapped phase map computed from the pattern.
+     * @param floorMap floor map.
+     * @param confidenceMap confidence map.
      * @param unwrappedPhaseMap The unwrapped phase map used to find
      * correspondences between the two devices.
-     * @param shadowMask Mask used to discard shadow regions.
-     * @param confidenceThreshod confidence threshod to discard invalid data.
      */
     virtual void unwrapPhaseMap(cv::InputArray wrappedPhaseMap, cv::InputArray floorMap,
-                                cv::OutputArray unwrappedPhaseMap,
-                                cv::InputArray shadowMask = cv::noArray()) const = 0;
+                                cv::InputArray confidenceMap, cv::OutputArray unwrappedPhaseMap) const = 0;
     /**
      * @brief compute disparity from left unwrap map and right unwrap map.
      * @param lhsUnwrapMap left unwrap map.

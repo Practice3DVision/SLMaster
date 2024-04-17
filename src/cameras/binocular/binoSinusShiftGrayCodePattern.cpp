@@ -1,4 +1,4 @@
-#include "binosSinusShiftGrayCodePattern.h"
+#include "binoSinusShiftGrayCodePattern.h"
 
 #include "../../algorithm/algorithm.h"
 
@@ -11,8 +11,7 @@ static BinoSinusShiftGrayCodePattern::Params params__;
 
 BinoSinusShiftGrayCodePattern::BinoSinusShiftGrayCodePattern() {}
 
-bool BinoSinusShiftGrayCodePattern::generate(
-    std::vector<cv::Mat> &imgs) const {
+bool BinoSinusShiftGrayCodePattern::generate(std::vector<cv::Mat> &imgs) const {
     algorithm::SinusShiftGrayCodePattern::Params params;
     params.width = params__.width_;
     params.height = params__.height_;
@@ -24,11 +23,11 @@ bool BinoSinusShiftGrayCodePattern::generate(
     params.confidenceThreshold = params__.confidenceThreshold_;
     params.shiftTime = params__.shiftTime_;
 
-    return algorithm::SinusShiftGrayCodePattern::create(params)
-        ->generate(imgs);
+    return algorithm::SinusShiftGrayCodePattern::create(params)->generate(imgs);
 }
 
-std::shared_ptr<Pattern> BinoSinusShiftGrayCodePattern::create(const Params& params) {
+std::shared_ptr<Pattern>
+BinoSinusShiftGrayCodePattern::create(const Params &params) {
     params__ = params;
 
     return std::make_shared<BinoSinusShiftGrayCodePattern>();
@@ -74,9 +73,8 @@ bool BinoSinusShiftGrayCodePattern::decode(
     params.confidenceThreshold = params__.confidenceThreshold_;
 
     auto pattern = algorithm::SinusShiftGrayCodePattern::create(params);
-    return pattern->decode(
-        patternImages, disparityMap, cv::noArray(), cv::noArray(),
-        algorithm::SINUSOIDAL_SHIFT_GRAY_CODE);
+    return pattern->decode(patternImages, disparityMap,
+                           algorithm::SINUSOIDAL_SHIFT_GRAY_CODE);
 }
 } // namespace cameras
 } // namespace slmaster

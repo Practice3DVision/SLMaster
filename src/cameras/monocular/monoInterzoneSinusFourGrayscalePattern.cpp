@@ -110,7 +110,7 @@ bool MonoInterzoneSinusFourGrayscalePattern::decode(
     pattern->computePhaseMap(patternImages[0], wrappedMap);
     pattern->computeConfidenceMap(patternImages[0], confidenceMap);
     pattern->computeFloorMap(patternImages[0], confidenceMap, floorMap);
-    pattern->unwrapPhaseMap(wrappedMap, confidenceMap, floorMap, unwrappedMap);
+    pattern->unwrapPhaseMap(wrappedMap, floorMap, confidenceMap, unwrappedMap);
 
     reverseCamera(unwrappedMap, params__.PL1_, params__.PR4_,
                   params__.minDepth_, params__.maxDepth_,

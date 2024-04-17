@@ -24,8 +24,6 @@ class InterzoneSinusFourGrayscalePattern_Impl final
     // decode patterns and compute disparity map.
     bool decode(const std::vector<std::vector<Mat>> &patternImages,
                 OutputArray disparityMap,
-                InputArrayOfArrays blackImages = noArray(),
-                InputArrayOfArrays whiteImages = noArray(),
                 int flags = 0) const CV_OVERRIDE;
 
     // Compute a confidence map from sinusoidal patterns
@@ -43,8 +41,8 @@ class InterzoneSinusFourGrayscalePattern_Impl final
                          OutputArray floorMap) const CV_OVERRIDE;
 
     // Unwrap the wrapped phase map to remove phase ambiguities
-    void unwrapPhaseMap(cv::InputArray wrappedPhaseMap,
-                        cv::InputArray confidenceMap, cv::InputArray floorMap,
+    void unwrapPhaseMap(cv::InputArray wrappedPhaseMap, cv::InputArray floorMap,
+                        cv::InputArray confidenceMap,
                         cv::OutputArray unwrappedPhaseMap) const CV_OVERRIDE;
 
     // Compute disparity
@@ -53,8 +51,8 @@ class InterzoneSinusFourGrayscalePattern_Impl final
 
   private:
     // threshod four grayscale floor img
-    void threshod(const Mat &img, const Mat &confidenceMap, std::vector<float> &threshodVal,
-                  Mat &out) const;
+    void threshod(const Mat &img, const Mat &confidenceMap,
+                  std::vector<float> &threshodVal, Mat &out) const;
     // k-means cluster
     float kMeans(const Mat &img, const Mat &confidenceMap,
                  std::vector<float> &threshod) const;
@@ -153,7 +151,7 @@ void InterzoneSinusFourGrayscalePattern_Impl::computePhaseMap(
 
     wrappedPhase = Mat::zeros(height, width, CV_32FC1);
 
-    const float shiftVal = static_cast<float>(CV_2PI) / params.shiftTime;
+    const double shiftVal = static_cast<float>(CV_2PI) / params.shiftTime;
 
     parallel_for_(Range(0, height), [&](const Range &range) {
         std::vector<const uchar *> imgsPtrs(params.shiftTime);
@@ -166,14 +164,19 @@ void InterzoneSinusFourGrayscalePattern_Impl::computePhaseMap(
             }
 
             for (int j = 0; j < width; ++j) {
-                float molecules = 0.f, denominator = 0.f;
+                double molecules = 0, denominator = 0;
 
                 for (int k = 0; k < params.shiftTime; ++k) {
                     molecules += imgsPtrs[k][j] * sin(k * shiftVal);
                     denominator += imgsPtrs[k][j] * cos(k * shiftVal);
                 }
 
-                wrappedPhasePtr[j] = -atan2(molecules, denominator);
+                float phase = -atan2(molecules, denominator);
+
+                phase = phase > CV_PI ? 3.1415926
+                                      : (phase < -CV_PI ? -3.1415926 : phase);
+
+                wrappedPhasePtr[j] = phase;
             }
         }
     });
@@ -197,7 +200,8 @@ float InterzoneSinusFourGrayscalePattern_Impl::kMeans(
 
             for (int j = 0; j < img.cols; ++j) {
                 // skip lower confidence pixels
-                if (ptrConfidenceMap[j] < params.confidenceThreshold || isnan(ptrImg[j])) {
+                if (ptrConfidenceMap[j] < params.confidenceThreshold ||
+                    isnan(ptrImg[j])) {
                     continue;
                 }
                 // find minimum distance
@@ -223,12 +227,12 @@ float InterzoneSinusFourGrayscalePattern_Impl::kMeans(
     for (int k = 0; k < 4; ++k) {
         float curThreshod = sumGray[k].first / sumGray[k].second;
         float diff = curThreshod - threshod[k];
-        //skip too big change
-        if(sumGray[k].second == 0 || abs(diff) > 0.05f) {
+        // skip too big change
+        if (sumGray[k].second == 0 || abs(diff) > 0.05f) {
             threshod[k] += curThreshod > threshod[k] ? 0.05f : -0.05f;
             continue;
         }
-        
+
         threshod[k] = curThreshod;
     }
 
@@ -239,7 +243,8 @@ float InterzoneSinusFourGrayscalePattern_Impl::kMeans(
 }
 
 void InterzoneSinusFourGrayscalePattern_Impl::threshod(
-    const Mat &img, const Mat &confidenceMap, std::vector<float> &threshodVal, Mat &out) const {
+    const Mat &img, const Mat &confidenceMap, std::vector<float> &threshodVal,
+    Mat &out) const {
     CV_Assert(!img.empty() && threshodVal.size() == 4);
 
     out = Mat::zeros(img.size(), CV_8UC1);
@@ -255,7 +260,7 @@ void InterzoneSinusFourGrayscalePattern_Impl::threshod(
             auto ptrOut = out.ptr<uchar>(i);
 
             for (int j = 0; j < img.cols; ++j) {
-                if(ptrConfidence[j] < params.confidenceThreshold) {
+                if (ptrConfidence[j] < params.confidenceThreshold) {
                     continue;
                 }
 
@@ -295,7 +300,7 @@ void InterzoneSinusFourGrayscalePattern_Impl::computeFloorMap(
     const int grayCodeImgsCount = imgs.size() - params.shiftTime;
     // compute texture
     Mat texture = Mat::zeros(confidence.size(), CV_32FC1);
-    parallel_for_(Range(0, params.height), [&](const Range &range) {
+    parallel_for_(Range(0, height), [&](const Range &range) {
         std::vector<const uchar *> imgsPtrs(params.shiftTime);
         for (int i = range.start; i < range.end; ++i) {
             for (int j = 0; j < params.shiftTime; ++j) {
@@ -304,7 +309,7 @@ void InterzoneSinusFourGrayscalePattern_Impl::computeFloorMap(
 
             auto texturePtr = texture.ptr<float>(i);
 
-            for (int j = 0; j < params.width; ++j) {
+            for (int j = 0; j < width; ++j) {
                 for (auto ptr : imgsPtrs) {
                     texturePtr[j] += ptr[j];
                 }
@@ -342,7 +347,8 @@ void InterzoneSinusFourGrayscalePattern_Impl::computeFloorMap(
             score = kMeans(normalizeGrayImgs[i], confidence, threshodVal);
         } while (++count < 3 && score > 0.01f);
 
-        threshod(normalizeGrayImgs[i], confidence, threshodVal, threshodGrayImgs[i]);
+        threshod(normalizeGrayImgs[i], confidence, threshodVal,
+                 threshodGrayImgs[i]);
     }
     // compute floor map
     parallel_for_(Range(0, height), [&](const Range &range) {
@@ -357,7 +363,7 @@ void InterzoneSinusFourGrayscalePattern_Impl::computeFloorMap(
             auto ptrConfidence = confidence.ptr<float>(i);
 
             for (int j = 0; j < width; ++j) {
-                if(ptrConfidence[j] < params.confidenceThreshold) {
+                if (ptrConfidence[j] < params.confidenceThreshold) {
                     continue;
                 }
 
@@ -374,7 +380,7 @@ void InterzoneSinusFourGrayscalePattern_Impl::computeFloorMap(
 }
 
 void InterzoneSinusFourGrayscalePattern_Impl::unwrapPhaseMap(
-    InputArray wrappedPhaseMap, InputArray confidenceMap, InputArray floorMap,
+    InputArray wrappedPhaseMap, InputArray floorMap, InputArray confidenceMap,
     OutputArray unwrappedPhaseMap) const {
     const Mat &wrappedPhase =
         *static_cast<const Mat *>(wrappedPhaseMap.getObj());
@@ -449,16 +455,16 @@ bool InterzoneSinusFourGrayscalePattern_Impl::generate(
     // generate phase-shift imgs.
     for (int i = 0; i < params.shiftTime; ++i) {
         Mat intensityMap = Mat::zeros(height, width, CV_8UC1);
-        const float shiftVal = CV_2PI / params.shiftTime * i;
+        const double shiftVal = CV_2PI / params.shiftTime * i;
 
         for (int j = 0; j < height; ++j) {
             auto intensityMapPtr = intensityMap.ptr<uchar>(j);
             for (int k = 0; k < width; ++k) {
                 // Set the fringe starting intensity to 0 so that it corresponds
                 // to the complementary graycode interval.
-                const float wrappedPhaseVal =
+                const double wrappedPhaseVal =
                     (k % pixelsPerPeriod) /
-                        static_cast<float>(pixelsPerPeriod) * CV_2PI -
+                        static_cast<double>(pixelsPerPeriod) * CV_2PI -
                     CV_PI;
                 intensityMapPtr[k] =
                     127.5 + 127.5 * cos(wrappedPhaseVal + shiftVal);
@@ -546,10 +552,7 @@ void InterzoneSinusFourGrayscalePattern_Impl::computeDisparity(
 
 bool InterzoneSinusFourGrayscalePattern_Impl::decode(
     const std::vector<std::vector<Mat>> &patternImages,
-    OutputArray disparityMap, InputArrayOfArrays blackImages,
-    InputArrayOfArrays whiteImages, int flags) const {
-    CV_UNUSED(blackImages);
-    CV_UNUSED(whiteImages);
+    OutputArray disparityMap, int flags) const {
 
     CV_Assert(!patternImages.empty());
 
@@ -572,8 +575,8 @@ bool InterzoneSinusFourGrayscalePattern_Impl::decode(
             computeFloorMap(patternImages[range.start],
                             confidenceMap[range.start], floorMap[range.start]);
             // calculate unwrapped map
-            unwrapPhaseMap(wrappedMap[range.start], confidenceMap[range.start],
-                           floorMap[range.start], unwrapMap[range.start]);
+            unwrapPhaseMap(wrappedMap[range.start], floorMap[range.start],
+                           confidenceMap[range.start], unwrapMap[range.start]);
         });
 
         // calculate disparity map

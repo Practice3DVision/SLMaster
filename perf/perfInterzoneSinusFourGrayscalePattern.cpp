@@ -30,7 +30,7 @@ BENCHMARK_DEFINE_F(InterzoneSinusFourGrayscalePatternSuit, testGenerate)
     }
 }
 
-BENCHMARK_DEFINE_F(InterzoneSinusFourGrayscalePatternSuit, testUnwrap)
+BENCHMARK_DEFINE_F(InterzoneSinusFourGrayscalePatternSuit, testGenerateUnwrap)
 (benchmark::State &state) {
     auto params = InterzoneSinusFourGrayscalePattern::Params();
     params.shiftTime = 3;
@@ -56,6 +56,6 @@ BENCHMARK_DEFINE_F(InterzoneSinusFourGrayscalePatternSuit, testUnwrap)
 }
 
 BENCHMARK_REGISTER_F(InterzoneSinusFourGrayscalePatternSuit, testGenerate)->MeasureProcessCPUTime()->UseRealTime()->Unit(benchmark::TimeUnit::kMillisecond);
-BENCHMARK_REGISTER_F(InterzoneSinusFourGrayscalePatternSuit, testUnwrap)->MeasureProcessCPUTime()->UseRealTime()->Unit(benchmark::TimeUnit::kMillisecond);
+BENCHMARK_REGISTER_F(InterzoneSinusFourGrayscalePatternSuit, testGenerateUnwrap)->MeasureProcessCPUTime()->UseRealTime()->Unit(benchmark::TimeUnit::kMillisecond);
 
 BENCHMARK_MAIN();

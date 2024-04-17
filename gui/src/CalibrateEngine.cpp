@@ -712,8 +712,7 @@ bool CalibrateEngine::captureOnce() {
         pattern->computePhaseMap(imgs, wrappedPhaseMap);
         pattern->computeFloorMap(imgs, confidenceMap, wrappedPhaseMap,
                                  floorMap);
-        pattern->unwrapPhaseMap(wrappedPhaseMap, floorMap, unwrapMap,
-                                confidenceMap > params.confidenceThreshold);
+        pattern->unwrapPhaseMap(wrappedPhaseMap, floorMap, confidenceMap, unwrapMap);
 
         cv::normalize(unwrapMap, normalizeUnwrapMap, 0, 255, cv::NORM_MINMAX);
 

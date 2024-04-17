@@ -47,3 +47,15 @@ target_link_libraries(
     benchmark::benchmark
     slmaster
 )
+
+add_executable(
+    PerfThreeFrequencyHeterodynePattern
+    ${CMAKE_CURRENT_SOURCE_DIR}/perfThreeFrequencyHeterodynePattern.cpp
+)
+
+target_link_libraries(
+    PerfThreeFrequencyHeterodynePattern
+    PRIVATE
+    benchmark::benchmark
+    slmaster
+)

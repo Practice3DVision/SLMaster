@@ -62,8 +62,6 @@ class SLMASTER_API StructuredLightPattern : public virtual cv::Algorithm {
      (vector<vector<Mat>>), loaded as grayscale and previously rectified.
      @param disparityMap The decoding result: a CV_64F Mat at image resolution,
      storing the computed disparity map.
-     @param blackImages The all-black images needed for shadowMasks computation.
-     @param whiteImages The all-white images needed for shadowMasks computation.
      @param flags Flags setting decoding algorithms. Default:
      DECODE_3D_UNDERWORLD.
      @note All the images must be at the same resolution.
@@ -71,8 +69,6 @@ class SLMASTER_API StructuredLightPattern : public virtual cv::Algorithm {
     virtual bool
     decode(const std::vector<std::vector<cv::Mat>> &patternImages,
            cv::OutputArray disparityMap,
-           cv::InputArrayOfArrays blackImages = cv::noArray(),
-           cv::InputArrayOfArrays whiteImages = cv::noArray(),
            int flags = SINUSOIDAL_COMPLEMENTARY_GRAY_CODE) const = 0;
 };
 

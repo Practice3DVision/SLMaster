@@ -1,4 +1,4 @@
-#include "binosInterzoneSinusFourGrayscalePattern.h"
+#include "binoInterzoneSinusFourGrayscalePattern.h"
 
 #include "../algorithm/algorithm.h"
 
@@ -9,7 +9,8 @@ namespace cameras {
 
 static BinoInterzoneSinusFourGrayscalePattern::Params params__;
 
-BinoInterzoneSinusFourGrayscalePattern::BinoInterzoneSinusFourGrayscalePattern() {}
+BinoInterzoneSinusFourGrayscalePattern::
+    BinoInterzoneSinusFourGrayscalePattern() {}
 
 bool BinoInterzoneSinusFourGrayscalePattern::generate(
     std::vector<cv::Mat> &imgs) const {
@@ -28,7 +29,8 @@ bool BinoInterzoneSinusFourGrayscalePattern::generate(
         ->generate(imgs);
 }
 
-std::shared_ptr<Pattern> BinoInterzoneSinusFourGrayscalePattern::create(const Params& params) {
+std::shared_ptr<Pattern>
+BinoInterzoneSinusFourGrayscalePattern::create(const Params &params) {
     params__ = params;
 
     return std::make_shared<BinoInterzoneSinusFourGrayscalePattern>();
@@ -73,10 +75,10 @@ bool BinoInterzoneSinusFourGrayscalePattern::decode(
     params.maxDisparity = params__.maxDisparity_;
     params.confidenceThreshold = params__.confidenceThreshold_;
 
-    auto pattern = algorithm::InterzoneSinusFourGrayscalePattern::create(params);
-    return pattern->decode(
-        patternImages, disparityMap, cv::noArray(), cv::noArray(),
-        algorithm::INTERZONE_SINUS_FOUR_GRAYSCALE);
+    auto pattern =
+        algorithm::InterzoneSinusFourGrayscalePattern::create(params);
+    return pattern->decode(patternImages, disparityMap,
+                           algorithm::INTERZONE_SINUS_FOUR_GRAYSCALE);
 }
 } // namespace cameras
 } // namespace slmaster

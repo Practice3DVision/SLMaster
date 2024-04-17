@@ -54,7 +54,7 @@ TEST_F(ShiftGrayCodePatternSuit, testGenerateUnwrap) {
     pattern->computePhaseMap(imgs, wrapPhaseMap);
     pattern->computeConfidenceMap(imgs, confidenceMap);
     pattern->computeFloorMap(imgs, confidenceMap, wrapPhaseMap, floorMap);
-    pattern->unwrapPhaseMap(wrapPhaseMap, floorMap, unwrapPhaseMap);
+    pattern->unwrapPhaseMap(wrapPhaseMap, floorMap, confidenceMap, unwrapPhaseMap);
 
     ASSERT_EQ(floorMap.ptr<uint16_t>(444)[780], 12);
     ASSERT_EQ(floorMap.ptr<uint16_t>(444)[781], 13);
@@ -75,7 +75,7 @@ TEST_F(ShiftGrayCodePatternSuit, testUnwrap) {
     pattern->computePhaseMap(imgs, wrapPhaseMap);
     pattern->computeConfidenceMap(imgs, confidenceMap);
     pattern->computeFloorMap(imgs, confidenceMap, wrapPhaseMap, floorMap);
-    pattern->unwrapPhaseMap(wrapPhaseMap, floorMap, unwrapPhaseMap);
+    pattern->unwrapPhaseMap(wrapPhaseMap, floorMap, confidenceMap, unwrapPhaseMap);
 
     ASSERT_EQ(floorMap.ptr<uint16_t>(453)[700], 17);
     ASSERT_LE(abs(unwrapPhaseMap.ptr<float>(460)[653] - 103.75), 0.1f);
