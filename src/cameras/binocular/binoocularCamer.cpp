@@ -1,6 +1,5 @@
 #include "binoocularCamera.h"
 
-#include "binosSinusCompleGrayCodePattern.h"
 #include "../tool.h"
 
 namespace slmaster {

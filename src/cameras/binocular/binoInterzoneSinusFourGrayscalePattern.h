@@ -1,29 +1,27 @@
 /**
- * @file binosSinusCompleGrayCodePattern.h
+ * @file binoSInterzoneSinusFourGrayscalePattern.h
  * @author Evans Liu (1369215984@qq.com)
- * @brief
+ * @brief 
  * @version 0.1
- * @date 2024-03-19
- *
+ * @date 2024-04-15
+ * 
  * @copyright Copyright (c) 2024
- *
+ * 
  */
 
-#ifndef __BINOS_SINUS_COMPLE_GRAYCODE_PATTERN_H_
-#define __BINOS_SINUS_COMPLE_GRAYCODE_PATTERN_H_
+#ifndef __BINO_INTERZONE_SINUS_FOUR_GRAYSCALE_PATTERN_H_
+#define __BINO_INTERZONE_SINUS_FOUR_GRAYSCALE_PATTERN_H_
 
 #include "../../common.h"
 #include "../pattern.h"
 
 namespace slmaster {
 namespace cameras {
-// TODO@Evans
-// Liu:使用修饰器模式会更好，避免未来方法增多导致的子类爆炸，需要在OpenCV中重新更改接口
-class SLMASTER_API BinoSinusCompleGrayCodePattern : public Pattern {
+class SLMASTER_API BinoInterzoneSinusFourGrayscalePattern : public Pattern {
   public:
     struct SLMASTER_API Params {
         Params()
-            : width_(1920), height_(1080), shiftTime_(4), cycles_(32),
+            : width_(1920), height_(1080), shiftTime_(3), cycles_(16),
               horizontal_(false), confidenceThreshold_(5.f), minDisparity_(0),
               maxDisparity_(300), maxCost_(0.1f), costMinDiff_(0.0001f) {}
         int width_;
@@ -38,7 +36,7 @@ class SLMASTER_API BinoSinusCompleGrayCodePattern : public Pattern {
         float costMinDiff_;
     };
 
-    BinoSinusCompleGrayCodePattern();
+    BinoInterzoneSinusFourGrayscalePattern();
     virtual bool generate(IN std::vector<cv::Mat> &imgs) const override final;
     virtual bool
     decode(IN const std::vector<std::vector<cv::Mat>> &patternImages,
@@ -49,4 +47,4 @@ class SLMASTER_API BinoSinusCompleGrayCodePattern : public Pattern {
 } // namespace cameras
 } // namespace slmaster
 
-#endif // __BINOS_SINUS_COMPLE_GRAYCODE_PATTERN_H_
+#endif // __BINO_INTERZONE_SINUS_FOUR_GRAYSCALE_PATTERN_H_

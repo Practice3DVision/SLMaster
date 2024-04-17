@@ -123,7 +123,7 @@ class CameraEngine : public QObject {
     CameraEngine(const CameraEngine &) = delete;
     const CameraEngine &operator=(const CameraEngine &) = delete;
     void defocusStripeCreate(std::vector<cv::Mat> &imgs, const int direction,
-                             const int cycles, const int shiftTime,
+                             const int cycles, const int sinusImgsCount, const int shiftTime,
                              AppType::DefocusEncoding method);
     void realTimeRenderImg(const QImage &img);
     void createTenLine();

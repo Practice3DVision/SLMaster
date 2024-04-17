@@ -12,12 +12,10 @@ const string imgsPath = "../../data/threeFrequencyHeterodyne/";
 class ThreeFrequencyHeterodynePatternSuit : public testing::Test {
   public:
     void SetUp() override {
-        /*
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 12; ++i) {
             Mat temp = imread(imgsPath + to_string(i) + ".bmp", 0);
             imgs.emplace_back(temp);
         }
-        */
     }
 
     vector<Mat> imgs;
@@ -38,7 +36,7 @@ TEST_F(ThreeFrequencyHeterodynePatternSuit, testGenerate) {
 
     ASSERT_EQ(imgs[0].ptr<uchar>(420)[730], 191);
     ASSERT_EQ(imgs[3].ptr<uchar>(420)[730], 17);
-    ASSERT_EQ(imgs[6].ptr<uchar>(420)[730], 176);
+    ASSERT_EQ(imgs[6].ptr<uchar>(420)[730], 248);
 }
 
 TEST_F(ThreeFrequencyHeterodynePatternSuit, testGenerateUnwrap) {
@@ -47,7 +45,7 @@ TEST_F(ThreeFrequencyHeterodynePatternSuit, testGenerateUnwrap) {
     params.height = 1080;
     params.width = 1920;
     params.horizontal = false;
-    params.nbrOfPeriods = 64;
+    params.nbrOfPeriods = 70;
 
     auto pattern = ThreeFrequencyHeterodynePattern::create(params);
 
@@ -59,11 +57,11 @@ TEST_F(ThreeFrequencyHeterodynePatternSuit, testGenerateUnwrap) {
     pattern->computePhaseMap(imgs, wrappedPhaseMaps);
     pattern->computeConfidenceMap(imgs, confidenceMap);
     pattern->computeFloorMap(wrappedPhaseMaps, confidenceMap, floorMap);
-    pattern->unwrapPhaseMap(wrappedPhaseMaps, confidenceMap, floorMap,
+    pattern->unwrapPhaseMap(wrappedPhaseMaps[0], floorMap, confidenceMap,
                             unwrapPhaseMap);
 
-    ASSERT_EQ(floorMap.ptr<uint16_t>(420)[730], 191);
-    ASSERT_LE(abs(unwrapPhaseMap.ptr<float>(410)[685] - 35.866), 0.1f);
+    ASSERT_EQ(floorMap.ptr<uint16_t>(346)[866], 31);
+    ASSERT_LE(abs(unwrapPhaseMap.ptr<float>(500)[1050] - 240.53), 0.1f);
 }
 
 TEST_F(ThreeFrequencyHeterodynePatternSuit, testUnwrap) {
@@ -81,10 +79,10 @@ TEST_F(ThreeFrequencyHeterodynePatternSuit, testUnwrap) {
     Mat floorMap, confidenceMap, unwrapPhaseMap;
     pattern->computePhaseMap(imgs, wrappedPhaseMaps);
     pattern->computeConfidenceMap(imgs, confidenceMap);
-    pattern->computeFloorMap(imgs, confidenceMap, floorMap);
-    pattern->unwrapPhaseMap(wrappedPhaseMaps, confidenceMap, floorMap,
+    pattern->computeFloorMap(wrappedPhaseMaps, confidenceMap, floorMap);
+    pattern->unwrapPhaseMap(wrappedPhaseMaps[0], floorMap, confidenceMap,
                             unwrapPhaseMap);
-    
-    ASSERT_EQ(floorMap.ptr<uint16_t>(486)[660], 8);
-    ASSERT_LE(abs(unwrapPhaseMap.ptr<float>(384)[656] - 51.8f), 0.1f);
+
+    ASSERT_EQ(floorMap.ptr<uint16_t>(480)[590], 30);
+    ASSERT_LE(abs(unwrapPhaseMap.ptr<float>(470)[590] - 191.95f), 0.1f);
 }

@@ -86,7 +86,7 @@ class AppType : public QObject
 
     enum PatternMethod {
         SinusCompleGrayCode = 0,
-        MutiplyFrequency,
+        ThreeFrequencyHeterodyne,
         MultiViewStereoGeometry,
         SinusShiftGrayCode,
         InterzoneSinusFourGrayscale,

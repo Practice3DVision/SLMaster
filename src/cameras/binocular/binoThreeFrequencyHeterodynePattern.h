@@ -1,23 +1,25 @@
 /**
- * @file binosSinusShiftGrayCodePattern.h
+ * @file binoThreeFrequencyHeterodynePattern.h
  * @author Evans Liu (1369215984@qq.com)
- * @brief
+ * @brief 
  * @version 0.1
- * @date 2024-03-19
- *
+ * @date 2024-04-17
+ * 
  * @copyright Copyright (c) 2024
- *
+ * 
  */
 
-#ifndef __BINOS_SINUS_SHIFT_GRAYCODE_PATTERN_H_
-#define __BINOS_SINUS_SHIFT_GRAYCODE_PATTERN_H_
+#ifndef __BINO_THREE_FREQUENCY_HETERODYNE_PATTERN_H_
+#define __BINO_THREE_FREQUENCY_HETERODYNE_PATTERN_H_
 
 #include "../../common.h"
 #include "../pattern.h"
 
 namespace slmaster {
 namespace cameras {
-class SLMASTER_API BinoSinusShiftGrayCodePattern : public Pattern {
+// TODO@Evans
+// Liu:使用修饰器模式会更好，避免未来方法增多导致的子类爆炸，需要在OpenCV中重新更改接口
+class SLMASTER_API BinoThreeFrequencyHeterodynePattern : public Pattern {
   public:
     struct SLMASTER_API Params {
         Params()
@@ -36,7 +38,7 @@ class SLMASTER_API BinoSinusShiftGrayCodePattern : public Pattern {
         float costMinDiff_;
     };
 
-    BinoSinusShiftGrayCodePattern();
+    BinoThreeFrequencyHeterodynePattern();
     virtual bool generate(IN std::vector<cv::Mat> &imgs) const override final;
     virtual bool
     decode(IN const std::vector<std::vector<cv::Mat>> &patternImages,
@@ -47,4 +49,4 @@ class SLMASTER_API BinoSinusShiftGrayCodePattern : public Pattern {
 } // namespace cameras
 } // namespace slmaster
 
-#endif // __BINOS_SINUS_SHIFT_GRAYCODE_PATTERN_H_
+#endif // __BINO_THREE_FREQUENCY_HETERODYNE_PATTERN_H_

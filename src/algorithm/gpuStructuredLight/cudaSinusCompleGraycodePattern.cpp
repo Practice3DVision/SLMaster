@@ -90,8 +90,7 @@ bool SinusCompleGrayCodePatternGPU_Impl::generate(std::vector<cv::Mat> &pattern)
     // generate phase-shift imgs.
     for (int i = 0; i < params.shiftTime; ++i) {
         Mat intensityMap = Mat::zeros(height, width, CV_8UC1);
-        const float shiftVal =
-            static_cast<float>(CV_2PI) / params.shiftTime * i;
+        const double shiftVal = CV_2PI / params.shiftTime * i;
 
         for (int j = 0; j < height; ++j) {
             auto intensityMapPtr = intensityMap.ptr<uchar>(j);
@@ -100,9 +99,7 @@ bool SinusCompleGrayCodePatternGPU_Impl::generate(std::vector<cv::Mat> &pattern)
                 // to the complementary graycode interval.
                 const float wrappedPhaseVal =
                     (k % pixelsPerPeriod) /
-                        static_cast<float>(pixelsPerPeriod) *
-                        static_cast<float>(CV_2PI) -
-                    static_cast<float>(CV_PI);
+                        static_cast<double>(pixelsPerPeriod) * CV_2PI - CV_PI;
                 intensityMapPtr[k] = static_cast<uchar>(
                     127.5 + 127.5 * cos(wrappedPhaseVal + shiftVal));
             }

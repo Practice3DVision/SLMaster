@@ -1,6 +1,6 @@
 #include "trinocularCamera.h"
 
-#include "../binocular/binosSinusCompleGrayCodePattern.h"
+#include "../binocular/binoSinusCompleGrayCodePattern.h"
 #include "../tool.h"
 
 namespace slmaster {

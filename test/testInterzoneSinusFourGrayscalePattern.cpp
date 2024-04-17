@@ -55,7 +55,7 @@ TEST_F(InterzoneSinusFourGrayscalePatternSuit, testGenerateUnwrap) {
     pattern->computePhaseMap(imgs, wrappedPhaseMap);
     pattern->computeConfidenceMap(imgs, confidenceMap);
     pattern->computeFloorMap(imgs, confidenceMap, floorMap);
-    pattern->unwrapPhaseMap(wrappedPhaseMap, confidenceMap, floorMap,
+    pattern->unwrapPhaseMap(wrappedPhaseMap, floorMap, confidenceMap,
                             unwrapPhaseMap);
 
     ASSERT_EQ(floorMap.ptr<uint16_t>(330)[515], 4);
@@ -77,9 +77,9 @@ TEST_F(InterzoneSinusFourGrayscalePatternSuit, testUnwrap) {
     pattern->computePhaseMap(imgs, wrappedPhaseMap);
     pattern->computeConfidenceMap(imgs, confidenceMap);
     pattern->computeFloorMap(imgs, confidenceMap, floorMap);
-    pattern->unwrapPhaseMap(wrappedPhaseMap, confidenceMap, floorMap,
+    pattern->unwrapPhaseMap(wrappedPhaseMap, floorMap, confidenceMap,
                             unwrapPhaseMap);
-    
+
     ASSERT_EQ(floorMap.ptr<uint16_t>(486)[660], 8);
     ASSERT_LE(abs(unwrapPhaseMap.ptr<float>(384)[656] - 51.8f), 0.1f);
 }

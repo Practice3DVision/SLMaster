@@ -30,7 +30,7 @@ BENCHMARK_DEFINE_F(ShiftGrayCodePatternSuit, testGenerate)
     }
 }
 
-BENCHMARK_DEFINE_F(ShiftGrayCodePatternSuit, testUnwrap)
+BENCHMARK_DEFINE_F(ShiftGrayCodePatternSuit, testGenerateUnwrap)
 (benchmark::State &state) {
     auto params = SinusShiftGrayCodePattern::Params();
     params.shiftTime = 4;
@@ -50,7 +50,7 @@ BENCHMARK_DEFINE_F(ShiftGrayCodePatternSuit, testUnwrap)
         pattern->computePhaseMap(imgs, wrapPhaseMap);
         pattern->computeConfidenceMap(imgs, confidenceMap);
         pattern->computeFloorMap(imgs, confidenceMap, wrapPhaseMap, floorMap);
-        pattern->unwrapPhaseMap(wrapPhaseMap, floorMap, unwrapPhaseMap);
+        pattern->unwrapPhaseMap(wrapPhaseMap, floorMap, confidenceMap, unwrapPhaseMap);
     }
 }
 
@@ -58,7 +58,7 @@ BENCHMARK_REGISTER_F(ShiftGrayCodePatternSuit, testGenerate)
     ->MeasureProcessCPUTime()
     ->UseRealTime()
     ->Unit(benchmark::TimeUnit::kMillisecond);
-BENCHMARK_REGISTER_F(ShiftGrayCodePatternSuit, testUnwrap)
+BENCHMARK_REGISTER_F(ShiftGrayCodePatternSuit, testGenerateUnwrap)
     ->MeasureProcessCPUTime()
     ->UseRealTime()
     ->Unit(benchmark::TimeUnit::kMillisecond);

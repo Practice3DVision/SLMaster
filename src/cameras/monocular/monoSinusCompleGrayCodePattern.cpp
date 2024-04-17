@@ -109,8 +109,7 @@ bool MonoSinusCompleGrayCodePattern::decode(
     pattern->computeConfidenceMap(patternImages[0], confidenceMap);
     pattern->computeFloorMap(patternImages[0], confidenceMap, wrappedMap,
                              floorMap);
-    pattern->unwrapPhaseMap(wrappedMap, floorMap, unwrappedMap,
-                            confidenceMap > params__.confidenceThreshold_);
+    pattern->unwrapPhaseMap(wrappedMap, floorMap, confidenceMap, unwrappedMap);
 
     reverseCamera(unwrappedMap, params__.PL1_, params__.PR4_,
                   params__.minDepth_, params__.maxDepth_,
