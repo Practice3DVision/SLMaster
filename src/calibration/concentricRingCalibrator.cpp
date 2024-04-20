@@ -133,17 +133,18 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
     const std::vector<float> radius, std::vector<cv::Point2f> &centerPoints) {
 
     std::vector<cv::Point2f> ellipseCenter;
-    cv::Mat src_display = inputImg.clone();
     cv::Mat threshodFindCircle = inputImg.clone();
+
+    if (inputImg.type() == CV_8UC3) {
+        cv::cvtColor(inputImg, threshodFindCircle, cv::COLOR_BGR2GRAY);
+    }
+
     cv::adaptiveThreshold(threshodFindCircle, threshodFindCircle, 255,
                           cv::ADAPTIVE_THRESH_MEAN_C, cv::THRESH_BINARY, 51, 0);
-    // cv::threshold(threshodFindCircle, threshodFindCircle, 0, 255,
-    // cv::THRESH_BINARY | cv::THRESH_OTSU);
 
     cv::SimpleBlobDetector::Params params;
     params.blobColor = 255;
-    params.maxArea = FLT_MAX;
-    params.minArea = 50;
+    params.filterByArea = true;
     cv::Ptr<cv::SimpleBlobDetector> detector =
         cv::SimpleBlobDetector::create(params);
 
@@ -163,6 +164,12 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
         }
     }
 
+    auto diffNearestPoint = pointsOfCell[0] - pointsOfCell[1];
+    const float distanceFeat =
+        std::sqrtf(diffNearestPoint.x * diffNearestPoint.x +
+                   diffNearestPoint.y * diffNearestPoint.y) /
+        2.f;
+
     std::vector<cv::Vec4i> hierarchy;
     std::vector<cv::RotatedRect> ellipses;
     std::vector<std::vector<cv::Point2f>> ellipsesPoints;
@@ -177,7 +184,7 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
         }
 
         std::vector<cv::Point2f> polyContour;
-        cv::approxPolyDP(contours[i].points, polyContour, 0.1, true);
+        cv::approxPolyDP(contours[i].points, polyContour, 0.01, true);
         double area = cv::contourArea(polyContour, false);
         double length = cv::arcLength(polyContour, false);
         double circleRatio = 4.0 * CV_PI * area / (length * length);
@@ -190,8 +197,8 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
         bool isEfficient = false;
         for (size_t j = 0; j < pointsOfCell.size(); ++j) {
             cv::Point dist = pointsOfCell[j] - ellipseFited.center;
-            float distance = std::sqrtf(dist.x * dist.x + dist.y * dist.y);
-            if (distance < 30) {
+            float distance = std::sqrt(dist.x * dist.x + dist.y * dist.y);
+            if (distance < distanceFeat) {
                 isEfficient = true;
                 break;
             }
@@ -208,14 +215,17 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
     std::vector<std::vector<cv::RotatedRect>> sortedRects;
     sortElipse(ellipses, ellipsesPoints, pointsOfCell, sortedRects);
     /*
-    cv::Mat testMat = threshod.clone();
+    cv::Mat testMat = threshodFindCircle.clone();
     cv::cvtColor(testMat, testMat, cv::COLOR_GRAY2BGR);
     for (int j = 0; j < sortedRects.size(); ++j) {
-        cv::ellipse(testMat, sortedRects[j][0], cv::Scalar(0, 255, 0));
-        cv::ellipse(testMat, sortedRects[j][1], cv::Scalar(0, 255, 0));
-        cv::ellipse(testMat, sortedRects[j][2], cv::Scalar(0, 255, 0));
-        cv::ellipse(testMat, sortedRects[j][3], cv::Scalar(0, 255, 0));
+        for (int k = 0; k < sortedRects[j].size(); ++k) {
+            cv::ellipse(testMat, sortedRects[j][k], cv::Scalar(0, 255, 0));
+        }
     }
+
+    cv::drawChessboardCorners(testMat,
+                              cv::Size(patternSize.width, patternSize.height),
+                              pointsOfCell, true);
     */
     if (sortedRects.size() != patternSize.width * patternSize.height) {
         return false;
@@ -274,30 +284,30 @@ void ConcentricRingCalibrator::getRingCenters(
                 Eigen::Matrix3f vector = eignSolver.pseudoEigenvectors();
                 vector = vector * std::pow(radius[j] / radius[i], 2);
 
-                if (std::abs(value(0, 0) - value(1, 1)) < 0.2) {
-                    eignValueDistance = std::abs(
-                        value(2, 2) - std::pow(radius[j] / radius[i], 2));
+                if (std::abs(value(0, 0) - value(1, 1)) < 0.2f) {
+                    eignValueDistance = std::pow(value(0, 0) - 1.f, 2) +
+                                        std::pow(value(1, 1) - 1.f, 2);
 
                     if (eignValueDistance < minimunEignValueDistance) {
-                        minimunEignValueDistance = value(2, 2);
+                        minimunEignValueDistance = eignValueDistance;
                         center.x = vector(0, 2) / vector(2, 2);
                         center.y = vector(1, 2) / vector(2, 2);
                     }
-                } else if (std::abs(value(0, 0) - value(2, 2)) < 0.2) {
-                    eignValueDistance = std::abs(
-                        value(1, 1) - std::pow(radius[j] / radius[i], 2));
+                } else if (std::abs(value(0, 0) - value(2, 2)) < 0.2f) {
+                    eignValueDistance = std::pow(value(0, 0) - 1.f, 2) +
+                                        std::pow(value(2, 2) - 1.f, 2);
 
                     if (eignValueDistance < minimunEignValueDistance) {
-                        minimunEignValueDistance = value(1, 1);
+                        minimunEignValueDistance = eignValueDistance;
                         center.x = vector(0, 1) / vector(2, 1);
                         center.y = vector(1, 1) / vector(2, 1);
                     }
                 } else {
-                    eignValueDistance = std::abs(
-                        value(0, 0) - std::pow(radius[j] / radius[i], 2));
+                    eignValueDistance = std::pow(value(1, 1) - 1.f, 2) +
+                                        std::pow(value(2, 2) - 1.f, 2);
 
                     if (eignValueDistance < minimunEignValueDistance) {
-                        minimunEignValueDistance = value(0, 0);
+                        minimunEignValueDistance = eignValueDistance;
                         center.x = vector(0, 0) / vector(2, 0);
                         center.y = vector(1, 0) / vector(2, 0);
                     }
@@ -305,8 +315,6 @@ void ConcentricRingCalibrator::getRingCenters(
             }
         }
         points.push_back(center);
-        // cv::circle(src_display, center, 0.5, cv::Scalar(255, 0, 0),
-        // cv::FILLED);
     }
 }
 
@@ -315,17 +323,23 @@ void ConcentricRingCalibrator::getEllipseNormalQuation(
     cv::Mat normalMat(3, 3, CV_32F, cv::Scalar(0.0));
 
     float theta = rotateRect.angle * CV_PI / 180.0;
-    float length_a = rotateRect.size.height / 2.0;
-    float length_b = rotateRect.size.width / 2.0;
+    float length_a = (rotateRect.size.height > rotateRect.size.width
+                           ? rotateRect.size.height
+                           : rotateRect.size.width) /
+                      2.f;
+    float length_b = (rotateRect.size.height > rotateRect.size.width
+                           ? rotateRect.size.width
+                           : rotateRect.size.height) /
+                      2.f;
     float center_x = rotateRect.center.x;
     float center_y = rotateRect.center.y;
 
     float temp_A = cos(theta) * cos(theta) / (length_a * length_a) +
-                   sin(theta) * sin(theta) / (length_b * length_b);
+                    sin(theta) * sin(theta) / (length_b * length_b);
     float temp_B = 1.0 * 2.0 * sin(theta) * cos(theta) *
-                   (1.0 / (length_a * length_a) - 1.0 / (length_b * length_b));
+                    (1.0 / (length_a * length_a) - 1.0 / (length_b * length_b));
     float temp_C = sin(theta) * sin(theta) / (length_a * length_a) +
-                   cos(theta) * cos(theta) / (length_b * length_b);
+                    cos(theta) * cos(theta) / (length_b * length_b);
     float temp_D =
         -2.0 * (cos(theta) * (center_x * cos(theta) + center_y * sin(theta)) /
                     (length_a * length_a) +
@@ -337,10 +351,10 @@ void ConcentricRingCalibrator::getEllipseNormalQuation(
                 cos(theta) * (center_x * sin(theta) - center_y * cos(theta)) /
                     (length_b * length_b));
     float temp_F = pow(center_x * cos(theta) + center_y * sin(theta), 2) /
-                       (pow(length_a, 2)) +
-                   pow(center_x * sin(theta) - center_y * cos(theta), 2) /
-                       (length_b * length_b) -
-                   1.0;
+                        (pow(length_a, 2)) +
+                    pow(center_x * sin(theta) - center_y * cos(theta), 2) /
+                        (length_b * length_b) -
+                    1.0;
 
     normalMat.at<float>(0, 0) = temp_A;
     normalMat.at<float>(0, 1) = temp_B / 2.0;
@@ -351,6 +365,7 @@ void ConcentricRingCalibrator::getEllipseNormalQuation(
     normalMat.at<float>(2, 0) = normalMat.at<float>(0, 2);
     normalMat.at<float>(2, 1) = normalMat.at<float>(1, 2);
     normalMat.at<float>(2, 2) = temp_F;
+
     normalMat.copyTo(quationMat);
 }
 
