@@ -1,5 +1,8 @@
 #include "edgesSubPix.h"
+
 #include <cmath>
+#include <execution>
+#include <numeric>
 
 using namespace cv;
 using namespace std;
@@ -362,9 +365,9 @@ static inline double vector2angle(double x, double y) {
     return a >= 0.0 ? a : a + CV_2PI;
 }
 
-void extractSubPixPoints(Mat &dx, Mat &dy,
-                         vector<vector<Point>> &contoursInPixel,
-                         vector<Contour> &contours) {
+void extractSubPixPointsSteger(Mat &dx, Mat &dy,
+                               vector<vector<Point>> &contoursInPixel,
+                               vector<Contour> &contours) {
     int w = dx.cols;
     int h = dx.rows;
     contours.resize(contoursInPixel.size());
@@ -410,6 +413,126 @@ void extractSubPixPoints(Mat &dx, Mat &dy,
     }
 }
 
+void extractSubPixPointsDevernay(Mat &dx, Mat &dy,
+                                 vector<vector<Point>> &contoursInPixel,
+                                 vector<Contour> &contours) {
+    int w = dx.cols;
+    int h = dx.rows;
+    contours.resize(contoursInPixel.size());
+    for (size_t i = 0; i < contoursInPixel.size(); ++i) {
+        vector<Point> &icontour = contoursInPixel[i];
+        Contour &contour = contours[i];
+        contour.points.resize(icontour.size());
+        contour.response.resize(icontour.size());
+        contour.direction.resize(icontour.size());
+#if defined(_OPENMP) && defined(NDEBUG)
+#pragma omp parallel for
+#endif
+        for (int j = 0; j < (int)icontour.size(); ++j) {
+            int x = icontour[j].x;
+            int y = icontour[j].y;
+
+            if (x + 1 > w - 1 || x - 1 < 0 || y - 1 < 0 || y + 1 > h - 1) {
+                contour.points[j] = icontour[j];
+                continue;
+            }
+
+            int Dx = 0; /* interpolation is along Dx,Dy		*/
+            int Dy = 0; /* which will be selected below		*/
+            double mod = std::sqrt(dx.ptr<short>(y)[x] * dx.ptr<short>(y)[x] +
+                                   dy.ptr<short>(y)[x] *
+                                       dy.ptr<short>(y)[x]); /* modG at pixel */
+            double L = std::sqrt(
+                dx.ptr<short>(y)[x - 1] * dx.ptr<short>(y)[x - 1] +
+                dy.ptr<short>(y)[x - 1] *
+                    dy.ptr<short>(y)[x - 1]); /* modG at pixel on the left */
+            double R = std::sqrt(
+                dx.ptr<short>(y)[x + 1] * dx.ptr<short>(y)[x + 1] +
+                dy.ptr<short>(y)[x + 1] *
+                    dy.ptr<short>(y)[x + 1]); /* modG at pixel on the right
+                                               */
+            double U =
+                std::sqrt(dx.ptr<short>(y + 1)[x] * dx.ptr<short>(y + 1)[x] +
+                          dy.ptr<short>(y + 1)[x] *
+                              dy.ptr<short>(y + 1)[x]); /* modG at pixel up */
+            double D = std::sqrt(
+                dx.ptr<short>(y - 1)[x] * dx.ptr<short>(y - 1)[x] +
+                dy.ptr<short>(y - 1)[x] *
+                    dy.ptr<short>(y - 1)[x]);      /* modG at pixel below */
+            double gx = fabs(dx.ptr<short>(y)[x]); /* absolute value of Gx */
+            double gy = fabs(dy.ptr<short>(y)[x]); /* absolute value of Gy */
+            /* when local horizontal maxima of the gradient modulus and the
+            gradient direction is more horizontal (|Gx| >= |Gy|),=> a
+            "horizontal" (H) edge found else, if local vertical maxima of the
+            gradient modulus and the gradient direction is more vertical (|Gx|
+            <= |Gy|),=> a "vertical" (V) edge found */
+
+            /* it can happen that two neighbor pixels have equal value and are
+            both	maxima, for example when the edge is exactly between
+            both pixels. in such cases, as an arbitrary convention, the edge is
+            marked on the left one when an horizontal max or below when a
+            vertical max. for	this the conditions are L < mod >= R and D < mod
+            >= U,respectively. the comparisons are done using the function
+            greater() instead of the operators > or >= so numbers differing only
+            due to rounding errors are considered equal */
+            if (mod > L && mod > R && gx >= gy)
+                Dx = 1; /* H */
+            if (mod > D && mod > U && gx <= gy)
+                Dy = 1; /* V */
+
+            /* Devernay sub-pixel correction
+
+            the edge point position is selected as the one of the maximum of a
+            quadratic interpolation of the magnitude of the gradient along a
+            unidimensional direction. the pixel must be a local maximum. so we
+            have the values:
+
+            the x position of the maximum of the parabola passing through(-1,a),
+            (0,b), and (1,c) is offset = (a - c) / 2(a - 2b + c),and because b
+            >= a and b >= c, -0.5 <= offset <= 0.5	*/
+            if (Dx > 0 || Dy > 0) {
+                /* offset value is in [-0.5, 0.5] */
+                int xSub = x - Dx;
+                int ySub = y - Dy;
+                int xAdd = x + Dx;
+                int yAdd = y + Dy;
+                double a = std::sqrt(
+                    dx.ptr<short>(ySub)[xSub] * dx.ptr<short>(ySub)[xSub] +
+                    dy.ptr<short>(ySub)[xSub] * dy.ptr<short>(ySub)[xSub]);
+                double b = std::sqrt(dx.ptr<short>(y)[x] * dx.ptr<short>(y)[x] +
+                                     dy.ptr<short>(y)[x] * dy.ptr<short>(y)[x]);
+                double c = std::sqrt(
+                    dx.ptr<short>(yAdd)[xAdd] * dx.ptr<short>(yAdd)[xAdd] +
+                    dy.ptr<short>(yAdd)[xAdd] * dy.ptr<short>(yAdd)[xAdd]);
+                double offset = 0.5 * (a - c) / (a - b - b + c);
+
+                contour.points[j] =
+                    cv::Point2f(x + offset * Dx, y + offset * Dy);
+                contour.direction[j] = 0;
+                contour.response[j] = 255;
+            }
+        }
+    }
+
+    vector<Contour> contourCopy(contours.begin(), contours.end());
+    contours.clear();
+
+    for (auto element : contourCopy) {
+        Contour tour;
+        tour.response = element.response;
+        tour.direction = element.direction;
+
+        for (auto pt : element.points) {
+            if (pt.x < 0.01f && pt.y < 0.01f)
+                continue;
+
+            tour.points.emplace_back(pt);
+        }
+
+        contours.emplace_back(tour);
+    }
+}
+
 //---------------------------------------------------------------------
 //          INTERFACE FUNCTION
 //---------------------------------------------------------------------
@@ -439,7 +562,8 @@ void EdgesSubPix(Mat &gray, double alpha, int low, int high,
 
     // subpixel position extraction with steger's method and facet model 2nd
     // polynominal in 3x3 neighbourhood
-    extractSubPixPoints(dx, dy, contoursInPixel, contours);
+    // extractSubPixPointsSteger(dx, dy, contoursInPixel, contours);
+    extractSubPixPointsDevernay(dx, dy, contoursInPixel, contours);
 }
 
 void EdgesSubPix(Mat &gray, double alpha, int low, int high,

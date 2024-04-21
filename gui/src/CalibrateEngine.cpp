@@ -92,7 +92,7 @@ void CalibrateEngine::singleCalibrate(const int targetType, const int rowNum,
                 leftCalibrator_->imgs(), caliInfo_.info_.M1_,
                 caliInfo_.info_.D1_, cv::Size(rowNum, colNum), progress_);
 
-            if (error > 0.99 || error < 0.001) {
+            if (std::abs(error - (int)error) < 0.001f) {
                 emit findFeaturePointsError(
                     leftCameraModel_->curFolderPath() + "/" +
                     leftCameraModel_->imgPaths()[(int)error]);

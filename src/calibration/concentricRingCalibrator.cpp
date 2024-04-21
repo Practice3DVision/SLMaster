@@ -83,6 +83,12 @@ void ConcentricRingCalibrator::sortElipse(
     std::vector<std::vector<cv::RotatedRect>> &sortedRects) {
     sortedRects.clear();
 
+    auto diffNearestPoint = sortedCenters[0] - sortedCenters[1];
+    const float distanceFeat =
+        std::sqrtf(diffNearestPoint.x * diffNearestPoint.x +
+                   diffNearestPoint.y * diffNearestPoint.y) /
+        2.f;
+
     for (size_t i = 0; i < sortedCenters.size(); ++i) {
         std::vector<cv::RotatedRect> rectCurCluster;
         std::vector<std::vector<cv::Point2f>> rectPointsCurCluster;
@@ -90,11 +96,11 @@ void ConcentricRingCalibrator::sortElipse(
             cv::Point2f dist = rects[j].center - sortedCenters[i];
             float distance = std::sqrt(dist.x * dist.x + dist.y * dist.y);
 
-            if (distance < 30.f) {
+            if (distance < distanceFeat) {
                 bool isNeedMerged = false;
                 for (size_t d = 0; d < rectCurCluster.size(); ++d) {
                     if (std::abs(rects[j].size.width -
-                                 rectCurCluster[d].size.width) < 1.5f) {
+                                 rectCurCluster[d].size.width) < 5.f) {
                         std::vector<cv::Point2f> mergePoints;
                         mergePoints.insert(mergePoints.end(),
                                            rectsPoints[j].begin(),
@@ -118,7 +124,20 @@ void ConcentricRingCalibrator::sortElipse(
                 }
             }
         }
-
+        /*
+        for (int i = 0; i < rectPointsCurCluster.size(); ++i) {
+            static int curIndex = 0;
+            cv::FileStorage writeFile("circle_" + std::to_string(curIndex++) +
+                                          ".yml",
+                                      cv::FileStorage::WRITE);
+            for (int j = 0; j < rectPointsCurCluster[i].size(); ++j) {
+                cv::Mat pt =
+                    (cv::Mat_<float>(2, 1) << rectPointsCurCluster[i][j].x,
+                     rectPointsCurCluster[i][j].y);
+                writeFile << "pt_" + std::to_string(j) << pt;
+            }
+        }
+        */
         std::sort(rectCurCluster.begin(), rectCurCluster.end(),
                   [](cv::RotatedRect &lhs, cv::RotatedRect &rhs) -> bool {
                       return lhs.size.area() < rhs.size.area();
@@ -140,11 +159,11 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
     }
 
     cv::adaptiveThreshold(threshodFindCircle, threshodFindCircle, 255,
-                          cv::ADAPTIVE_THRESH_MEAN_C, cv::THRESH_BINARY, 51, 0);
+                          cv::ADAPTIVE_THRESH_MEAN_C, cv::THRESH_BINARY, 61, 0);
 
     cv::SimpleBlobDetector::Params params;
     params.blobColor = 255;
-    params.filterByArea = true;
+    params.filterByCircularity = true;
     cv::Ptr<cv::SimpleBlobDetector> detector =
         cv::SimpleBlobDetector::create(params);
 
@@ -158,10 +177,10 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
             threshodFindCircle, cv::Size(patternSize.width, patternSize.height),
             pointsOfCell, cv::CALIB_CB_SYMMETRIC_GRID | cv::CALIB_CB_CLUSTERING,
             detector);
+    }
 
-        if (!isFind) {
-            return false;
-        }
+    if (!isFind) {
+        return false;
     }
 
     auto diffNearestPoint = pointsOfCell[0] - pointsOfCell[1];
@@ -175,8 +194,13 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
     std::vector<std::vector<cv::Point2f>> ellipsesPoints;
     std::vector<Contour> contours;
     std::vector<std::vector<cv::Point2i>> contours2Draw;
-    EdgesSubPix(threshodFindCircle, 1.5, 100, 120, contours, hierarchy,
-                cv::RETR_LIST);
+
+    cv::Mat inputImgClone = inputImg.clone();
+    if (inputImg.type() == CV_8UC3) {
+        cv::cvtColor(inputImg, inputImgClone, cv::COLOR_BGR2GRAY);
+    }
+
+    EdgesSubPix(inputImgClone, 1.5, 20, 40, contours, hierarchy, cv::RETR_CCOMP);
     for (int i = 0; i < contours.size(); i++) {
         if (contours[i].points.size() < 20 ||
             contours[i].points.size() > 1000) {
@@ -185,10 +209,10 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
 
         std::vector<cv::Point2f> polyContour;
         cv::approxPolyDP(contours[i].points, polyContour, 0.01, true);
-        double area = cv::contourArea(polyContour, false);
-        double length = cv::arcLength(polyContour, false);
-        double circleRatio = 4.0 * CV_PI * area / (length * length);
-        if (circleRatio < 0.6) {
+        float area = cv::contourArea(polyContour, false);
+        float length = cv::arcLength(polyContour, false);
+        float circleRatio = 4.0 * CV_PI * area / (length * length);
+        if (circleRatio < 0.6f) {
             continue;
         }
 
@@ -282,7 +306,6 @@ void ConcentricRingCalibrator::getRingCenters(
                 Eigen::Matrix3f value = eignSolver.pseudoEigenvalueMatrix();
                 value = value * std::pow(radius[j] / radius[i], 2);
                 Eigen::Matrix3f vector = eignSolver.pseudoEigenvectors();
-                vector = vector * std::pow(radius[j] / radius[i], 2);
 
                 if (std::abs(value(0, 0) - value(1, 1)) < 0.2f) {
                     eignValueDistance = std::pow(value(0, 0) - 1.f, 2) +
@@ -314,57 +337,39 @@ void ConcentricRingCalibrator::getRingCenters(
                 }
             }
         }
+        
         points.push_back(center);
     }
 }
 
 void ConcentricRingCalibrator::getEllipseNormalQuation(
     const cv::RotatedRect &rotateRect, cv::Mat &quationMat) {
-    cv::Mat normalMat(3, 3, CV_32F, cv::Scalar(0.0));
 
-    float theta = rotateRect.angle * CV_PI / 180.0;
-    float length_a = (rotateRect.size.height > rotateRect.size.width
-                           ? rotateRect.size.height
-                           : rotateRect.size.width) /
-                      2.f;
-    float length_b = (rotateRect.size.height > rotateRect.size.width
-                           ? rotateRect.size.width
-                           : rotateRect.size.height) /
-                      2.f;
-    float center_x = rotateRect.center.x;
-    float center_y = rotateRect.center.y;
+    float angle = rotateRect.angle * CV_PI / 180.0;
+    float a = rotateRect.size.height / 2.f;
+    float b = rotateRect.size.width / 2.f;
+    float xc = rotateRect.center.x;
+    float yc = rotateRect.center.y;
 
-    float temp_A = cos(theta) * cos(theta) / (length_a * length_a) +
-                    sin(theta) * sin(theta) / (length_b * length_b);
-    float temp_B = 1.0 * 2.0 * sin(theta) * cos(theta) *
-                    (1.0 / (length_a * length_a) - 1.0 / (length_b * length_b));
-    float temp_C = sin(theta) * sin(theta) / (length_a * length_a) +
-                    cos(theta) * cos(theta) / (length_b * length_b);
-    float temp_D =
-        -2.0 * (cos(theta) * (center_x * cos(theta) + center_y * sin(theta)) /
-                    (length_a * length_a) +
-                sin(theta) * (center_x * sin(theta) - center_y * cos(theta)) /
-                    (length_b * length_b));
-    float temp_E =
-        -2.0 * (sin(theta) * (center_x * cos(theta) + center_y * sin(theta)) /
-                    (length_a * length_a) -
-                cos(theta) * (center_x * sin(theta) - center_y * cos(theta)) /
-                    (length_b * length_b));
-    float temp_F = pow(center_x * cos(theta) + center_y * sin(theta), 2) /
-                        (pow(length_a, 2)) +
-                    pow(center_x * sin(theta) - center_y * cos(theta), 2) /
-                        (length_b * length_b) -
-                    1.0;
+    float cosAngle = cos(angle);
+    float sinAngle = sin(angle);
+    float A = cosAngle * cosAngle / (a * a) + sinAngle * sinAngle / (b * b);
+    float B = 2 * cosAngle * sinAngle * (1 / (a * a) - 1 / (b * b));
+    float C = sinAngle * sinAngle / (a * a) + cosAngle * cosAngle / (b * b);
+    float D = -2 * A * xc - B * yc;
+    float E = -2 * C * yc - B * xc;
+    float F = A * xc * xc + B * xc * yc + C * yc * yc - 1;
 
-    normalMat.at<float>(0, 0) = temp_A;
-    normalMat.at<float>(0, 1) = temp_B / 2.0;
-    normalMat.at<float>(0, 2) = temp_D / 2.0;
+    cv::Mat normalMat(3, 3, CV_32F, cv::Scalar(0.f));
+    normalMat.at<float>(0, 0) = A;
+    normalMat.at<float>(0, 1) = B / 2.f;
+    normalMat.at<float>(0, 2) = D / 2.f;
     normalMat.at<float>(1, 0) = normalMat.at<float>(0, 1);
-    normalMat.at<float>(1, 1) = temp_C;
-    normalMat.at<float>(1, 2) = temp_E / 2.0;
+    normalMat.at<float>(1, 1) = C;
+    normalMat.at<float>(1, 2) = E / 2.f;
     normalMat.at<float>(2, 0) = normalMat.at<float>(0, 2);
     normalMat.at<float>(2, 1) = normalMat.at<float>(1, 2);
-    normalMat.at<float>(2, 2) = temp_F;
+    normalMat.at<float>(2, 2) = F;
 
     normalMat.copyTo(quationMat);
 }

@@ -13,34 +13,56 @@ bool CircleGridCalibrator::findFeaturePoints(
     CV_Assert(!img.empty());
     points.clear();
 
-    cv::Mat operateImg;
+    cv::Mat operateImg = img.clone();
 
     if (img.type() == CV_8UC3) {
         cv::cvtColor(img, operateImg, cv::COLOR_BGR2GRAY);
     }
 
-    bool isFind = operateImg.empty()
-                      ? cv::findCirclesGrid(img, featureNums, points,
-                                            cv::CALIB_CB_SYMMETRIC_GRID |
-                                                cv::CALIB_CB_ADAPTIVE_THRESH |
-                                                cv::CALIB_CB_CLUSTERING)
-                      : cv::findCirclesGrid(operateImg, featureNums, points,
-                                            cv::CALIB_CB_SYMMETRIC_GRID |
-                                                cv::CALIB_CB_ADAPTIVE_THRESH |
-                                                cv::CALIB_CB_CLUSTERING);
-    cv::Mat imgCounter;
+    cv::SimpleBlobDetector::Params params;
+    params.blobColor = 0;
+    params.filterByCircularity = true;
+    cv::Ptr<cv::SimpleBlobDetector> detector =
+        cv::SimpleBlobDetector::create(params);
+
+    bool isFind = cv::findCirclesGrid(operateImg, featureNums, points,
+                                      cv::CALIB_CB_SYMMETRIC_GRID, detector);
+
     if (!isFind) {
-        imgCounter = operateImg.empty() ? 255 - img : 255 - operateImg;
-        isFind = cv::findCirclesGrid(imgCounter, featureNums, points,
-                                     cv::CALIB_CB_SYMMETRIC_GRID |
-                                         cv::CALIB_CB_ADAPTIVE_THRESH |
-                                         cv::CALIB_CB_CLUSTERING);
-        if (!isFind) {
-            return false;
-        }
-        cv::find4QuadCornerSubpix(imgCounter, points, featureNums);
-    } else {
-        cv::find4QuadCornerSubpix(img, points, featureNums);
+        points.clear();
+        isFind = cv::findCirclesGrid(
+            operateImg, featureNums, points,
+            cv::CALIB_CB_SYMMETRIC_GRID | cv::CALIB_CB_CLUSTERING, detector);
+    }
+
+    if (!isFind) {
+        points.clear();
+
+        params.blobColor = 255;
+        detector = cv::SimpleBlobDetector::create(params);
+
+        cv::Mat imgThreshod;
+        cv::adaptiveThreshold(operateImg, imgThreshod, 255,
+                          cv::ADAPTIVE_THRESH_MEAN_C, cv::THRESH_BINARY, 51, 0);
+
+        isFind = cv::findCirclesGrid(imgThreshod, featureNums, points,
+                                     cv::CALIB_CB_SYMMETRIC_GRID, detector);
+    }
+
+    if (!isFind) {
+        points.clear();
+
+        cv::Mat imgThreshod;
+        cv::adaptiveThreshold(operateImg, imgThreshod, 255,
+                          cv::ADAPTIVE_THRESH_MEAN_C, cv::THRESH_BINARY, 51, 0);
+
+        isFind = cv::findCirclesGrid(
+            imgThreshod, featureNums, points,
+            cv::CALIB_CB_SYMMETRIC_GRID | cv::CALIB_CB_CLUSTERING, detector);
+    }
+
+    if (!isFind) {
+        return false;
     }
 
     return isFind;
