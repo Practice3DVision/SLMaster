@@ -41,7 +41,7 @@ The libraries that **SLMaster** depends on include the following points:
 
 > If the computer does not have an NVIDIA GPU, the software can still use the CPU to accelerate and run effectively, and there is no need to rely on `opencv_contribute`.
 
-## 编译 🚀
+## Build 🚀
 After obtaining the code from this library, first check the above dependencies. If the dependency conditions are not met, you can click on the above dependency library to jump to the corresponding library, then download its code and compile it. Taking the environment where none of the above libraries have been compiled and installed as an example, the compilation order is as follows:
 
 1. Download [MVSDK](https://www.irayple.com/cn/serviceSupport/downloadCenter/18?p=17) and install it。
