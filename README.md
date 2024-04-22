@@ -28,7 +28,7 @@ Please download the `exe` installation file from the `Release` page, but please 
 
 For more usage and development documentation, please refer to [Wiki Document](https://github.com/Practice3DVision/SLMaster/wiki)。
 
-## dependencies 🍁
+## Dependencies 🍁
 The libraries that **SLMaster** depends on include the following points:
 - [FluentUI](https://github.com/Practice3DVision/SLMaster/tree/master/FluentUI)`V1.5.6` (The project includes)
 - [QuickQanava](https://github.com/cneben/QuickQanava/tree/2.4.1)`V2.4.1` (The project includes)
@@ -58,14 +58,14 @@ After obtaining the code from this library, first check the above dependencies. 
 
 
 You can open the `BUILL_TEST` and `BUILD_PERF` option in `SLMaster`, which will compile the test cases and perfermance cases in **google_test** and **google_markbench**. These test cases are also a very good example code.
-## usage 🌈
+## Usage 🌈
 
 In offline use, you can test the offline reconstruction effect by entering `Scan Mode ->Offline Scan Mode ->Select Left Camera Folder ->Select Right Camera Folder ->Start Scanning ->Single Scan`. The software provides a set of offline datasets located in the `Installation Directory/data/` directory.
 
 If you need to change the algorithm parameters to test your offline dataset, please change the camera configuration file under the `installation directory/gui/qml/res/configuration`, which records all the states of the **3D camera**, including hardware composition, algorithm parameters, etc.
 
 If you need to connect hardware and perform online functions, please modify the camera configuration file under the `installation directory/gui/qml/res/configuration` to ensure that the hardware composition parameters are consistent with the hardware device you are using.
-## examples  💡
+## Examples  💡
 
 |function|example|function|example|
 |:-|-|:-|-|
