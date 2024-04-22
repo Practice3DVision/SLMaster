@@ -79,5 +79,7 @@ If you need to connect hardware and perform online functions, please modify the 
 This SLMaster currently licensed under [AGPL-3.0](./LICENSE) License.
 
 ## Star History ⭐
-
 [![Star History Chart](https://api.star-history.com/svg?repos=Practice3DVision/SLMaster&type=Date)](https://star-history.com/#Practice3DVision/SLMaster&Date)
+
+## Visitor count ⚡
+![](https://profile-counter.glitch.me/Practice3DVision-SLMaster/count.svg)
