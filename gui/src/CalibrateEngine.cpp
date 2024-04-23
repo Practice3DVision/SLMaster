@@ -205,7 +205,7 @@ void CalibrateEngine::stereoCalibrate(const int targetType, const int rowNum,
                 leftCalibrator_->imgs(), caliInfo_.info_.M1_,
                 caliInfo_.info_.D1_, cv::Size(rowNum, colNum), progress_);
 
-            if (leftError > 0.99 || leftError < 0.001) {
+            if (std::abs(leftError - (int)leftError) < 0.001f) {
                 emit findFeaturePointsError(
                     leftCameraModel_->curFolderPath() + "/" +
                     leftCameraModel_->imgPaths()[(int)leftError]);
@@ -230,7 +230,7 @@ void CalibrateEngine::stereoCalibrate(const int targetType, const int rowNum,
                 rightCalibrator_->imgs(), caliInfo_.info_.M2_,
                 caliInfo_.info_.D2_, cv::Size(rowNum, colNum), progress_);
 
-            if (rightError > 0.99 || rightError < 0.001) {
+            if (std::abs(rightError - (int)rightError) < 0.001f) {
                 emit findFeaturePointsError(
                     rightCameraModel_->curFolderPath() + "/" +
                     rightCameraModel_->imgPaths()[(int)rightError]);

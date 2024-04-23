@@ -562,7 +562,7 @@ void EdgesSubPix(Mat &gray, double alpha, int low, int high,
 
     // subpixel position extraction with steger's method and facet model 2nd
     // polynominal in 3x3 neighbourhood
-    // extractSubPixPointsSteger(dx, dy, contoursInPixel, contours);
+    //extractSubPixPointsSteger(dx, dy, contoursInPixel, contours);
     extractSubPixPointsDevernay(dx, dy, contoursInPixel, contours);
 }
 
