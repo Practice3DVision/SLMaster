@@ -42,7 +42,7 @@ class SLMASTER_API ConcentricRingCalibrator : public Calibrator {
     };
     /**
      * @brief 设置同心圆环距离
-     * 
+     *
      * @param trueDistance 距离
      */
     inline void setDistance(const float trueDistance) override {
@@ -95,10 +95,12 @@ class SLMASTER_API ConcentricRingCalibrator : public Calibrator {
      * @brief 通过方程求解双圆环中心点
      *
      * @param normalMats 输入，分类好的椭圆方程
+     * @param rects 输入，椭圆的旋转矩形
      * @param radius 输入，双圆环半径(从小到大)
      * @param points 输出，求解得到的双圆环中心点
      */
     void getRingCenters(const std::vector<std::vector<cv::Mat>> &normalMats,
+                        const std::vector<std::vector<cv::RotatedRect>>& rects,
                         const std::vector<float> &radius,
                         std::vector<cv::Point2f> &points);
     /**

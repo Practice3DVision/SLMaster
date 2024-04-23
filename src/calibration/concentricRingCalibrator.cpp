@@ -1,7 +1,161 @@
 #include "concentricRingCalibrator.h"
 
+#include <Eigen/Eigen>
+#include <opencv2/core/eigen.hpp>
+
 namespace slmaster {
 namespace calibration {
+
+void recursePath(cv::Mat &img, const int x, const int y, const int color) {
+    if (x < 0 || x > img.cols - 1 || y < 0 || y > img.rows - 1 ||
+        img.ptr<uchar>(y)[x] != color)
+        return;
+
+    if (img.ptr<uchar>(y)[x] == color)
+        img.ptr<uchar>(y)[x] = 255 - color;
+
+    recursePath(img, x - 1, y, color);
+    recursePath(img, x + 1, y, color);
+    recursePath(img, x, y - 1, color);
+    recursePath(img, x, y + 1, color);
+}
+
+cv::Mat fillHole(const cv::Mat &threshodImg,
+                 const std::vector<cv::Point2f> &holeCenter) {
+    const int rows = threshodImg.rows;
+    const int cols = threshodImg.cols;
+
+    cv::Mat img = threshodImg.clone();
+
+    for (auto pt : holeCenter) {
+        const int y = pt.y, x = pt.x;
+        const int color = img.ptr<uchar>(pt.y)[x];
+        recursePath(img, x, y, color);
+    }
+
+    return img;
+}
+
+int solveQuadratic(double a, double b, double c, std::vector<double> &roots) {
+    double discriminant = b * b - 4 * a * c;
+    if (discriminant < 0)
+        return 0; // No real roots
+    double sqrtD = std::sqrt(discriminant);
+    roots.push_back((-b + sqrtD) / (2 * a));
+    if (discriminant != 0)
+        roots.push_back((-b - sqrtD) / (2 * a));
+    return discriminant == 0 ? 1 : 2; // One or two roots
+}
+
+std::vector<cv::Point2f> findEllipseLineIntersections(cv::RotatedRect ellipse,
+                                                      cv::Vec4f line) {
+    std::vector<cv::Point2f> intersections;
+
+    // Decompose the elements of the rotated rectangle (ellipse)
+    cv::Point2f center = ellipse.center;
+    cv::Size2f size = ellipse.size;
+    float angle = ellipse.angle;
+    float a = size.width / 2.0;
+    float b = size.height / 2.0;
+
+    // Line points
+    cv::Point2f pt1(line[0], line[1]);
+    cv::Point2f pt2(line[2], line[3]);
+
+    // Calculate the direction vector of the line
+    cv::Point2f dir = pt2 - pt1;
+
+    // Angle in radians
+    float theta = angle * CV_PI / 180.0;
+    float cos_t = std::cos(theta);
+    float sin_t = std::sin(theta);
+
+    // Transform line to ellipse coordinate system
+    cv::Point2f dir_rot(cos_t * dir.x + sin_t * dir.y,
+                        -sin_t * dir.x + cos_t * dir.y);
+    cv::Point2f pt1_rot(cos_t * (pt1.x - center.x) + sin_t * (pt1.y - center.y),
+                        -sin_t * (pt1.x - center.x) +
+                            cos_t * (pt1.y - center.y));
+
+    // Ellipse equation in the form (X/a)^2 + (Y/b)^2 = 1
+    // Line equation Y = mX + c in transformed coordinates
+    float m = dir_rot.y / dir_rot.x;
+    float c = pt1_rot.y - m * pt1_rot.x;
+
+    // Substitute line equation into ellipse equation and solve for X
+    double A = (b * b + a * a * m * m);
+    double B = 2 * a * a * m * c;
+    double C = a * a * (c * c - b * b);
+
+    std::vector<double> roots;
+    int numRoots = solveQuadratic(A, B, C, roots);
+
+    for (double x : roots) {
+        double y = m * x + c;
+        // Transform back to original coordinate system
+        double X = cos_t * x - sin_t * y + center.x;
+        double Y = sin_t * x + cos_t * y + center.y;
+        intersections.push_back(cv::Point2f(X, Y));
+    }
+
+    return intersections;
+}
+
+bool getIntersection(const cv::Vec4f &line1, const cv::Vec4f &line2,
+                     cv::Point2f &intersection) {
+    float x1 = line1[0], y1 = line1[1], x2 = line1[2], y2 = line1[3];
+    float x3 = line2[0], y3 = line2[1], x4 = line2[2], y4 = line2[3];
+
+    float A1 = y2 - y1;
+    float B1 = x1 - x2;
+    float C1 = A1 * x1 + B1 * y1;
+
+    float A2 = y4 - y3;
+    float B2 = x3 - x4;
+    float C2 = A2 * x3 + B2 * y3;
+
+    float det = A1 * B2 - A2 * B1;
+    if (std::abs(det) < 1e-6) {
+        return false;
+    }
+
+    intersection.x = (B2 * C1 - B1 * C2) / det;
+    intersection.y = (A1 * C2 - A2 * C1) / det;
+
+    return true;
+}
+
+cv::Point2f estimateCenter(const cv::Point2f &pt1, const cv::Point2f &pt2,
+                           const cv::Point2f &pt3, const float lambda) {
+    cv::Point2f center;
+
+    float numerator =
+        lambda * pt2.x * (pt3.x - pt1.x) - pt1.x * (pt3.x - pt2.x);
+    float denominator = lambda * (pt3.x - pt1.x) - (pt3.x - pt2.x);
+
+    if (std::abs(denominator) < 0.000001f) {
+        std::cerr << "Error: Denominator is zero, which may indicate parallel "
+                     "lines or a calculation error."
+                  << std::endl;
+        return cv::Point2f(0.f, 0.f);
+    }
+
+    center.x = numerator / denominator;
+
+    numerator = lambda * pt2.y * (pt3.y - pt1.y) - pt1.y * (pt3.y - pt2.y);
+    denominator = lambda * (pt3.y - pt1.y) - (pt3.y - pt2.y);
+
+    if (std::abs(denominator) < 0.000001f) {
+        std::cerr << "Error: Denominator is zero, which may indicate parallel "
+                     "lines or a calculation error."
+                  << std::endl;
+        return cv::Point2f(0.f, 0.f);
+    }
+
+    center.y = numerator / denominator;
+
+    return center;
+}
 
 ConcentricRingCalibrator::ConcentricRingCalibrator() {}
 
@@ -108,8 +262,10 @@ void ConcentricRingCalibrator::sortElipse(
                         mergePoints.insert(mergePoints.end(),
                                            rectPointsCurCluster[d].begin(),
                                            rectPointsCurCluster[d].end());
+
                         cv::RotatedRect ellipseFited =
-                            cv::fitEllipse(mergePoints);
+                            cv::fitEllipseDirect(mergePoints);
+
                         rectCurCluster[d] = ellipseFited;
                         rectPointsCurCluster[d] = mergePoints;
 
@@ -125,24 +281,21 @@ void ConcentricRingCalibrator::sortElipse(
             }
         }
         /*
-        for (int i = 0; i < rectPointsCurCluster.size(); ++i) {
-            static int curIndex = 0;
-            cv::FileStorage writeFile("circle_" + std::to_string(curIndex++) +
-                                          ".yml",
-                                      cv::FileStorage::WRITE);
-            for (int j = 0; j < rectPointsCurCluster[i].size(); ++j) {
+        static int circleIndex = 0;
+        static cv::FileStorage writeFile("circle.yml", cv::FileStorage::WRITE);
+        for (int s = 0; s < rectPointsCurCluster.size(); ++s) {
+            for (int j = 0; j < rectPointsCurCluster[s].size(); ++j) {
                 cv::Mat pt =
-                    (cv::Mat_<float>(2, 1) << rectPointsCurCluster[i][j].x,
-                     rectPointsCurCluster[i][j].y);
-                writeFile << "pt_" + std::to_string(j) << pt;
+                    (cv::Mat_<float>(2, 1) << rectPointsCurCluster[s][j].x,
+                     rectPointsCurCluster[s][j].y);
+                writeFile << "pt_" + std::to_string(circleIndex++) << pt;
             }
+
+            cv::Mat pt = (cv::Mat_<float>(2, 1) << rectCurCluster[s].center.x,
+                          rectCurCluster[s].center.y);
+            writeFile << "pt_" + std::to_string(circleIndex++) << pt;
         }
         */
-        std::sort(rectCurCluster.begin(), rectCurCluster.end(),
-                  [](cv::RotatedRect &lhs, cv::RotatedRect &rhs) -> bool {
-                      return lhs.size.area() < rhs.size.area();
-                  });
-
         sortedRects.emplace_back(rectCurCluster);
     }
 }
@@ -168,16 +321,10 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
         cv::SimpleBlobDetector::create(params);
 
     std::vector<cv::Point2f> pointsOfCell;
-    bool isFind =
-        cv::findCirclesGrid(threshodFindCircle, patternSize, pointsOfCell,
-                            cv::CALIB_CB_SYMMETRIC_GRID, detector);
-    if (!isFind) {
-        pointsOfCell.clear();
-        isFind = cv::findCirclesGrid(
-            threshodFindCircle, cv::Size(patternSize.width, patternSize.height),
-            pointsOfCell, cv::CALIB_CB_SYMMETRIC_GRID | cv::CALIB_CB_CLUSTERING,
-            detector);
-    }
+    bool isFind = cv::findCirclesGrid(
+        threshodFindCircle, cv::Size(patternSize.width, patternSize.height),
+        pointsOfCell, cv::CALIB_CB_SYMMETRIC_GRID | cv::CALIB_CB_CLUSTERING,
+        detector);
 
     if (!isFind) {
         return false;
@@ -200,7 +347,8 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
         cv::cvtColor(inputImg, inputImgClone, cv::COLOR_BGR2GRAY);
     }
 
-    EdgesSubPix(inputImgClone, 1.5, 20, 40, contours, hierarchy, cv::RETR_CCOMP);
+    EdgesSubPix(inputImgClone, 1.5, 20, 40, contours, hierarchy,
+                cv::RETR_CCOMP);
     for (int i = 0; i < contours.size(); i++) {
         if (contours[i].points.size() < 20 ||
             contours[i].points.size() > 1000) {
@@ -216,7 +364,7 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
             continue;
         }
 
-        cv::RotatedRect ellipseFited = cv::fitEllipse(contours[i].points);
+        cv::RotatedRect ellipseFited = cv::fitEllipseDirect(contours[i].points);
 
         bool isEfficient = false;
         for (size_t j = 0; j < pointsOfCell.size(); ++j) {
@@ -237,8 +385,9 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
     }
 
     std::vector<std::vector<cv::RotatedRect>> sortedRects;
+    std::vector<std::vector<std::vector<cv::Point2f>>> sortedPoints;
     sortElipse(ellipses, ellipsesPoints, pointsOfCell, sortedRects);
-    /*
+
     cv::Mat testMat = threshodFindCircle.clone();
     cv::cvtColor(testMat, testMat, cv::COLOR_GRAY2BGR);
     for (int j = 0; j < sortedRects.size(); ++j) {
@@ -250,7 +399,7 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
     cv::drawChessboardCorners(testMat,
                               cv::Size(patternSize.width, patternSize.height),
                               pointsOfCell, true);
-    */
+
     if (sortedRects.size() != patternSize.width * patternSize.height) {
         return false;
     }
@@ -269,76 +418,147 @@ bool ConcentricRingCalibrator::findConcentricRingGrid(
         circleNormalMat.emplace_back(normalMatsCluster);
     }
 
-    getRingCenters(circleNormalMat, radius, centerPoints);
+    getRingCenters(circleNormalMat, sortedRects, radius, centerPoints);
 
     return true;
 }
 
 void ConcentricRingCalibrator::getRingCenters(
     const std::vector<std::vector<cv::Mat>> &normalMats,
+    const std::vector<std::vector<cv::RotatedRect>> &rects,
     const std::vector<float> &radius, std::vector<cv::Point2f> &points) {
     points.clear();
 
-    cv::Mat quationToSolve;
-    Eigen::Matrix<float, 3, 3> polarCircleMat;
-
     for (int d = 0; d < normalMats.size(); ++d) {
-        std::vector<cv::Mat> matchEllipse = {normalMats[d][0], normalMats[d][1],
-                                             normalMats[d][2],
-                                             normalMats[d][3]};
+        std::vector<Eigen::Matrix3f> matchEllipse(4);
+        cv::cv2eigen(normalMats[d][0], matchEllipse[0]);
+        cv::cv2eigen(normalMats[d][1], matchEllipse[1]);
+        cv::cv2eigen(normalMats[d][2], matchEllipse[2]);
+        cv::cv2eigen(normalMats[d][3], matchEllipse[3]);
+
         float minimunEignValueDistance = FLT_MAX;
         float eignValueDistance = FLT_MAX;
-        cv::Point2f center;
+
+        std::vector<cv::Point2f> centerns;
+        cv::Vec4f vanishingLinePts;
 
         for (int i = 3; i > 1; i--) {
             for (int j = i - 1; j > 0; j--) {
-                quationToSolve = matchEllipse[i].inv() * matchEllipse[j];
-                polarCircleMat << quationToSolve.at<float>(0, 0),
-                    quationToSolve.at<float>(0, 1),
-                    quationToSolve.at<float>(0, 2),
-                    quationToSolve.at<float>(1, 0),
-                    quationToSolve.at<float>(1, 1),
-                    quationToSolve.at<float>(1, 2),
-                    quationToSolve.at<float>(2, 0),
-                    quationToSolve.at<float>(2, 1),
-                    quationToSolve.at<float>(2, 2);
+                Eigen::Matrix3f polarCircleMat =
+                    matchEllipse[i].inverse() * matchEllipse[j];
+
                 Eigen::EigenSolver<Eigen::Matrix3f> eignSolver(polarCircleMat);
                 Eigen::Matrix3f value = eignSolver.pseudoEigenvalueMatrix();
                 value = value * std::pow(radius[j] / radius[i], 2);
                 Eigen::Matrix3f vector = eignSolver.pseudoEigenvectors();
+                vector = vector * std::pow(radius[j] / radius[i], 2);
 
                 if (std::abs(value(0, 0) - value(1, 1)) < 0.2f) {
                     eignValueDistance = std::pow(value(0, 0) - 1.f, 2) +
                                         std::pow(value(1, 1) - 1.f, 2);
 
+                    Eigen::Vector3f v1, v2, vanishingLine;
+                    v1 << vector(0, 0), vector(1, 0), vector(2, 0);
+                    v2 << vector(0, 1), vector(1, 1), vector(2, 1);
+
+                    vanishingLine = v2.cross(v1);
+
+                    for (int k = 0; k < 4; ++k) {
+                        Eigen::Vector3f pt =
+                            matchEllipse[k].inverse() * vanishingLine;
+                        centerns.push_back(
+                            cv::Point2f(pt(0) / pt(2), pt(1) / pt(2)));
+                    }
+
                     if (eignValueDistance < minimunEignValueDistance) {
                         minimunEignValueDistance = eignValueDistance;
-                        center.x = vector(0, 2) / vector(2, 2);
-                        center.y = vector(1, 2) / vector(2, 2);
+
+                        vanishingLinePts[0] = v1(0) / v1(2);
+                        vanishingLinePts[1] = v1(1) / v1(2);
+                        vanishingLinePts[2] = v2(0) / v2(2);
+                        vanishingLinePts[3] = v2(1) / v2(2);
                     }
                 } else if (std::abs(value(0, 0) - value(2, 2)) < 0.2f) {
                     eignValueDistance = std::pow(value(0, 0) - 1.f, 2) +
                                         std::pow(value(2, 2) - 1.f, 2);
 
+                    Eigen::Vector3f v1, v2, vanishingLine;
+                    v1 << vector(0, 0), vector(1, 0), vector(2, 0);
+                    v2 << vector(0, 2), vector(1, 2), vector(2, 2);
+
+                    vanishingLine = v2.cross(v1);
+
+                    for (int k = 0; k < 4; ++k) {
+                        Eigen::Vector3f pt =
+                            matchEllipse[k].inverse() * vanishingLine;
+                        centerns.push_back(
+                            cv::Point2f(pt(0) / pt(2), pt(1) / pt(2)));
+                    }
+
                     if (eignValueDistance < minimunEignValueDistance) {
                         minimunEignValueDistance = eignValueDistance;
-                        center.x = vector(0, 1) / vector(2, 1);
-                        center.y = vector(1, 1) / vector(2, 1);
+
+                        vanishingLinePts[0] = v1(0) / v1(2);
+                        vanishingLinePts[1] = v1(1) / v1(2);
+                        vanishingLinePts[2] = v2(0) / v2(2);
+                        vanishingLinePts[3] = v2(1) / v2(2);
                     }
                 } else {
                     eignValueDistance = std::pow(value(1, 1) - 1.f, 2) +
                                         std::pow(value(2, 2) - 1.f, 2);
 
+                    Eigen::Vector3f v1, v2, vanishingLine;
+                    v1 << vector(0, 1), vector(1, 1), vector(2, 1);
+                    v2 << vector(0, 2), vector(1, 2), vector(2, 2);
+
+                    vanishingLine = v2.cross(v1);
+
+                    for (int k = 0; k < 4; ++k) {
+                        Eigen::Vector3f pt =
+                            matchEllipse[k].inverse() * vanishingLine;
+                        centerns.push_back(
+                            cv::Point2f(pt(0) / pt(2), pt(1) / pt(2)));
+                    }
+
                     if (eignValueDistance < minimunEignValueDistance) {
                         minimunEignValueDistance = eignValueDistance;
-                        center.x = vector(0, 0) / vector(2, 0);
-                        center.y = vector(1, 0) / vector(2, 0);
+
+                        vanishingLinePts[0] = v1(0) / v1(2);
+                        vanishingLinePts[1] = v1(1) / v1(2);
+                        vanishingLinePts[2] = v2(0) / v2(2);
+                        vanishingLinePts[3] = v2(1) / v2(2);
                     }
                 }
             }
         }
-        
-        points.push_back(center);
+
+        cv::Vec4f centerlinePts;
+        cv::fitLine(centerns, centerlinePts, cv::DIST_HUBER, 0, 0.01, 0.01);
+        centerlinePts[0] = centerlinePts[2] - centerlinePts[0];
+        centerlinePts[1] = centerlinePts[3] - centerlinePts[1];
+
+        cv::Point2f infinatePt;
+        getIntersection(vanishingLinePts, centerlinePts, infinatePt);
+
+        cv::Point2f finalCenter(0.f, 0.f);
+        int validCount = 0;
+        for (int k = 0; k < 4; ++k) {
+            auto intersectPts =
+                findEllipseLineIntersections(rects[d][k], centerlinePts);
+
+            if (intersectPts.size() != 2)
+                continue;
+
+            cv::Point2f realCenter = estimateCenter(
+                intersectPts[0], intersectPts[1], infinatePt, -1);
+
+            finalCenter += realCenter;
+            validCount++;
+        }
+
+        finalCenter /= validCount;
+
+        points.push_back(finalCenter);
     }
 }
 
@@ -346,8 +566,8 @@ void ConcentricRingCalibrator::getEllipseNormalQuation(
     const cv::RotatedRect &rotateRect, cv::Mat &quationMat) {
 
     float angle = rotateRect.angle * CV_PI / 180.0;
-    float a = rotateRect.size.height / 2.f;
-    float b = rotateRect.size.width / 2.f;
+    float a = rotateRect.size.width / 2.f;
+    float b = rotateRect.size.height / 2.f;
     float xc = rotateRect.center.x;
     float yc = rotateRect.center.y;
 
