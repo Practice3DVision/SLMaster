@@ -4,6 +4,10 @@
 
 ![win-badge] ![release-badge] ![download-badge] ![download-latest]
 
+<p align="center">
+<a href="README_EN.md">English</a> | 简体中文
+</p>
+
 [win-badge]: https://github.com/Practice3DVision/SLMaster/workflows/Windows/badge.svg  "Windows"
 [win-link]: https://github.com/Practice3DVision/SLMaster/actions/workflows/windows.yml  "Windows"
 [release-badge]: https://img.shields.io/github/release/Practice3DVision/SLMaster.svg "Release status"
@@ -12,73 +16,71 @@
 [download-link]: https://github.com/Practice3DVision/SLMaster/releases/latest "Download status"
 [download-latest]: https://img.shields.io/github/downloads/Practice3DVision/SLMaster/latest/total.svg "latest status"
 
-<p align="center">
-English | <a href="README_CH.md">简体中文</a>
-</p>
+[SLMaster](https://github.com/Practice3DVision/SLMaster)是一个较为完整的结构光3D相机软件。您可以使用它对任意被测物体完成静态扫描或者实时动态扫描。
 
-[SLMaster](https://github.com/Practice3DVision/SLMaster) is a relatively complete structured light 3D camera software. You can use it to perform static scanning or real-time dynamic scanning on any tested object.
+该软件相关博客可见公众号专栏：[从0到1搭建一套属于你自己的高精度实时结构光3D相机](https://mp.weixin.qq.com/s/E8K3892eNVJfgpMUHtf9Lw)，欢迎关注公众号。
 
-The blog related to this software can be seen in the official account column: [Build your own high-precision real-time structured light 3D camera from 0 to 1](https://mp.weixin.qq.com/s/E8K3892eNVJfgpMUHtf9Lw)，Welcome to the official account。
+您的**Star**⭐和关注是博主源源不断的动力。有任何问题和**bug**反馈请提**Issue**。谢绝不给Star⭐，反复咨询解决方案的情况，累且心寒...
 
-Your **Star**⭐ and attention is my constant motivation. If you have any questions or feedback on bugs, please refer to the **Issue**.
+**想先体验该软件？**
 
-**Want to experience the software first ?**
+请在`Release`页面下载`exe`安装文件，但请注意`exe`安装方式不支持`GPU`加速。
 
-Please download the `exe` installation file from the `Release` page, but please note that the `exe` installation method does not support GPU acceleration.
+更多使用与开发文档请查阅[Wiki Document](https://github.com/Practice3DVision/SLMaster/wiki)。
 
-For more usage and development documentation, please refer to [Wiki Document](https://github.com/Practice3DVision/SLMaster/wiki)。
+付费咨询/项目合作请加QQ：`1369215984`。
 
-## Dependencies 🍁
-The libraries that **SLMaster** depends on include the following points:
-- [FluentUI](https://github.com/Practice3DVision/SLMaster/tree/master/FluentUI)`V1.5.6` (The project includes)
-- [QuickQanava](https://github.com/cneben/QuickQanava/tree/2.4.1)`V2.4.1` (The project includes)
-- [MVSDK](https://www.irayple.com/cn/serviceSupport/downloadCenter/18?p=17)`V2.3.5` (The project includes)
+## 依赖 🍁
+**SLMaster**依赖的库包含如下几点：
+- [FluentUI](https://github.com/Practice3DVision/SLMaster/tree/master/FluentUI)`V1.5.6`（项目内包含）
+- [QuickQanava](https://github.com/cneben/QuickQanava/tree/2.4.1)`V2.4.1`（项目内包含）
+- [MVViewer](https://www.irayple.com/cn/serviceSupport/downloadCenter/18?p=17)`V2.3.5`
 - [opencv_contribute](https://github.com/opencv/opencv_contrib.git)`V4.8.0`
 - [OpenCV](https://github.com/opencv/opencv.git)`V4.8.0`
 - [VTK](https://github.com/Kitware/VTK/tree/v9.2.0)`V9.2.0`
 - [PCL](https://github.com/PointCloudLibrary/pcl/tree/pcl-1.12.1)`V1.12.1`
 - [Qt5](https://doc.qt.io/qt-5/index.html)`V5.15.14`
 
-> If the computer does not have an NVIDIA GPU, the software can still use the CPU to accelerate and run effectively, and there is no need to rely on `opencv_contribute`.
+> 如果电脑没有`NVIDIA GPU`，软件仍然能够使用CPU加速有效运行，此时可无需`opencv_contribute`依赖。
 
-## Build 🚀
-After obtaining the code from this library, first check the above dependencies. If the dependency conditions are not met, you can click on the above dependency library to jump to the corresponding library, then download its code and compile it. Taking the environment where none of the above libraries have been compiled and installed as an example, the compilation order is as follows:
+## 编译 🚀
+当您获取到本库代码之后，首先检查上述依赖，若不满足依赖条件，可通过点击上述依赖库跳转至对应的库，随后下载其代码并进行编译。以上面库皆没有编译安装的环境为例，编译顺序如下：
+1. 下载[MVViewer](https://www.irayple.com/cn/serviceSupport/downloadCenter/18?p=17)并进行安装。
+2. 下载[OpenCV](https://github.com/opencv/opencv.git)和[opencv_contribute](https://github.com/opencv/opencv_contrib.git)并进行编译（若`WITH_CUDA`未勾选请勾选上）
+3. 下载[Qt5.15](https://doc.qt.io/qt-5/index.html)并选择`MSVC`编译套件安装
+4. 下载[VTK](https://github.com/Kitware/VTK/tree/v9.2.0)并令`VTK_GROUP_ENABLE_Qt=YES`进行编译
+5. 下载[PCL-1.12.1-AllInOne](https://github.com/PointCloudLibrary/pcl/releases)进行安装，安装完成后删除`PCL`安装文件夹下的除`3rdParty`外的其它任何文件，并将`3rdParty`文件夹中的`VTK`文件夹删除
+6. 下载[PCL](https://github.com/PointCloudLibrary/pcl/tree/pcl-1.12.1)并选择好第三方库路径进行编译
+7. 打开命令行窗口，键入`git clone --recursive https://github.com/Practice3DVision/SLMaster.git`克隆`SLMaster`
+8. 打开`VSCode`编译运行`SLMasterGui`即可
 
-1. Download [MVSDK](https://www.irayple.com/cn/serviceSupport/downloadCenter/18?p=17) and install it。
-2. Download [OpenCV](https://github.com/opencv/opencv.git)和[opencv_contribute](https://github.com/opencv/opencv_contrib.git) and compile it (if `WITH-CUDA` is not checked, please check it)
-3. Download [Qt5.15](https://doc.qt.io/qt-5/index.html) and select the `MSVC` compilation kit installation
-4. Download [VTK](https://github.com/Kitware/VTK/tree/v9.2.0) and compile with `VTK_GROUP-ENABLE_Qt=YES`
-5. Download [PCL-1.12.1-AllInOne](https://github.com/PointCloudLibrary/pcl/releases) and delete any other files in the `PCL` installation folder except for `3rdParty`, and delete the `VTK` folder in the `3rdParty` folder after installation is completed
-6. Download [PCL](https://github.com/PointCloudLibrary/pcl/tree/pcl-1.12.1) and select the third-party library path for compilation
-7. Open a command line window and type `git clone --recursive https://github.com/Practice3DVision/SLMaster.git`Clone`SLMaster`
-8. Open `VSCode` to compile and run `SLMasterGui`
-
-> Warning:
-> Every time a library is compiled, it should be added to the system environment variables. For example, after compiling OpenCV, set the system environment variable OpenCV-DIR path.
+> 注意！
+> 每当编译好一个库都应当在系统环境变量中加入。例如，编译完成OpenCV后，设置好系统环境变量OpenCV_DIR路径。
 
 
-You can open the `BUILL_TEST` and `BUILD_PERF` option in `SLMaster`, which will compile the test cases and perfermance cases in **google_test** and **google_markbench**. These test cases are also a very good example code.
-## Usage 🌈
+您可以打开`SLMaster`中的`BUILD_TEST`和`BUILD_PERF`选项，这将编译**google_test**和**google_benchmark**中的测试用例，这些测试用例同样是一份非常不错的示例代码。
+## 使用 🌈
 
-In offline use, you can test the offline reconstruction effect by entering `Scan Mode ->Offline Scan Mode ->Select Left Camera Folder ->Select Right Camera Folder ->Start Scanning ->Single Scan`. The software provides a set of offline datasets located in the `Installation Directory/data/` directory.
+离线使用情况下，可通过进入`扫描模式->离线扫描模式->选择左相机文件夹->选择右相机文件夹->开始扫描->单次扫描`测试离线重建效果，软件提供一组离线数据集位于`安装目录/data/`下。
 
-If you need to change the algorithm parameters to test your offline dataset, please change the camera configuration file under the `installation directory/gui/qml/res/configuration`, which records all the states of the **3D camera**, including hardware composition, algorithm parameters, etc.
+如您需要更改算法参数以测试自己的离线数据集，请通过更改`安装目录/gui/qml/res/config`下的相机配置文件，该文件记录了**3D**相机所有的状态，包括硬件组成、算法参数等。
 
-If you need to connect hardware and perform online functions, please modify the camera configuration file under the `installation directory/gui/qml/res/configuration` to ensure that the hardware composition parameters are consistent with the hardware device you are using.
-## Examples  💡
+如您需要接入硬件并执行在线功能，请修改`安装目录/gui/qml/res/config`下的相机配置文件，确保硬件组成参数与您所用的硬件设备一致。
+## 部分功能  💡
 
-|function|example|function|example|
+|功能|示例|功能|示例|
 |:-|-|:-|-|
-|reconstruction under Single/dual/triple cameras|![reconstruction under Single/dual/triple cameras](doc/online_scan.png)|Real time reconstruction|![Real time reconstruction](doc/04.gif)|
-|Hardware debugging|![Hardware debugging](doc/tenline.png)|Stripe generation|![Stripe generation](doc/stripe_create.png)|
-|camera calibration|![camera calibration](doc/calibration.png)|Calibration error distribution map|![Calibration error distribution map](doc/error_distribute.png)|
-|projector calibration|![projector calibration](doc/online_calinbration.png)|Post processing|![Post processing](doc/post_process.png)|
+|单双三目重建|![在线扫描功能](doc/online_scan.png)|实时重建|![实时扫描功能](doc/04.gif)|
+|硬件在线调试|![十字线校准功能](doc/tenline.png)|条纹生成|![条纹生成功能](doc/stripe_create.png)|
+|相机标定|![离线相机标定功能](doc/calibration.png)|误差分布显示|![标定误差分布图显示功能](doc/error_distribute.png)|
+|投影仪标定|![在线投影仪标定功能](doc/online_calinbration.png)|点云后处理|![后处理功能](doc/post_process.png)|
 
 ## License 📕
 
-This SLMaster currently licensed under [AGPL-3.0](./LICENSE) License.
+SLMaster当前使用[AGPL-3.0](./LICENSE)许可证.
 
 ## Star History ⭐
+
 [![Star History Chart](https://api.star-history.com/svg?repos=Practice3DVision/SLMaster&type=Date)](https://star-history.com/#Practice3DVision/SLMaster&Date)
 
 ## Visitor count ⚡

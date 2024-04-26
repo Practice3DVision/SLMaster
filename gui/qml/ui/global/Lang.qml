@@ -292,8 +292,8 @@ QtObject {
         confirm = "确认";
         author = "作者";
         evansLiu = "Evans Liu";
-        about_info = " 该软件为机构光相机配套软件，\n \n 如需GPU加速请从源码编译! \n \n 请不要将本软件用于包括销售、推广等任何非经许可的商业用途! \n \n 关注公众号：实战3D视觉，更多技术内容与你分享。";
-        wechat = " 微信";
+        about_info = " 该软件为机构光相机软件，\n \n 如需GPU加速请从源码编译! \n \n 请不要将本软件用于包括销售、推广等任何非经许可的商业用途! \n \n 关注公众号：实战3D视觉，更多技术内容与你分享。";
+        wechat = " 付费咨询与项目合作请加微信：";
         online = "在线";
         offline = "离线";
         monocular_sl_camera = "单目结构光相机";
