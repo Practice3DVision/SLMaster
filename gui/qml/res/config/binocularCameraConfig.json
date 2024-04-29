@@ -74,10 +74,16 @@
                   "name" : "SinusCompleGrayCode"
                },
                {
-                  "name" : "MutiplyFrequency"
+                  "name" : "ThreeFrequencyHeterodyne"
                },
                {
                   "name" : "MultiViewStereoGeometry"
+               },
+               {
+                  "name" : "SinusShiftGrayCode"
+               },
+               {
+                  "name" : "InterzoneSinusFourGrayscale"
                }
             ],
             "title" : "Pattern",
