@@ -316,7 +316,7 @@ bool ThreeFrequencyHeterodynePattern_Impl::decode(
 
     Mat &disparity = *static_cast<Mat *>(disparityMap.getObj());
 
-    if (flags == SINUSOIDAL_COMPLEMENTARY_GRAY_CODE) {
+    if (flags == THREE_FREQUENCY_HETERODYNE) {
         std::vector<cv::Mat> confidenceMap(2);
         std::vector<std::vector<cv::Mat>> wrappedMap(2);
         std::vector<cv::Mat> floorMap(2);
