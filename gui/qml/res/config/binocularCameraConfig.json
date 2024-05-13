@@ -17,12 +17,12 @@
             "type" : "number"
          },
          {
-            "data" : 0.10000000149011612,
+            "data" : 0.30000001192092896,
             "title" : "Max Cost",
             "type" : "number"
          },
          {
-            "data" : 0.0,
+            "data" : -512.0,
             "title" : "Min Disparity",
             "type" : "number"
          },
