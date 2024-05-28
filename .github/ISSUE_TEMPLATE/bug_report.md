@@ -7,6 +7,9 @@ assignees: Practice3DVision
 
 ---
 
+**Notice:**
+- If you do not provide a 'star'⭐, the question may not be answered.（如果您未给出`Star`⭐，问题将有可能不予以回复）
+
 **Desktop (please complete the following information):**
  - Windows OS Version: [e.g. windows 11]
  - SLMaster Version: [e.g. 1.2.1]

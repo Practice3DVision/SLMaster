@@ -7,6 +7,9 @@ assignees: Practice3DVision
 
 ---
 
+**Notice:**
+- If you do not provide a 'star'⭐, the question may not be answered.（如果您未给出`Star`⭐，问题将有可能不予以回复）
+
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
