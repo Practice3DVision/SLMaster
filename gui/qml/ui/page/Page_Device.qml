@@ -186,12 +186,11 @@ FluContentPage{
                                                 GlobalSignals.cameraParamsUpdate();
                                             }
                                         }
-
+                                        /*
                                         Component.onCompleted: {
-                                            //CameraEngine.selectCamera(root.camera_type);
-                                            //root.updateParams();
                                             GlobalSignals.cameraParamsUpdate();
                                         }
+                                        */
                                     }
 
                                     FluButton {

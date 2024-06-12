@@ -85,12 +85,12 @@ jobs:
       - name: Download and extract PCL source
         run: |
             cd ..
-            Invoke-WebRequest -Uri https://github.com/PointCloudLibrary/pcl/archive/refs/tags/pcl-1.12.1.zip -OutFile pcl-pcl-1.12.1.zip
-            Expand-Archive -Path pcl-pcl-1.12.1.zip -DestinationPath .
+            Invoke-WebRequest -Uri https://github.com/PointCloudLibrary/pcl/archive/refs/tags/pcl-1.14.1.zip -OutFile pcl-pcl-1.14.1.zip
+            Expand-Archive -Path pcl-pcl-1.14.1.zip -DestinationPath .
             
       - name: Configure and build PCL
         run: |
-            cd ../pcl-pcl-1.12.1
+            cd ../pcl-pcl-1.14.1
             mkdir build
             cd build
             cmake .. -DBUILD_visualization:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DBUILD_PERFORMANCE_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX="C:/Program Files/PCL" -DWITH_OPENNI:BOOL=OF -DPCL_BUILD_WITH_BOOST_DYNAMIC_LINKING_WIN32=ON -DVTK_DIR="C:\Program Files\VTK\lib\cmake\vtk-9.2" -DPCL_DIR="C:\Program Files\PCL\cmake" -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" -DBUILD_outofcore=OFF -DBUILD_tools=OFF
@@ -98,7 +98,7 @@ jobs:
           
       - name: Install PCL
         run: |
-            cd ../pcl-pcl-1.12.1/build
+            cd ../pcl-pcl-1.14.1/build
             cmake --install . --config Release
           
       - uses: actions/checkout@v3

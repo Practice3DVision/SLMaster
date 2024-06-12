@@ -20,7 +20,9 @@
 
 该软件相关博客可见公众号专栏：[从0到1搭建一套属于你自己的高精度实时结构光3D相机](https://mp.weixin.qq.com/s/E8K3892eNVJfgpMUHtf9Lw)，欢迎关注公众号。
 
-您的**Star**⭐和关注是博主源源不断的动力。有任何问题和**bug**反馈请提**Issue**。谢绝不给Star⭐，反复咨询解决方案的情况，累且心寒...
+请动动小手点击右上角的**Star**⭐，您的**Star**⭐和关注是博主源源不断的动力。
+
+有任何问题和**bug**反馈请提**Issue**。谢绝不给**Star**⭐，反复咨询解决方案的情况。
 
 **想先体验该软件？**
 
@@ -52,7 +54,7 @@
 5. 下载[PCL-1.12.1-AllInOne](https://github.com/PointCloudLibrary/pcl/releases)进行安装，安装完成后删除`PCL`安装文件夹下的除`3rdParty`外的其它任何文件，并将`3rdParty`文件夹中的`VTK`文件夹删除
 6. 下载[PCL](https://github.com/PointCloudLibrary/pcl/tree/pcl-1.12.1)并选择好第三方库路径进行编译
 7. 打开命令行窗口，键入`git clone --recursive https://github.com/Practice3DVision/SLMaster.git`克隆`SLMaster`
-8. 打开`VSCode`编译运行`SLMasterGui`即可
+8. 打开您喜欢的编译器，使用`Ninja`生成器，将编译目录设置为`${work_space}/build`，编译运行`SLMasterGui`即可
 
 > 注意！
 > 每当编译好一个库都应当在系统环境变量中加入。例如，编译完成OpenCV后，设置好系统环境变量OpenCV_DIR路径。
